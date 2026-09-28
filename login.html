@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+    <head>
+        <title>Inicio de sesión - Sistema de Citas Médicas</title>
+
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        />
+
+        <!-- Bootstrap CSS v5.3.8 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+    </head>
+
+    <body class="bg-transparent">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand fw-semibold" href="#">
+                    Sistema de Citas Médicas
+                </a>
+            </div>
+        </nav>
+
+        <!-- Contenido principal -->
+         
+        <main class="container">
+            <div class="row justify-content-center py-5">
+                <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+
+                    <!-- Card -->
+                    <div class="card shadow border-0">
+
+                        <!-- Header -->
+                        <div class="card-header bg-primary text-white text-center py-3">
+                            <h4 class="mb-0">Inicio de sesión</h4>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="card-body p-4">
+
+                            <p class="text-body-secondary text-center mb-4">
+                                Ingrese sus credenciales para acceder al sistema.
+                            </p>
+
+                            <form>
+
+                                <!-- Correo -->
+                                <div class="mb-3">
+                                    <label
+                                        for="email"
+                                        class="form-label"
+                                    >
+                                        Correo electrónico
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        class="form-control"
+                                        id="email"
+                                        name="email"
+                                        placeholder="nombre@correo.com"
+                                        required
+                                    />
+                                </div>
+
+                                <!-- Contraseña -->
+                                <div class="mb-3">
+                                    <label
+                                        for="password"
+                                        class="form-label"
+                                    >
+                                        Contraseña
+                                    </label>
+
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Ingrese su contraseña"
+                                        required
+                                    />
+                                </div>
+
+                                <!-- Rol -->
+                                <div class="mb-4">
+                                    <label
+                                        for="rol"
+                                        class="form-label"
+                                    >
+                                        Tipo de usuario
+                                    </label>
+
+                                    <select
+                                        class="form-select"
+                                        id="rol"
+                                        name="rol"
+                                        required
+                                    >
+                                        <option value="" selected disabled>
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="paciente">
+                                            Paciente
+                                        </option>
+
+                                        <option value="doctor">
+                                            Doctor
+                                        </option>
+
+                                        <option value="administrador">
+                                            Administrador
+                                        </option>
+                                    </select>
+                                </div>
+
+                                          <!-- Botón principal -->                   
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-primary">
+                                        Iniciar sesión
+                                    </button>
+                                </div>
+
+                                <!-- Botones secundarios -->
+                                <div class="d-flex flex-wrap justify-content-center gap-2">
+
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        Limpiar
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        Recuperar
+                                    </button>
+
+                                    <a
+                                        href="olvidecontrasena.html"
+                                        class="btn btn-outline-secondary"
+                                    >
+                                        Olvidé mi contraseña
+                                    </a>
+
+                                <div class="card-footer bg-white text-center py-3">
+                            <a
+                                href="#"
+                                class="text-decoration-none"
+                            >
+                                ¿Olvidó su contraseña?
+                            </a>
+                        </div>
+
+                                </div>
+                        <!-- Footer -->
+
+
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- Bootstrap JavaScript -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+
+    </body>
+</html>
