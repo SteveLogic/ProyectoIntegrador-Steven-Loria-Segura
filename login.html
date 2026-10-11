@@ -50,7 +50,7 @@
                                 Ingrese sus credenciales para acceder al sistema.
                             </p>
 
-                            <form>
+                            <form id="loginForm" class="needs-validation" novalidate>
 
                                 <!-- Correo -->
                                 <div class="mb-3">
@@ -67,8 +67,14 @@
                                         id="email"
                                         name="email"
                                         placeholder="nombre@correo.com"
+                                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
                                         required
                                     />
+                                    <div class="invalid-feedback">
+                                        Ingrese un correo electrónico válido.
+                                    </div>
+                                    
+
                                 </div>
 
                                 <!-- Contraseña -->
@@ -88,6 +94,9 @@
                                         placeholder="Ingrese su contraseña"
                                         required
                                     />
+                                    <div class="invalid-feedback">
+                                        Ingrese su contraseña.
+                                    </div>
                                 </div>
 
                                 <!-- Rol -->
@@ -105,6 +114,10 @@
                                         name="rol"
                                         required
                                     >
+                                    <div class="invalid-feedback">
+                                        Seleccione un tipo de usuario.
+                                    </div>
+
                                         <option value="" selected disabled>
                                             Seleccione una opción
                                         </option>
@@ -123,7 +136,9 @@
                                     </select>
                                 </div>
 
-                                          <!-- Botón principal -->                   
+                                          <!-- Botón principal -->  
+                                <div id="mensajeLogin" class="alert d-none" role="alert"></div>      
+
                                 <div class="d-grid mb-3">
                                     <button type="submit" class="btn btn-primary">
                                         Iniciar sesión
@@ -131,32 +146,17 @@
                                 </div>
 
                                 <!-- Botones secundarios -->
-                                <div class="d-flex flex-wrap justify-content-center gap-2">
-
+                                <div class="d-flex justify-content-between align-items-center">
                                     <button type="reset" class="btn btn-outline-secondary">
                                         Limpiar
                                     </button>
 
-                                    <button type="button" class="btn btn-outline-secondary">
-                                        Recuperar
-                                    </button>
-
                                     <a
                                         href="olvidecontrasena.html"
-                                        class="btn btn-outline-secondary"
+                                        class="text-decoration-none"
                                     >
-                                        Olvidé mi contraseña
+                                        ¿Olvidó su contraseña?
                                     </a>
-
-                                <div class="card-footer bg-white text-center py-3">
-                            <a
-                                href="#"
-                                class="text-decoration-none"
-                            >
-                                ¿Olvidó su contraseña?
-                            </a>
-                        </div>
-
                                 </div>
                         <!-- Footer -->
 
@@ -173,6 +173,104 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <script>
+            const formulario = document.getElementById("loginForm");
+            const mensajeLogin = document.getElementById("mensajeLogin");
 
+            const usuarios = [
+                {
+                    email: "paciente@citas.com",
+                    password: "Paciente123",
+                    rol: "paciente"
+                },
+                {
+                    email: "doctor@citas.com",
+                    password: "Doctor123",
+                    rol: "doctor"
+                },
+                {
+                    email: "admin@citas.com",
+                    password: "Admin123",
+                    rol: "administrador"
+                }
+            ];
+
+            formulario.addEventListener("submit", function (event) {
+
+                event.preventDefault();
+
+                if (!formulario.checkValidity()) {
+                    event.stopPropagation();
+                    formulario.classList.add("was-validated");
+                    return;
+                }
+
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const rol = document.getElementById("rol").value;
+
+                const usuarioValido = usuarios.find(function (usuario) {
+                    return usuario.email === email &&
+                        usuario.password === password &&
+                        usuario.rol === rol;
+                });
+
+                if (usuarioValido) {
+                    mensajeLogin.className = "alert alert-success";
+                    mensajeLogin.textContent = "Credenciales correctas.";
+
+                    sessionStorage.setItem("usuarioAutenticado", "true");
+                    sessionStorage.setItem("rolUsuario", usuarioValido.rol);
+
+                    if (usuarioValido.rol === "paciente") {
+                        window.location.href = "paciente.html";
+                    } else if (usuarioValido.rol === "doctor") {
+                        window.location.href = "doctor.html";
+                    } else if (usuarioValido.rol === "administrador") {
+                        window.location.href = "administrador.html";
+                    }
+                }
+                if (usuarioValido) {
+
+                    mensajeLogin.className = "alert alert-success";
+                    mensajeLogin.textContent = "Credenciales correctas.";
+
+                    sessionStorage.setItem("usuarioAutenticado", "true");
+                    sessionStorage.setItem("rolUsuario", usuarioValido.rol);
+
+                    if (usuarioValido.rol === "paciente") {
+                        window.location.href = "paciente.html";
+
+                    } else if (usuarioValido.rol === "doctor") {
+                        window.location.href = "doctor.html";
+
+                    } else if (usuarioValido.rol === "administrador") {
+                        window.location.href = "administrador.html";
+                    }
+
+                } else {
+
+                    mensajeLogin.className = "alert alert-danger";
+                    mensajeLogin.textContent =
+                        "Correo, contraseña o tipo de usuario incorrectos.";
+
+                    document.getElementById("email").classList.add("is-invalid");
+                    document.getElementById("password").classList.add("is-invalid");
+                    document.getElementById("rol").classList.add("is-invalid");
+                }
+
+
+                
+                });
+
+                formulario.addEventListener("reset", function () {
+                formulario.classList.remove("was-validated");
+
+                mensajeLogin.className = "alert d-none";
+                mensajeLogin.textContent = "";
+            });
+        </script>
+                
+                
     </body>
 </html>
