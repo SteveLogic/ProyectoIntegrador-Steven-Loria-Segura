@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Restablecer contraseña - Sistema de Citas Médicas</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <span class="navbar-brand fw-semibold">
+                Sistema de Citas Médicas
+            </span>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="row justify-content-center py-5">
+            <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+
+                <div class="card shadow border-0">
+
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h4 class="mb-0">
+                            Restablecer contraseña
+                        </h4>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <p class="text-body-secondary text-center mb-4">
+                            Ingrese su nueva contraseña.
+                        </p>
+
+                        <form id="restablecerForm">
+
+                            <div class="mb-3">
+                                <label for="nuevaPassword" class="form-label">
+                                    Nueva contraseña
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="nuevaPassword"
+                                    class="form-control"
+                                    required
+                                >
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirmarPassword" class="form-label">
+                                    Confirmar contraseña
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="confirmarPassword"
+                                    class="form-control"
+                                    required
+                                >
+                            </div>
+
+                            <div
+                                id="mensajePassword"
+                                class="alert d-none"
+                                role="alert"
+                            ></div>
+
+                            <div class="d-grid">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    Guardar nueva contraseña
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const correoRecuperacion =
+            sessionStorage.getItem("correoRecuperacion");
+
+        if (!correoRecuperacion) {
+            window.location.href = "olvidecontrasena.html";
+        }
+
+        const formulario =
+            document.getElementById("restablecerForm");
+
+        const mensajePassword =
+            document.getElementById("mensajePassword");
+
+        formulario.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const nuevaPassword =
+                document.getElementById("nuevaPassword").value;
+
+            const confirmarPassword =
+                document.getElementById("confirmarPassword").value;
+
+            const patronPassword =
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+            if (!patronPassword.test(nuevaPassword)) {
+                mensajePassword.className = "alert alert-danger";
+                mensajePassword.textContent =
+                    "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.";
+
+                return;
+            } 
+
+            if (nuevaPassword !== confirmarPassword) {
+                mensajePassword.className =
+                    "alert alert-danger";
+
+                mensajePassword.textContent =
+                    "Las contraseñas no coinciden.";
+
+                return;
+            }
+
+            localStorage.setItem(
+                "password_" + correoRecuperacion,
+                nuevaPassword
+            );
+
+            sessionStorage.removeItem("correoRecuperacion");
+
+            mensajePassword.className =
+                "alert alert-success";
+
+            mensajePassword.textContent =
+                "Contraseña actualizada correctamente.";
+
+            setTimeout(function () {
+                window.location.href = "login.html";
+            }, 1500);
+        });
+    </script>
+
+</body>
+</html>

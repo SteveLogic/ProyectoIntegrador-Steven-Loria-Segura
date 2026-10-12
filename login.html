@@ -210,9 +210,14 @@
                 const rol = document.getElementById("rol").value;
 
                 const usuarioValido = usuarios.find(function (usuario) {
-                    return usuario.email === email &&
-                        usuario.password === password &&
-                        usuario.rol === rol;
+
+                const passwordActual =
+                    localStorage.getItem("password_" + usuario.email)
+                    || usuario.password;
+
+                return usuario.email === email &&
+                    passwordActual === password &&
+                    usuario.rol === rol;
                 });
 
                 if (usuarioValido) {
