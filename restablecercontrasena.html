@@ -96,6 +96,8 @@
         const correoRecuperacion =
             sessionStorage.getItem("correoRecuperacion");
 
+        // Si el usuario llegó directamente a esta página
+        // sin verificar primero su correo, regresar al paso anterior.
         if (!correoRecuperacion) {
             window.location.href = "olvidecontrasena.html";
         }
@@ -106,7 +108,7 @@
         const mensajePassword =
             document.getElementById("mensajePassword");
 
-        formulario.addEventListener("submit", function (event) {
+        formulario.addEventListener("submit", async function (event) {
             event.preventDefault();
 
             const nuevaPassword =
@@ -118,14 +120,18 @@
             const patronPassword =
                 /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
+            // Validar requisitos de la contraseña
             if (!patronPassword.test(nuevaPassword)) {
-                mensajePassword.className = "alert alert-danger";
+                mensajePassword.className =
+                    "alert alert-danger";
+
                 mensajePassword.textContent =
                     "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.";
 
                 return;
-            } 
+            }
 
+            // Validar que ambas contraseñas coincidan
             if (nuevaPassword !== confirmarPassword) {
                 mensajePassword.className =
                     "alert alert-danger";
@@ -136,22 +142,60 @@
                 return;
             }
 
-            localStorage.setItem(
-                "password_" + correoRecuperacion,
-                nuevaPassword
-            );
+            try {
+                const respuesta = await fetch(
+                    "http://localhost:3000/api/auth/restablecer-password",
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: correoRecuperacion,
+                            nuevaPassword: nuevaPassword
+                        })
+                    }
+                );
 
-            sessionStorage.removeItem("correoRecuperacion");
+                const datos = await respuesta.json();
 
-            mensajePassword.className =
-                "alert alert-success";
+                if (respuesta.ok) {
 
-            mensajePassword.textContent =
-                "Contraseña actualizada correctamente.";
+                    mensajePassword.className =
+                        "alert alert-success";
 
-            setTimeout(function () {
-                window.location.href = "login.html";
-            }, 1500);
+                    mensajePassword.textContent =
+                        datos.mensaje;
+
+                    // Ya no necesitamos conservar el correo
+                    sessionStorage.removeItem("correoRecuperacion");
+
+                    setTimeout(function () {
+                        window.location.href = "login.html";
+                    }, 1500);
+
+                } else {
+
+                    mensajePassword.className =
+                        "alert alert-danger";
+
+                    mensajePassword.textContent =
+                        datos.mensaje;
+                }
+
+            } catch (error) {
+
+                mensajePassword.className =
+                    "alert alert-danger";
+
+                mensajePassword.textContent =
+                    "No se pudo conectar con el servidor. Intente nuevamente.";
+
+                console.error(
+                    "Error al restablecer la contraseña:",
+                    error
+                );
+            }
         });
     </script>
 

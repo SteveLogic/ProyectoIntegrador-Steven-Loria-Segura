@@ -177,99 +177,98 @@
             const formulario = document.getElementById("loginForm");
             const mensajeLogin = document.getElementById("mensajeLogin");
 
-            const usuarios = [
-                {
-                    email: "paciente@citas.com",
-                    password: "Paciente123",
-                    rol: "paciente"
-                },
-                {
-                    email: "doctor@citas.com",
-                    password: "Doctor123",
-                    rol: "doctor"
-                },
-                {
-                    email: "admin@citas.com",
-                    password: "Admin123",
-                    rol: "administrador"
-                }
-            ];
-
-            formulario.addEventListener("submit", function (event) {
+            formulario.addEventListener("submit", async function (event) {
 
                 event.preventDefault();
 
+                // Limpiar estados anteriores
+                document.getElementById("email").classList.remove("is-invalid");
+                document.getElementById("password").classList.remove("is-invalid");
+                document.getElementById("rol").classList.remove("is-invalid");
+
+                mensajeLogin.className = "alert d-none";
+                mensajeLogin.textContent = "";
+
+                // Validaciones HTML / Bootstrap
                 if (!formulario.checkValidity()) {
                     event.stopPropagation();
                     formulario.classList.add("was-validated");
                     return;
                 }
 
-                const email = document.getElementById("email").value;
+                const email = document.getElementById("email").value.trim();
                 const password = document.getElementById("password").value;
                 const rol = document.getElementById("rol").value;
 
-                const usuarioValido = usuarios.find(function (usuario) {
+                try {
 
-                const passwordActual =
-                    localStorage.getItem("password_" + usuario.email)
-                    || usuario.password;
+                    const respuesta = await fetch(
+                        "http://localhost:3000/api/auth/login",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                email: email,
+                                password: password,
+                                rol: rol
+                            })
+                        }
+                    );
 
-                return usuario.email === email &&
-                    passwordActual === password &&
-                    usuario.rol === rol;
-                });
+                    const datos = await respuesta.json();
 
-                if (usuarioValido) {
-                    mensajeLogin.className = "alert alert-success";
-                    mensajeLogin.textContent = "Credenciales correctas.";
+                    if (respuesta.ok) {
 
-                    sessionStorage.setItem("usuarioAutenticado", "true");
-                    sessionStorage.setItem("rolUsuario", usuarioValido.rol);
+                        mensajeLogin.className = "alert alert-success";
+                        mensajeLogin.textContent = datos.mensaje;
 
-                    if (usuarioValido.rol === "paciente") {
-                        window.location.href = "paciente.html";
-                    } else if (usuarioValido.rol === "doctor") {
-                        window.location.href = "doctor.html";
-                    } else if (usuarioValido.rol === "administrador") {
-                        window.location.href = "administrador.html";
+                        // Guardar información de la sesión
+                        sessionStorage.setItem("usuarioAutenticado", "true");
+                        sessionStorage.setItem("rolUsuario", datos.usuario.rol);
+                        sessionStorage.setItem("usuarioId", datos.usuario.id);
+                        sessionStorage.setItem("nombreUsuario", datos.usuario.nombre);
+
+                        // Redirección según rol
+                        if (datos.usuario.rol === "paciente") {
+                            window.location.href = "paciente.html";
+
+                        } else if (datos.usuario.rol === "doctor") {
+                            window.location.href = "doctor.html";
+
+                        } else if (datos.usuario.rol === "administrador") {
+                            window.location.href = "administrador.html";
+                        }
+
+                    } else {
+
+                        mensajeLogin.className = "alert alert-danger";
+                        mensajeLogin.textContent = datos.mensaje;
+
+                        document.getElementById("email").classList.add("is-invalid");
+                        document.getElementById("password").classList.add("is-invalid");
+                        document.getElementById("rol").classList.add("is-invalid");
                     }
-                }
-                if (usuarioValido) {
 
-                    mensajeLogin.className = "alert alert-success";
-                    mensajeLogin.textContent = "Credenciales correctas.";
-
-                    sessionStorage.setItem("usuarioAutenticado", "true");
-                    sessionStorage.setItem("rolUsuario", usuarioValido.rol);
-
-                    if (usuarioValido.rol === "paciente") {
-                        window.location.href = "paciente.html";
-
-                    } else if (usuarioValido.rol === "doctor") {
-                        window.location.href = "doctor.html";
-
-                    } else if (usuarioValido.rol === "administrador") {
-                        window.location.href = "administrador.html";
-                    }
-
-                } else {
+                } catch (error) {
 
                     mensajeLogin.className = "alert alert-danger";
                     mensajeLogin.textContent =
-                        "Correo, contraseña o tipo de usuario incorrectos.";
+                        "No se pudo conectar con el servidor. Intente nuevamente.";
 
-                    document.getElementById("email").classList.add("is-invalid");
-                    document.getElementById("password").classList.add("is-invalid");
-                    document.getElementById("rol").classList.add("is-invalid");
+                    console.error("Error al iniciar sesión:", error);
                 }
+            });
 
 
-                
-                });
+            formulario.addEventListener("reset", function () {
 
-                formulario.addEventListener("reset", function () {
                 formulario.classList.remove("was-validated");
+
+                document.getElementById("email").classList.remove("is-invalid");
+                document.getElementById("password").classList.remove("is-invalid");
+                document.getElementById("rol").classList.remove("is-invalid");
 
                 mensajeLogin.className = "alert d-none";
                 mensajeLogin.textContent = "";

@@ -109,16 +109,10 @@
             const mensajeRecuperacion =
                 document.getElementById("mensajeRecuperacion");
 
-            const correosRegistrados = [
-                "paciente@citas.com",
-                "doctor@citas.com",
-                "admin@citas.com"
-            ];
-
             const patronCorreo =
                 /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-            formulario.addEventListener("submit", function (event) {
+            formulario.addEventListener("submit", async function (event) {
                 event.preventDefault();
 
                 const email = emailInput.value.trim().toLowerCase();
@@ -143,30 +137,64 @@
                     return;
                 }
 
-                // Formato correcto pero cuenta no registrada
-                if (!correosRegistrados.includes(email)) {
+                try {
+                    const respuesta = await fetch(
+                        "http://localhost:3000/api/auth/verificar-correo",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                email: email
+                            })
+                        }
+                    );
+
+                    const datos = await respuesta.json();
+
+                    if (respuesta.ok) {
+
+                        emailInput.classList.add("is-valid");
+
+                        mensajeRecuperacion.className =
+                            "alert alert-success";
+
+                        mensajeRecuperacion.textContent =
+                            "Correo verificado. Puede continuar con la recuperación de contraseña.";
+
+                        // Guardamos el correo para la siguiente pantalla
+                        sessionStorage.setItem("correoRecuperacion", email);
+
+                        setTimeout(function () {
+                            window.location.href =
+                                "restablecercontrasena.html";
+                        }, 1000);
+
+                    } else {
+
+                        emailInput.classList.add("is-invalid");
+
+                        mensajeRecuperacion.className =
+                            "alert alert-danger";
+
+                        mensajeRecuperacion.textContent =
+                            datos.mensaje;
+                    }
+
+                } catch (error) {
+
                     mensajeRecuperacion.className =
                         "alert alert-danger";
 
                     mensajeRecuperacion.textContent =
-                        "El correo electrónico no se encuentra registrado.";
+                        "No se pudo conectar con el servidor. Intente nuevamente.";
 
-                    return;
+                    console.error(
+                        "Error al verificar el correo:",
+                        error
+                    );
                 }
-
-                // Correo válido y registrado
-                emailInput.classList.add("is-valid");
-
-                mensajeRecuperacion.className =
-                    "alert alert-success";
-
-                mensajeRecuperacion.textContent =
-                    "Correo verificado. Puede continuar con la recuperación de contraseña.";
-                    sessionStorage.setItem("correoRecuperacion", email);
-
-                setTimeout(function () {
-                    window.location.href = "restablecercontrasena.html";
-                }, 1000);
             });
         </script>
 
