@@ -1,68 +1,29 @@
+
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const Usuario = require("../models/Usuario");
+
+const {
+    crearUsuario,
+    obtenerUsuarios,
+    obtenerUsuarioPorId,
+    actualizarUsuario,
+    eliminarUsuario
+} = require("../controllers/usuarioController");
 
 const router = express.Router();
 
-
 // Crear usuario
-router.post("/", async (req, res) => {
-    try {
+router.post("/", crearUsuario);
 
-        const passwordHash = await bcrypt.hash(
-            req.body.password,
-            10
-        );
+// Consultar todos los usuarios
+router.get("/", obtenerUsuarios);
 
-        const nuevoUsuario = new Usuario({
-            nombre: req.body.nombre,
-            email: req.body.email,
-            password: passwordHash,
-            rol: req.body.rol
-        });
+// Consultar usuario por ID
+router.get("/:id", obtenerUsuarioPorId);
 
-        const usuarioGuardado = await nuevoUsuario.save();
+// Actualizar usuario
+router.put("/:id", actualizarUsuario);
 
-        res.status(201).json({
-            _id: usuarioGuardado._id,
-            nombre: usuarioGuardado.nombre,
-            email: usuarioGuardado.email,
-            rol: usuarioGuardado.rol
-        });
-
-    } catch (error) {
-
-        if (error.code === 11000) {
-            return res.status(400).json({
-                mensaje: "El correo electrónico ya está registrado."
-            });
-        }
-
-        res.status(400).json({
-            mensaje: "Error al crear el usuario.",
-            error: error.message
-        });
-    }
-});
-
-
-// Consultar usuarios
-router.get("/", async (req, res) => {
-    try {
-
-        const usuarios = await Usuario
-            .find()
-            .select("-password");
-
-        res.json(usuarios);
-
-    } catch (error) {
-
-        res.status(500).json({
-            mensaje: "Error al consultar los usuarios."
-        });
-    }
-});
-
+// Eliminar usuario
+router.delete("/:id", eliminarUsuario);
 
 module.exports = router;
