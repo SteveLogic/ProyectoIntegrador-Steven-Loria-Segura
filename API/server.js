@@ -9,6 +9,7 @@ const conectarDB = require("./config/database");
 const usuarioRoutes = require("./routes/usuarioRoutes");
 const authRoutes = require("./routes/authRoutes");
 const especialidadRoutes = require("./routes/especialidadRoutes");
+const citaRoutes = require("./routes/citaRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/especialidades", especialidadRoutes);
+app.use("/api/citas", citaRoutes);
 // Ruta para comprobar que la API funciona
 app.get("/api/prueba", (req, res) => {
     res.json({
