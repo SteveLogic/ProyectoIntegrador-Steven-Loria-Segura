@@ -2,7 +2,7 @@
 
 Aplicación web académica para gestionar usuarios, especialidades médicas y citas. Incluye un frontend en HTML, Bootstrap y JavaScript, y una API REST con Node.js, Express, Mongoose y MongoDB.
 
-**Estado del proyecto (21 de octubre de 2026):** prototipo en desarrollo. El CRUD básico de Usuarios, Especialidades y Citas está implementado; las interfaces completas de administración y reserva y los controles de seguridad para producción siguen pendientes.
+**Estado del proyecto (26 de octubre de 2026):** prototipo en desarrollo. La API REST permite gestionar Usuarios, Especialidades y Citas y se completaron las pruebas manuales previstas de sus endpoints con Thunder Client. Las interfaces completas de administración y reserva, la exportación de la colección de pruebas y los controles de seguridad para producción siguen pendientes.
 
 ## 1. Tecnologías utilizadas
 
@@ -309,7 +309,23 @@ Las respuestas se devuelven en JSON y los controladores utilizan bloques `try/ca
 
 **Orden sugerido para pruebas de Citas:** crear primero un usuario paciente, un usuario doctor y una especialidad activa; copiar sus IDs; registrar la cita; consultar y reprogramarla; cancelarla; comprobar que sigue almacenada con estado `cancelada`; intentar cancelarla nuevamente y esperar `409`.
 
-**Colección exportable:** pendiente de adjuntar al repositorio una colección `.json` de Thunder Client/Postman con los casos de éxito y error requeridos para la entrega. Las pruebas manuales realizadas no sustituyen ese archivo.
+### 6.1. Resultados de las pruebas manuales (26 de octubre de 2026)
+
+Las siguientes operaciones se comprobaron en **Thunder Client** contra la API local y una base de datos con registros de demostración:
+
+| Sección | Pruebas realizadas | Resultados observados |
+|---|---|---|
+| 01 — Verificación y datos de prueba | Estado del servidor; creación de paciente, doctor y especialidad de prueba. | `GET /api/prueba`: `200`; creación de registros: `201`. |
+| 02 — Usuarios | Listado, consulta por ID, creación, actualización y eliminación; correo duplicado e ID inválido. | Respuestas `200`, `201`, `400` y `404` según el caso. Las consultas no mostraron contraseñas. |
+| 03 — Autenticación | Inicio de sesión válido, contraseña incorrecta, campos faltantes y verificación de correo. | `200` para casos válidos; `401` por contraseña incorrecta; `400` por datos obligatorios faltantes. |
+| 04 — Especialidades | Listado, consulta por ID, actualización, duplicados, ID inválido y desactivación lógica. | `200` en consultas y actualización; `400` en casos inválidos; al desactivar, `activo` cambió a `false`. |
+| 05 — Citas médicas | Registro, listado, consulta por ID, reprogramación, conflicto de horario, cancelación lógica e IDs inválidos o inexistentes. | `201` al crear; `200` al consultar/reprogramar/cancelar; `409` para horario ocupado o cancelación repetida; `400` y `404` para IDs problemáticos. |
+| 06 — Operaciones que modifican o cierran registros | Cambio de contraseña de un usuario temporal, autenticación con contraseña antigua y nueva, eliminación del usuario; cancelación de cita y desactivación de especialidad. | Contraseña actualizada: `200`; contraseña antigua: `401`; nueva: `200`; eliminación de usuario: `200`; consulta posterior de especialidad desactivada: `200` con `activo: false`. |
+
+**Alcance de la evidencia:** estas fueron pruebas **manuales**, verificadas mediante los códigos HTTP y los cuerpos JSON de las respuestas. No equivalen a una suite automatizada ni acreditan seguridad de producción. Los datos de MongoDB son locales y los registros usados en pruebas pueden cambiarse o eliminarse.
+
+**Colección exportable:** pendiente de adjuntar al repositorio una colección `.json` de Thunder Client/Postman con los casos de éxito y error requeridos para la entrega. Las pruebas manuales realizadas no sustituyen ese archivo. Antes de exportarla, revisar que no incluya contraseñas o credenciales reales.
+
 
 ## 7. Frontend actual
 
@@ -335,6 +351,7 @@ Para probar las páginas, se puede utilizar un servidor local de archivos (por e
 - Añadir validaciones completas de fechas, agenda, disponibilidad y concurrencia en las reservas.
 - Construir e integrar las interfaces de administración de Usuarios, Especialidades y Citas.
 - Continuar los módulos de Pacientes, Doctores, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
-- Crear y exportar la colección de pruebas Thunder Client/Postman solicitada por el profesor.
+- Crear y exportar la colección de pruebas Thunder Client/Postman solicitada por el profesor, sin credenciales reales.
+- Verificar desde el navegador los flujos completos del frontend contra la API; las pruebas de Thunder Client no comprueban por sí solas la integración visual.
 
 **Este proyecto es académico y todavía no es apropiado para almacenar datos médicos reales ni para exponerse públicamente en producción.**
