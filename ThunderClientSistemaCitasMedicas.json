@@ -1,0 +1,683 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "Sistema de Citas Médicas - API REST - Avance 1",
+    "collectionId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+    "dateExported": "2026-10-26T18:50:32.448Z",
+    "version": "1.4",
+    "folders": [
+        {
+            "_id": "40d910ec-3d58-4e1a-a9ab-9741245007a0",
+            "name": "01 - Verificación y datos de prueba",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.492Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "02 - Usuarios",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.493Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "f9169cd2-5a2c-43c2-9b7d-15119f03aa0b",
+            "name": "03 - Autenticación",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.494Z",
+            "sortNum": 30000
+        },
+        {
+            "_id": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "04 - Especialidades",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.495Z",
+            "sortNum": 40000
+        },
+        {
+            "_id": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "05 - Citas",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.496Z",
+            "sortNum": 50000
+        },
+        {
+            "_id": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "06 - Operaciones que modifican o cierran datos",
+            "containerId": "",
+            "created": "2026-10-23T19:20:48.497Z",
+            "sortNum": 60000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "9177cd5e-bcf2-4dd7-a82a-9cf7abff2c7d",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "40d910ec-3d58-4e1a-a9ab-9741245007a0",
+            "name": "GET - Estado de la API",
+            "url": "{{baseUrl}}/api/prueba",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2026-10-23T19:20:48.492Z",
+            "modified": "2026-10-23T19:20:48.492Z",
+            "headers": []
+        },
+        {
+            "_id": "97518277-7568-4c5c-aa4f-aaff692503b3",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "40d910ec-3d58-4e1a-a9ab-9741245007a0",
+            "name": "POST - Crear paciente de prueba",
+            "url": "{{baseUrl}}/api/usuarios",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2026-10-23T19:20:48.493Z",
+            "modified": "2026-10-23T19:20:48.493Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Paciente Demo\",",
+                    "  \"email\": \"{{emailPaciente}}\",",
+                    "  \"password\": \"{{passwordPaciente}}\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "f5e03de4-c602-4615-bfd2-ac5900f7679b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "40d910ec-3d58-4e1a-a9ab-9741245007a0",
+            "name": "POST - Crear doctor de prueba",
+            "url": "{{baseUrl}}/api/usuarios",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2026-10-23T19:20:48.494Z",
+            "modified": "2026-10-23T19:20:48.494Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Doctor Demo\",",
+                    "  \"email\": \"{{emailDoctor}}\",",
+                    "  \"password\": \"{{passwordDoctor}}\",",
+                    "  \"rol\": \"doctor\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "09a4905f-2614-440a-9a83-c8da2675775a",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "40d910ec-3d58-4e1a-a9ab-9741245007a0",
+            "name": "POST - Crear especialidad de prueba",
+            "url": "{{baseUrl}}/api/especialidades",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2026-10-23T19:20:48.495Z",
+            "modified": "2026-10-23T19:20:48.495Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Especialidad Demo Octubre 2026\",",
+                    "  \"descripcion\": \"Solo para demostrar los endpoints de la API.\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "11c5517b-06c7-4ce8-8831-e212049f4344",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "GET - Listar usuarios",
+            "url": "{{baseUrl}}/api/usuarios",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2026-10-23T19:20:48.496Z",
+            "modified": "2026-10-23T19:20:48.496Z",
+            "headers": []
+        },
+        {
+            "_id": "1c6c9ea4-e63b-4be2-9cb6-eae3bf70e5c8",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "GET - Usuario por ID",
+            "url": "{{baseUrl}}/api/usuarios/{{pacienteId}}",
+            "method": "GET",
+            "sortNum": 60000,
+            "created": "2026-10-23T19:20:48.497Z",
+            "modified": "2026-10-23T19:20:48.497Z",
+            "headers": []
+        },
+        {
+            "_id": "a3853c72-76f7-4ed2-9a30-472c64b35837",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "PUT - Actualizar usuario",
+            "url": "{{baseUrl}}/api/usuarios/{{pacienteId}}",
+            "method": "PUT",
+            "sortNum": 70000,
+            "created": "2026-10-23T19:20:48.498Z",
+            "modified": "2026-10-23T19:20:48.498Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Paciente Demo Actualizado\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "b7722174-839e-485d-9e7e-33fc913ec407",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "ERROR 400 - ID inválido",
+            "url": "{{baseUrl}}/api/usuarios/123",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2026-10-23T19:20:48.499Z",
+            "modified": "2026-10-23T19:20:48.499Z",
+            "headers": []
+        },
+        {
+            "_id": "4f2bf5cc-09b9-4633-9810-01ad59574e2b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "62460b0f-5996-4571-92f8-3fb5cd6517d2",
+            "name": "ERROR 400 - Email duplicado",
+            "url": "{{baseUrl}}/api/usuarios",
+            "method": "POST",
+            "sortNum": 90000,
+            "created": "2026-10-23T19:20:48.500Z",
+            "modified": "2026-10-23T19:20:48.500Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Otro Paciente\",",
+                    "  \"email\": \"{{emailPaciente}}\",",
+                    "  \"password\": \"OtroDemo123\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "6bf21eb8-9dff-40d9-8d2f-5bbacd3071ea",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f9169cd2-5a2c-43c2-9b7d-15119f03aa0b",
+            "name": "POST - Iniciar sesión",
+            "url": "{{baseUrl}}/api/auth/login",
+            "method": "POST",
+            "sortNum": 100000,
+            "created": "2026-10-23T19:20:48.501Z",
+            "modified": "2026-10-23T19:20:48.501Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"email\": \"{{emailPaciente}}\",",
+                    "  \"password\": \"{{passwordPaciente}}\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "8f608471-e63c-43ec-b0a0-5d4b724b9007",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f9169cd2-5a2c-43c2-9b7d-15119f03aa0b",
+            "name": "POST - Verificar correo",
+            "url": "{{baseUrl}}/api/auth/verificar-correo",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2026-10-23T19:20:48.502Z",
+            "modified": "2026-10-23T19:20:48.502Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"email\": \"{{emailPaciente}}\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "eff940f0-0120-4ed2-801d-e611cd8344fb",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f9169cd2-5a2c-43c2-9b7d-15119f03aa0b",
+            "name": "ERROR 401 - Contraseña incorrecta",
+            "url": "{{baseUrl}}/api/auth/login",
+            "method": "POST",
+            "sortNum": 120000,
+            "created": "2026-10-23T19:20:48.503Z",
+            "modified": "2026-10-23T19:20:48.503Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"email\": \"{{emailPaciente}}\",",
+                    "  \"password\": \"NoEsLaCorrecta123\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "67429ce2-f76b-43b2-8f45-1d8577afa72f",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f9169cd2-5a2c-43c2-9b7d-15119f03aa0b",
+            "name": "ERROR 400 - Faltan campos",
+            "url": "{{baseUrl}}/api/auth/login",
+            "method": "POST",
+            "sortNum": 130000,
+            "created": "2026-10-23T19:20:48.504Z",
+            "modified": "2026-10-23T19:20:48.504Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"email\": \"{{emailPaciente}}\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            },
+            "postReq": {
+                "inlineScripts": [
+                    {
+                        "script": [
+                            " "
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "d13c6124-7fca-4f5a-bcfd-0bd7b1161f1a",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "GET - Listar especialidades",
+            "url": "{{baseUrl}}/api/especialidades",
+            "method": "GET",
+            "sortNum": 140000,
+            "created": "2026-10-23T19:20:48.505Z",
+            "modified": "2026-10-23T19:20:48.505Z",
+            "headers": []
+        },
+        {
+            "_id": "e13b1f69-8a55-4372-8312-4db1c68914c1",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "GET - Especialidad por ID",
+            "url": "{{baseUrl}}/api/especialidades/{{especialidadId}}",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2026-10-23T19:20:48.506Z",
+            "modified": "2026-10-23T19:20:48.506Z",
+            "headers": []
+        },
+        {
+            "_id": "39be5b4a-9cba-4b84-b3b8-240281189203",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "PUT - Actualizar especialidad",
+            "url": "{{baseUrl}}/api/especialidades/{{especialidadId}}",
+            "method": "PUT",
+            "sortNum": 160000,
+            "created": "2026-10-23T19:20:48.507Z",
+            "modified": "2026-10-23T19:20:48.507Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"descripcion\": \"Descripción actualizada mediante PUT.\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "ff1c9ab3-05ab-4809-808a-f6b6c3c84970",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "ERROR 400 - Especialidad duplicada",
+            "url": "{{baseUrl}}/api/especialidades",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2026-10-23T19:20:48.508Z",
+            "modified": "2026-10-23T19:20:48.508Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Especialidad Demo Octubre 2026\",",
+                    "  \"descripcion\": \"Intento duplicado\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "f7f2d572-d84b-46d6-8fb5-68bd77135a0b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "ERROR 400 - ID inválido",
+            "url": "{{baseUrl}}/api/especialidades/123",
+            "method": "GET",
+            "sortNum": 180000,
+            "created": "2026-10-23T19:20:48.509Z",
+            "modified": "2026-10-23T19:20:48.509Z",
+            "headers": []
+        },
+        {
+            "_id": "2a6c259d-5636-494a-9bc3-85406600917b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "POST - Crear cita médica",
+            "url": "{{baseUrl}}/api/citas",
+            "method": "POST",
+            "sortNum": 190000,
+            "created": "2026-10-23T19:20:48.510Z",
+            "modified": "2026-10-23T19:20:48.510Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"paciente\": \"{{pacienteId}}\",",
+                    "  \"doctor\": \"{{doctorId}}\",",
+                    "  \"especialidad\": \"{{especialidadId}}\",",
+                    "  \"fecha\": \"2026-11-12\",",
+                    "  \"hora\": \"10:00\",",
+                    "  \"motivo\": \"Cita de prueba para el entregable\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "adc474b5-e987-4e9c-9530-fbfd5e3f8212",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "ERROR 409 - Horario ocupado",
+            "url": "{{baseUrl}}/api/citas",
+            "method": "POST",
+            "sortNum": 200000,
+            "created": "2026-10-23T19:20:48.511Z",
+            "modified": "2026-10-23T19:20:48.511Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"paciente\": \"{{pacienteId}}\",",
+                    "  \"doctor\": \"{{doctorId}}\",",
+                    "  \"especialidad\": \"{{especialidadId}}\",",
+                    "  \"fecha\": \"2026-11-12\",",
+                    "  \"hora\": \"10:00\",",
+                    "  \"motivo\": \"Intento de cita duplicada\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "293c6cfa-86ee-40eb-8f9f-1295a1daaf46",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "GET - Listar citas",
+            "url": "{{baseUrl}}/api/citas",
+            "method": "GET",
+            "sortNum": 210000,
+            "created": "2026-10-23T19:20:48.512Z",
+            "modified": "2026-10-23T19:20:48.512Z",
+            "headers": []
+        },
+        {
+            "_id": "6e1f4e57-7a8b-4ac8-81e2-bba2ddf97f07",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "GET - Cita por ID",
+            "url": "{{baseUrl}}/api/citas/{{citaId}}",
+            "method": "GET",
+            "sortNum": 220000,
+            "created": "2026-10-23T19:20:48.513Z",
+            "modified": "2026-10-23T19:20:48.513Z",
+            "headers": []
+        },
+        {
+            "_id": "f00d5706-8773-4c5b-94fc-ee819089781c",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "PUT - Reprogramar cita",
+            "url": "{{baseUrl}}/api/citas/{{citaId}}",
+            "method": "PUT",
+            "sortNum": 230000,
+            "created": "2026-10-23T19:20:48.514Z",
+            "modified": "2026-10-23T19:20:48.514Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"fecha\": \"2026-11-13\",",
+                    "  \"hora\": \"11:00\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "a8cf3a54-1ca0-4fe1-8a58-64adae538e28",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "ERROR 404 - Cita inexistente",
+            "url": "{{baseUrl}}/api/citas/000000000000000000000000",
+            "method": "GET",
+            "sortNum": 240000,
+            "created": "2026-10-23T19:20:48.515Z",
+            "modified": "2026-10-23T19:20:48.515Z",
+            "headers": []
+        },
+        {
+            "_id": "71616054-28e1-4a72-a70c-ed0e3688dacb",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "1a628038-e1d9-4392-8b5f-ece3364a03f5",
+            "name": "ERROR 400 - ID inválido",
+            "url": "{{baseUrl}}/api/citas/123",
+            "method": "GET",
+            "sortNum": 250000,
+            "created": "2026-10-23T19:20:48.516Z",
+            "modified": "2026-10-23T19:20:48.516Z",
+            "headers": []
+        },
+        {
+            "_id": "b8cc6b47-d7c1-44d9-bf6c-72b661cf4bcd",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "PUT - Restablecer contraseña (prototipo)",
+            "url": "{{baseUrl}}/api/auth/restablecer-password",
+            "method": "PUT",
+            "sortNum": 260000,
+            "created": "2026-10-23T19:20:48.517Z",
+            "modified": "2026-10-23T19:20:48.517Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{\r",
+                    "  \"email\": \"{{emailEliminar}}\",\r",
+                    "  \"nuevaPassword\": \"NuevaDemo123\"\r",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "c639a7a1-8524-43aa-a79c-afedf80a7a77",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "DELETE - Cancelar cita (lógico)",
+            "url": "{{baseUrl}}/api/citas/{{citaId}}",
+            "method": "DELETE",
+            "sortNum": 270000,
+            "created": "2026-10-23T19:20:48.518Z",
+            "modified": "2026-10-23T19:20:48.518Z",
+            "headers": []
+        },
+        {
+            "_id": "ed14f317-b6e5-42d8-85ee-8382ab8060cf",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "DELETE - Desactivar especialidad (lógico)",
+            "url": "{{baseUrl}}/api/especialidades/{{especialidadEliminarId}}",
+            "method": "DELETE",
+            "sortNum": 280000,
+            "created": "2026-10-23T19:20:48.519Z",
+            "modified": "2026-10-23T19:20:48.519Z",
+            "headers": []
+        },
+        {
+            "_id": "6fa67897-9475-43e6-85d5-df5ce6c6c8b0",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "POST - Crear usuario temporal para DELETE",
+            "url": "{{baseUrl}}/api/usuarios",
+            "method": "POST",
+            "sortNum": 290000,
+            "created": "2026-10-23T19:20:48.520Z",
+            "modified": "2026-10-23T19:20:48.520Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"nombre\": \"Usuario Temporal Demo\",",
+                    "  \"email\": \"{{emailEliminar}}\",",
+                    "  \"password\": \"TemporalDemo123\",",
+                    "  \"rol\": \"paciente\"",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "41dc87ce-afb5-4e53-8674-2cfb179d4b3f",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "f7ffa283-2ca0-4e3b-b4e9-9d85f4cad37f",
+            "name": "DELETE - Eliminar usuario temporal (físico)",
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioEliminarId}}",
+            "method": "DELETE",
+            "sortNum": 300000,
+            "created": "2026-10-23T19:20:48.521Z",
+            "modified": "2026-10-23T19:20:48.521Z",
+            "headers": []
+        }
+    ],
+    "settings": {
+        "docs": [
+            "Colección para la evaluación del Primer Avance: Node.js, Express, Mongoose y MongoDB. Cubre los 19 endpoints implementados y casos de error. DEMOSTRACION con datos ficticios. ATENCIÓN: POST, PUT y DELETE modifican MongoDB. Para Postman, los IDs se guardan automáticamente mediante scripts al ejecutar la creación; para Thunder Client, si no ejecuta esos scripts, copiar manualmente los IDs a variables de colección. No ejecutar todas las solicitudes en bloque: las pruebas están diseñadas para ejecutarse en secuencia lógica. La ruta restablecer-password NO usa token de recuperación en este prototipo: no utilizar datos reales."
+        ]
+    },
+    "ref": "19o6pZt5BHvIhjCWJYviif4Qz5q97Bslm57hVnQV6X7yTsV2oqFwh5XCL0ZczFoY64vKJbBvQAvPNuPFU8AFVg"
+}
