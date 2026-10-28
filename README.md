@@ -1,8 +1,8 @@
 # Sistema de Citas Médicas — Proyecto Integrador 1
 
-Aplicación web académica para gestionar usuarios, especialidades médicas y citas. Incluye un frontend en HTML, Bootstrap y JavaScript, y una API REST con Node.js, Express, Mongoose y MongoDB.
+Aplicación web académica para la gestión de usuarios, perfiles médicos, especialidades y citas. Incluye interfaces en HTML, Bootstrap y JavaScript y una API REST desarrollada con Node.js, Express, Mongoose y MongoDB.
 
-**Estado del proyecto (26 de octubre de 2026):** prototipo en desarrollo. La API REST permite gestionar Usuarios, Especialidades y Citas y se completaron las pruebas manuales previstas de sus endpoints con Thunder Client. Las interfaces completas de administración y reserva, la exportación de la colección de pruebas y los controles de seguridad para producción siguen pendientes.
+**Estado del proyecto (28 de octubre de 2026):** prototipo académico en desarrollo. La API REST dispone de endpoints para Usuarios, Autenticación, Especialidades, Citas y Doctores. Se realizaron pruebas manuales de las operaciones principales y los escenarios de error del módulo de Doctores con Thunder Client. La carpeta `07 - Doctores` ya está organizada en Thunder Client, pero **aún debe exportarse nuevamente la colección JSON** para que el archivo del repositorio incluya estas solicitudes. Siguen pendientes las interfaces completas de gestión y reserva y los controles necesarios para un despliegue seguro.
 
 ## 1. Tecnologías utilizadas
 
@@ -22,15 +22,18 @@ Proyecto Integrador/
 │   ├── controllers/
 │   │   ├── usuarioController.js
 │   │   ├── especialidadController.js
-│   │   └── citaController.js
+│   │   ├── citaController.js
+│   │   └── doctorController.js
 │   ├── models/
 │   │   ├── Usuario.js
 │   │   ├── Especialidad.js
-│   │   └── Cita.js
+│   │   ├── Cita.js
+│   │   └── Doctor.js
 │   ├── routes/
 │   │   ├── usuarioRoutes.js
 │   │   ├── especialidadRoutes.js
 │   │   ├── citaRoutes.js
+│   │   ├── doctorRoutes.js
 │   │   └── authRoutes.js
 │   ├── .env.example
 │   ├── package.json
@@ -43,6 +46,7 @@ Proyecto Integrador/
 ├── doctor.html
 ├── administrador.html
 ├── .gitignore
+├── ThunderClientSistemaCitasMedicas.json
 └── README.md
 ```
 
@@ -51,7 +55,7 @@ Proyecto Integrador/
 - **`models/`:** define los esquemas de Mongoose y permite consultar o modificar MongoDB.
 - **`config/database.js`:** establece la conexión a MongoDB antes de que el servidor comience a escuchar solicitudes.
 
-`node_modules/` y `.env` se crean o mantienen **localmente** y no deben subirse al repositorio.
+`node_modules/` y `.env` se crean o mantienen **localmente** y no deben subirse al repositorio. El archivo `ThunderClientSistemaCitasMedicas.json` corresponde a una exportación anterior; debe reemplazarse por una nueva exportación que incorpore la carpeta `07 - Doctores` antes de la entrega.
 
 ## 3. Instalación y ejecución local
 
@@ -278,7 +282,54 @@ Sustituir los tres marcadores por los `_id` reales de la base de datos antes de 
 
 **Límites actuales:** la fecha se valida por patrón, no por existencia real del día o por ser futura; todavía no se compara la reserva con una agenda/disponibilidad registrada. La comprobación de conflictos no es una garantía transaccional frente a solicitudes simultáneas.
 
-### 4.5. Comprobación del servidor
+### 4.5. Doctores — `/api/doctores`
+
+Este módulo administra los **perfiles profesionales de los doctores**. Cada perfil está asociado a un usuario existente con rol `doctor` y a una especialidad médica activa. El perfil conserva datos como el número de colegiado, teléfono y estado (`activo`).
+
+El módulo está organizado en `API/models/Doctor.js`, `API/controllers/doctorController.js` y `API/routes/doctorRoutes.js`, y sus rutas se registran en `API/server.js`.
+
+| Método | URL | Parámetros / cuerpo JSON | Función |
+|---|---|---|---|
+| POST | `/api/doctores` | `usuario`, `especialidad`, `numeroColegiado` obligatorios; `telefono` opcional | Crear un perfil médico asociado a un usuario con rol doctor y a una especialidad activa. |
+| GET | `/api/doctores` | Ninguno | Listar todos los perfiles, incluidos los inactivos, con datos relacionados mediante `populate`. |
+| GET | `/api/doctores/:id` | `id` en la URL | Consultar un perfil por su identificador. |
+| PUT | `/api/doctores/:id` | Al menos un campo profesional admitido, por ejemplo `telefono` | Actualizar información profesional del doctor. |
+| DELETE | `/api/doctores/:id` | `id` en la URL | Desactivación lógica: establecer `activo: false`, sin borrar el registro. |
+
+**Ejemplo POST `/api/doctores`:**
+
+```json
+{
+  "usuario": "ID_REAL_DE_UN_USUARIO_CON_ROL_DOCTOR",
+  "especialidad": "ID_REAL_DE_UNA_ESPECIALIDAD_ACTIVA",
+  "numeroColegiado": "COL-DEMO-2026-001",
+  "telefono": "8888-0000"
+}
+```
+
+Reemplazar los identificadores de ejemplo por los `_id` que existan en MongoDB. El ID del **perfil Doctor** devuelto por el POST es distinto del ID del **usuario doctor** al que se vincula.
+
+**Ejemplo PUT `/api/doctores/:id`:**
+
+```json
+{
+  "telefono": "8888-3333"
+}
+```
+
+**Validaciones y reglas comprobadas:**
+
+- Se exige usuario, especialidad y número de colegiado para crear el perfil.
+- Se validan los identificadores MongoDB y la existencia del usuario con rol `doctor` y de una especialidad activa.
+- No se permite duplicar un perfil para el mismo usuario ni reutilizar un número de colegiado registrado.
+- La desactivación lógica mantiene el documento con `activo: false`; desactivarlo de nuevo devuelve `409 Conflict`.
+- Las consultas realizadas con `GET` muestran los datos relacionados del usuario y la especialidad sin incluir la contraseña.
+
+**Pruebas manuales con Thunder Client (28 de octubre de 2026):** en la carpeta `07 - Doctores` se configuraron diez solicitudes: registro, listado, consulta por ID, actualización, desactivación, ID inválido (`400`), doctor inexistente (`404`), perfil duplicado (`409`), campos obligatorios faltantes (`400`) y doctor ya desactivado (`409`). Se verificaron los resultados esperados mediante los códigos HTTP y las respuestas JSON. En particular, `POST` devolvió `201` durante el primer registro y `PUT` devolvió `200` al actualizar el teléfono. Estos son ensayos manuales, no pruebas automatizadas.
+
+**Nota de alcance:** por ahora, el endpoint de actualización puede modificar los datos de un perfil marcado como inactivo; más adelante podrá restringirse esa operación como regla adicional de negocio. Los endpoints todavía requieren autenticación y autorización de servidor antes de un uso real.
+
+### 4.6. Comprobación del servidor
 
 | Método | URL | Cuerpo | Función |
 |---|---|---|---|
@@ -289,11 +340,11 @@ Sustituir los tres marcadores por los `_id` reales de la base de datos antes de 
 | Código HTTP | Significado | Ejemplo |
 |---|---|---|
 | `200 OK` | Operación correcta | Consulta, actualización o cancelación. |
-| `201 Created` | Registro creado | Crear un usuario, especialidad o cita. |
+| `201 Created` | Registro creado | Crear un usuario, especialidad, cita o perfil de doctor. |
 | `400 Bad Request` | Datos incorrectos | Campo faltante, ID inválido o error de validación. |
 | `401 Unauthorized` | Credenciales incorrectas | Inicio de sesión rechazado. |
 | `404 Not Found` | Registro inexistente | Consultar un ID válido que no está en MongoDB. |
-| `409 Conflict` | Conflicto con el estado actual | Intento de reservar horario ocupado o cancelar dos veces una cita. |
+| `409 Conflict` | Conflicto con el estado actual | Horario ocupado, perfil de doctor duplicado o desactivación repetida. |
 | `500 Internal Server Error` | Error no controlado en el servidor | Excepción durante una operación. |
 
 Las respuestas se devuelven en JSON y los controladores utilizan bloques `try/catch`.
@@ -309,7 +360,7 @@ Las respuestas se devuelven en JSON y los controladores utilizan bloques `try/ca
 
 **Orden sugerido para pruebas de Citas:** crear primero un usuario paciente, un usuario doctor y una especialidad activa; copiar sus IDs; registrar la cita; consultar y reprogramarla; cancelarla; comprobar que sigue almacenada con estado `cancelada`; intentar cancelarla nuevamente y esperar `409`.
 
-### 6.1. Resultados de las pruebas manuales (26 de octubre de 2026)
+### 6.1. Resultados de las pruebas manuales (26–28 de octubre de 2026)
 
 Las siguientes operaciones se comprobaron en **Thunder Client** contra la API local y una base de datos con registros de demostración:
 
@@ -321,10 +372,11 @@ Las siguientes operaciones se comprobaron en **Thunder Client** contra la API lo
 | 04 — Especialidades | Listado, consulta por ID, actualización, duplicados, ID inválido y desactivación lógica. | `200` en consultas y actualización; `400` en casos inválidos; al desactivar, `activo` cambió a `false`. |
 | 05 — Citas médicas | Registro, listado, consulta por ID, reprogramación, conflicto de horario, cancelación lógica e IDs inválidos o inexistentes. | `201` al crear; `200` al consultar/reprogramar/cancelar; `409` para horario ocupado o cancelación repetida; `400` y `404` para IDs problemáticos. |
 | 06 — Operaciones que modifican o cierran registros | Cambio de contraseña de un usuario temporal, autenticación con contraseña antigua y nueva, eliminación del usuario; cancelación de cita y desactivación de especialidad. | Contraseña actualizada: `200`; contraseña antigua: `401`; nueva: `200`; eliminación de usuario: `200`; consulta posterior de especialidad desactivada: `200` con `activo: false`. |
+| 07 — Doctores | Registro, listado, consulta por ID, actualización y desactivación lógica; ID inválido, doctor inexistente, duplicación, campos obligatorios y desactivación repetida. | Registro inicial: `201`; consultas/actualización/desactivación: `200`; validaciones: `400`, `404` y `409`. Tras la desactivación, el perfil permaneció consultable con `activo: false`. |
 
 **Alcance de la evidencia:** estas fueron pruebas **manuales**, verificadas mediante los códigos HTTP y los cuerpos JSON de las respuestas. No equivalen a una suite automatizada ni acreditan seguridad de producción. Los datos de MongoDB son locales y los registros usados en pruebas pueden cambiarse o eliminarse.
 
-**Colección exportable:** pendiente de adjuntar al repositorio una colección `.json` de Thunder Client/Postman con los casos de éxito y error requeridos para la entrega. Las pruebas manuales realizadas no sustituyen ese archivo. Antes de exportarla, revisar que no incluya contraseñas o credenciales reales.
+**Colección exportable:** el repositorio contiene `ThunderClientSistemaCitasMedicas.json`, que corresponde a una exportación previa. La carpeta `07 - Doctores` ya está guardada en Thunder Client; **aún falta exportar nuevamente la colección y reemplazar el JSON anterior** para que la entrega incluya las diez solicitudes del módulo. Antes de exportarla, revisar que no contenga contraseñas reales, tokens ni información sensible. Las pruebas manuales no sustituyen una suite automatizada.
 
 
 ## 7. Frontend actual
@@ -350,8 +402,8 @@ Para probar las páginas, se puede utilizar un servidor local de archivos (por e
 - Sustituir la recuperación de contraseña actual por un proceso seguro con tokens temporales y verificación de identidad.
 - Añadir validaciones completas de fechas, agenda, disponibilidad y concurrencia en las reservas.
 - Construir e integrar las interfaces de administración de Usuarios, Especialidades y Citas.
-- Continuar los módulos de Pacientes, Doctores, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
-- Crear y exportar la colección de pruebas Thunder Client/Postman solicitada por el profesor, sin credenciales reales.
+- Integrar los perfiles de **Doctores**, ya disponibles en la API, con las interfaces correspondientes y con la gestión de citas; continuar los módulos de Pacientes, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
+- Volver a exportar la colección de Thunder Client para incluir `07 - Doctores`, reemplazar `ThunderClientSistemaCitasMedicas.json` y subir la documentación y el código actualizado al repositorio, sin credenciales reales.
 - Verificar desde el navegador los flujos completos del frontend contra la API; las pruebas de Thunder Client no comprueban por sí solas la integración visual.
 
 **Este proyecto es académico y todavía no es apropiado para almacenar datos médicos reales ni para exponerse públicamente en producción.**

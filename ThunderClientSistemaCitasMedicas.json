@@ -2,7 +2,7 @@
     "clientName": "Thunder Client",
     "collectionName": "Sistema de Citas Médicas - API REST - Avance 1",
     "collectionId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
-    "dateExported": "2026-10-26T18:50:32.448Z",
+    "dateExported": "2026-10-28T16:01:48.093Z",
     "version": "1.4",
     "folders": [
         {
@@ -46,6 +46,13 @@
             "containerId": "",
             "created": "2026-10-23T19:20:48.497Z",
             "sortNum": 60000
+        },
+        {
+            "_id": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "07 - Doctores",
+            "containerId": "",
+            "created": "2026-10-28T15:26:15.155Z",
+            "sortNum": 70000
         }
     ],
     "requests": [
@@ -672,6 +679,177 @@
             "created": "2026-10-23T19:20:48.521Z",
             "modified": "2026-10-23T19:20:48.521Z",
             "headers": []
+        },
+        {
+            "_id": "4d909125-4a53-4f0e-9f80-1aa5ce1d126f",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "GET - Listar doctores",
+            "url": "{{baseUrl}}/api/doctores",
+            "method": "GET",
+            "sortNum": 350000,
+            "created": "2026-10-28T15:34:29.171Z",
+            "modified": "2026-10-28T15:34:29.171Z",
+            "headers": []
+        },
+        {
+            "_id": "453ac6f4-aefb-4ef3-b199-8a067e7675bc",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "GET - Doctor por ID",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}",
+            "method": "GET",
+            "sortNum": 360000,
+            "created": "2026-10-28T15:35:17.914Z",
+            "modified": "2026-10-28T15:35:17.914Z",
+            "headers": []
+        },
+        {
+            "_id": "01950e40-4f5c-4369-bf42-d15e3972c7ec",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "POST - Registrar doctor",
+            "url": "{{baseUrl}}/api/doctores",
+            "method": "POST",
+            "sortNum": 380000,
+            "created": "2026-10-28T15:36:26.087Z",
+            "modified": "2026-10-28T15:36:26.087Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"usuario\": \"{{doctorId}}\",\r",
+                    "  \"especialidad\": \"{{especialidadId}}\",\r",
+                    "  \"numeroColegiado\": \"COL-DEMO-2026-001\",\r",
+                    "  \"telefono\": \"8888-0000\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "8f547f7a-4be0-421f-813a-2c948dfdc43b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "PUT - Actualizar doctor",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}",
+            "method": "PUT",
+            "sortNum": 390000,
+            "created": "2026-10-28T15:37:34.971Z",
+            "modified": "2026-10-28T15:37:34.971Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"telefono\": \"8888-3333\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "9e205913-6b79-4669-b999-2593a9449a52",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "DELETE - Desactivar doctor",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}",
+            "method": "DELETE",
+            "sortNum": 400000,
+            "created": "2026-10-28T15:38:38.314Z",
+            "modified": "2026-10-28T15:38:38.314Z",
+            "headers": []
+        },
+        {
+            "_id": "8fb3d5df-2e36-470c-ac05-7bf7f42efcfb",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - ID inválido",
+            "url": "{{baseUrl}}/api/doctores/123",
+            "method": "GET",
+            "sortNum": 410000,
+            "created": "2026-10-28T15:40:30.093Z",
+            "modified": "2026-10-28T15:40:30.093Z",
+            "headers": []
+        },
+        {
+            "_id": "72f628e2-488e-4de6-9811-8d5d0b908d4b",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 404 - Doctor inexistente",
+            "url": "{{baseUrl}}/api/doctores/000000000000000000000001",
+            "method": "GET",
+            "sortNum": 420000,
+            "created": "2026-10-28T15:41:16.599Z",
+            "modified": "2026-10-28T15:41:16.599Z",
+            "headers": []
+        },
+        {
+            "_id": "80112d35-238c-4c17-92b5-8181c8f30034",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 409 - Doctor duplicado",
+            "url": "{{baseUrl}}/api/doctores",
+            "method": "POST",
+            "sortNum": 440000,
+            "created": "2026-10-28T15:42:07.924Z",
+            "modified": "2026-10-28T15:42:07.924Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"usuario\": \"{{doctorId}}\",\r",
+                    "  \"especialidad\": \"{{especialidadId}}\",\r",
+                    "  \"numeroColegiado\": \"COL-DEMO-2026-002\",\r",
+                    "  \"telefono\": \"8888-2222\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "2c965dca-4f5d-4b74-ac1c-d4f84c473e4c",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - Campos obligatorios",
+            "url": "{{baseUrl}}/api/doctores",
+            "method": "POST",
+            "sortNum": 450000,
+            "created": "2026-10-28T15:43:01.587Z",
+            "modified": "2026-10-28T15:43:01.587Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"usuario\": \"{{doctorId}}\",\r",
+                    "  \"especialidad\": \"{{especialidadId}}\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "35df4706-5517-4143-9dc4-0842a960b610",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 409 - Doctor ya desactivado",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}",
+            "method": "DELETE",
+            "sortNum": 460000,
+            "created": "2026-10-28T15:43:52.179Z",
+            "modified": "2026-10-28T15:43:52.179Z",
+            "headers": []
         }
     ],
     "settings": {
@@ -679,5 +857,5 @@
             "Colección para la evaluación del Primer Avance: Node.js, Express, Mongoose y MongoDB. Cubre los 19 endpoints implementados y casos de error. DEMOSTRACION con datos ficticios. ATENCIÓN: POST, PUT y DELETE modifican MongoDB. Para Postman, los IDs se guardan automáticamente mediante scripts al ejecutar la creación; para Thunder Client, si no ejecuta esos scripts, copiar manualmente los IDs a variables de colección. No ejecutar todas las solicitudes en bloque: las pruebas están diseñadas para ejecutarse en secuencia lógica. La ruta restablecer-password NO usa token de recuperación en este prototipo: no utilizar datos reales."
         ]
     },
-    "ref": "19o6pZt5BHvIhjCWJYviif4Qz5q97Bslm57hVnQV6X7yTsV2oqFwh5XCL0ZczFoY64vKJbBvQAvPNuPFU8AFVg"
+    "ref": "19o6pZt5BHvIhjCWJYviiVn4zbLRStbkRvGZ4GqEu1kLlvCx0UyHzBr-HR1OWlvWVB_UcPClYgfPs-3f4tfrcA"
 }

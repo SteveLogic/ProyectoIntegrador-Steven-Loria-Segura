@@ -10,6 +10,8 @@ const usuarioRoutes = require("./routes/usuarioRoutes");
 const authRoutes = require("./routes/authRoutes");
 const especialidadRoutes = require("./routes/especialidadRoutes");
 const citaRoutes = require("./routes/citaRoutes");
+const doctorRoutes = require("./routes/doctorRoutes");
+
 
 const app = express();
 
@@ -22,6 +24,7 @@ app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/especialidades", especialidadRoutes);
 app.use("/api/citas", citaRoutes);
+app.use("/api/doctores", doctorRoutes);
 // Ruta para comprobar que la API funciona
 app.get("/api/prueba", (req, res) => {
     res.json({
