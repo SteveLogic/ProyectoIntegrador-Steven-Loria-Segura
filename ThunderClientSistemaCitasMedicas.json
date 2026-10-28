@@ -2,7 +2,7 @@
     "clientName": "Thunder Client",
     "collectionName": "Sistema de Citas Médicas - API REST - Avance 1",
     "collectionId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
-    "dateExported": "2026-10-28T16:01:48.093Z",
+    "dateExported": "2026-10-28T16:36:27.405Z",
     "version": "1.4",
     "folders": [
         {
@@ -850,6 +850,189 @@
             "created": "2026-10-28T15:43:52.179Z",
             "modified": "2026-10-28T15:43:52.179Z",
             "headers": []
+        },
+        {
+            "_id": "70e406cc-fc0c-4606-b4ad-b7a3a93226b6",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "PUT - Asignar especialidad a doctor",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/especialidad",
+            "method": "PUT",
+            "sortNum": 480000,
+            "created": "2026-10-28T16:23:20.825Z",
+            "modified": "2026-10-28T16:23:20.825Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"{{especialidadAlternativaId}}\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "fd41c6d5-a2ca-4a65-a4e8-7b408993731c",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "971ae210-c56c-4f13-8f76-cb5778587f46",
+            "name": "POST - Crear especialidad alternativa",
+            "url": "{{baseUrl}}/api/especialidades",
+            "method": "POST",
+            "sortNum": 500000,
+            "created": "2026-10-28T16:25:03.780Z",
+            "modified": "2026-10-28T16:25:03.780Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"nombre\": \"Pediatría Demo 2026\",\r",
+                    "  \"descripcion\": \"Especialidad de prueba para reasignación de doctores.\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "4ab3975b-ec36-4d27-ab5c-0271c4f824a1",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - ID de especialidad inválido",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/especialidad",
+            "method": "PUT",
+            "sortNum": 510000,
+            "created": "2026-10-28T16:29:23.428Z",
+            "modified": "2026-10-28T16:29:23.428Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"123\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "2e285ccc-b26b-476d-9a3b-227df208651a",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 404 - Especialidad inexistente",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/especialidad",
+            "method": "PUT",
+            "sortNum": 520000,
+            "created": "2026-10-28T16:30:18.912Z",
+            "modified": "2026-10-28T16:30:18.912Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"000000000000000000000001\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "2b27acbc-772b-4654-a75a-a735e5c2df25",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - Especialidad inactiva",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/especialidad",
+            "method": "PUT",
+            "sortNum": 530000,
+            "created": "2026-10-28T16:31:50.778Z",
+            "modified": "2026-10-28T16:31:50.778Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"{{especialidadEliminarId}}\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "2d7128e4-7518-4f23-8c7e-a75114c8a785",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - Especialidad obligatoria",
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/especialidad",
+            "method": "PUT",
+            "sortNum": 540000,
+            "created": "2026-10-28T16:32:40.651Z",
+            "modified": "2026-10-28T16:32:40.651Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "7ca26972-63ff-478d-a197-ae3a03ae3540",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 400 - ID de doctor inválido al asignar",
+            "url": "{{baseUrl}}/api/doctores/123/especialidad",
+            "method": "PUT",
+            "sortNum": 550000,
+            "created": "2026-10-28T16:34:05.451Z",
+            "modified": "2026-10-28T16:34:05.451Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"{{especialidadAlternativaId}}\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "a16679d6-9bfa-4edd-bfc4-07cdcea764eb",
+            "colId": "148a5622-9241-4dd4-9166-f1c2b9fae567",
+            "containerId": "5e7cade7-3ea9-4c50-b827-9c968bc1359b",
+            "name": "ERROR 404 - Doctor inexistente al asignar",
+            "url": "{{baseUrl}}/api/doctores/000000000000000000000001/especialidad",
+            "method": "PUT",
+            "sortNum": 560000,
+            "created": "2026-10-28T16:35:14.233Z",
+            "modified": "2026-10-28T16:35:14.234Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "\r",
+                    "{\r",
+                    "  \"especialidad\": \"{{especialidadAlternativaId}}\"\r",
+                    "}\r",
+                    ""
+                ],
+                "form": []
+            }
         }
     ],
     "settings": {
@@ -857,5 +1040,5 @@
             "Colección para la evaluación del Primer Avance: Node.js, Express, Mongoose y MongoDB. Cubre los 19 endpoints implementados y casos de error. DEMOSTRACION con datos ficticios. ATENCIÓN: POST, PUT y DELETE modifican MongoDB. Para Postman, los IDs se guardan automáticamente mediante scripts al ejecutar la creación; para Thunder Client, si no ejecuta esos scripts, copiar manualmente los IDs a variables de colección. No ejecutar todas las solicitudes en bloque: las pruebas están diseñadas para ejecutarse en secuencia lógica. La ruta restablecer-password NO usa token de recuperación en este prototipo: no utilizar datos reales."
         ]
     },
-    "ref": "19o6pZt5BHvIhjCWJYviiVn4zbLRStbkRvGZ4GqEu1kLlvCx0UyHzBr-HR1OWlvWVB_UcPClYgfPs-3f4tfrcA"
+    "ref": "19o6pZt5BHvIhjCWJYviibWoE5e7Xy1hM5tsxwlLl_mlCciEuvTW_MIKAhQ5XSRw2hTIQ4c7Kwmhj8uEi-WFFg"
 }

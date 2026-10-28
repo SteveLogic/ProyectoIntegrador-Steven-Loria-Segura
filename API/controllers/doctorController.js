@@ -270,3 +270,86 @@ exports.desactivarDoctor = async (req, res) => {
     });
   }
 };
+
+
+/**
+ * Asignar o cambiar la especialidad de un doctor.
+ * PUT /api/doctores/:id/especialidad
+ */
+exports.asignarEspecialidadDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { especialidad } = req.body;
+
+    // Validar el identificador del doctor.
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        mensaje: "El ID proporcionado no es válido."
+      });
+    }
+
+    // Verificar que se haya enviado una especialidad.
+    if (!especialidad) {
+      return res.status(400).json({
+        mensaje: "La especialidad es obligatoria."
+      });
+    }
+
+    // Validar el identificador de la especialidad.
+    if (!mongoose.isValidObjectId(especialidad)) {
+      return res.status(400).json({
+        mensaje: "El ID de la especialidad no es válido."
+      });
+    }
+
+    // Buscar el perfil médico.
+    const doctor = await Doctor.findById(id);
+
+    if (!doctor) {
+      return res.status(404).json({
+        mensaje: "Doctor no encontrado."
+      });
+    }
+
+    // Comprobar que la especialidad exista.
+    const especialidadEncontrada =
+      await Especialidad.findById(especialidad);
+
+    if (!especialidadEncontrada) {
+      return res.status(404).json({
+        mensaje: "Especialidad no encontrada."
+      });
+    }
+
+    // No permitir asignaciones a especialidades inactivas.
+    if (!especialidadEncontrada.activo) {
+      return res.status(400).json({
+        mensaje: "La especialidad debe estar activa."
+      });
+    }
+
+    // Actualizar la asignación y guardar.
+    doctor.especialidad = especialidadEncontrada._id;
+    await doctor.save();
+
+    // Incluir los datos relacionados en la respuesta.
+    await doctor.populate("usuario", "nombre email rol");
+    await doctor.populate(
+      "especialidad",
+      "nombre descripcion activo"
+    );
+
+    return res.status(200).json({
+      mensaje: "Especialidad asignada correctamente.",
+      doctor
+    });
+
+  } catch (error) {
+    console.error("Error al asignar especialidad:", error);
+
+    return res.status(500).json({
+      mensaje: "Error interno al asignar la especialidad."
+    });
+  }
+};
+

@@ -2,7 +2,7 @@
 
 Aplicación web académica para la gestión de usuarios, perfiles médicos, especialidades y citas. Incluye interfaces en HTML, Bootstrap y JavaScript y una API REST desarrollada con Node.js, Express, Mongoose y MongoDB.
 
-**Estado del proyecto (28 de octubre de 2026):** prototipo académico en desarrollo. La API REST dispone de endpoints para Usuarios, Autenticación, Especialidades, Citas y Doctores. Se realizaron pruebas manuales de las operaciones principales y los escenarios de error del módulo de Doctores con Thunder Client. La carpeta `07 - Doctores` ya está organizada en Thunder Client, pero **aún debe exportarse nuevamente la colección JSON** para que el archivo del repositorio incluya estas solicitudes. Siguen pendientes las interfaces completas de gestión y reserva y los controles necesarios para un despliegue seguro.
+**Estado del proyecto (28 de octubre de 2026):** prototipo académico en desarrollo. La API REST dispone de endpoints para Usuarios, Autenticación, Especialidades, Citas y Doctores, incluida la reasignación de la especialidad profesional de un doctor. Se realizaron pruebas manuales con Thunder Client de las operaciones principales y sus respuestas de error. La colección de pruebas se volvió a exportar localmente con las solicitudes nuevas; **esta versión y los cambios del backend están pendientes de publicar en GitHub**. Siguen pendientes las interfaces completas de gestión y reserva y los controles necesarios para un despliegue seguro.
 
 ## 1. Tecnologías utilizadas
 
@@ -55,7 +55,7 @@ Proyecto Integrador/
 - **`models/`:** define los esquemas de Mongoose y permite consultar o modificar MongoDB.
 - **`config/database.js`:** establece la conexión a MongoDB antes de que el servidor comience a escuchar solicitudes.
 
-`node_modules/` y `.env` se crean o mantienen **localmente** y no deben subirse al repositorio. El archivo `ThunderClientSistemaCitasMedicas.json` corresponde a una exportación anterior; debe reemplazarse por una nueva exportación que incorpore la carpeta `07 - Doctores` antes de la entrega.
+`node_modules/` y `.env` se crean o mantienen **localmente** y no deben subirse al repositorio. El archivo `ThunderClientSistemaCitasMedicas.json` se volvió a exportar en el entorno local para incorporar las pruebas de asignación de especialidades; falta incorporar esa nueva versión mediante un commit y publicarla en GitHub.
 
 ## 3. Instalación y ejecución local
 
@@ -284,7 +284,7 @@ Sustituir los tres marcadores por los `_id` reales de la base de datos antes de 
 
 ### 4.5. Doctores — `/api/doctores`
 
-Este módulo administra los **perfiles profesionales de los doctores**. Cada perfil está asociado a un usuario existente con rol `doctor` y a una especialidad médica activa. El perfil conserva datos como el número de colegiado, teléfono y estado (`activo`).
+Este módulo administra los **perfiles profesionales de los doctores**. Cada perfil está asociado a un usuario existente con rol `doctor` y a **una especialidad médica**. El perfil conserva datos como el número de colegiado, teléfono y estado (`activo`). Al crear un perfil o asignarle una especialidad, la API comprueba que esta exista y esté activa.
 
 El módulo está organizado en `API/models/Doctor.js`, `API/controllers/doctorController.js` y `API/routes/doctorRoutes.js`, y sus rutas se registran en `API/server.js`.
 
@@ -294,6 +294,7 @@ El módulo está organizado en `API/models/Doctor.js`, `API/controllers/doctorCo
 | GET | `/api/doctores` | Ninguno | Listar todos los perfiles, incluidos los inactivos, con datos relacionados mediante `populate`. |
 | GET | `/api/doctores/:id` | `id` en la URL | Consultar un perfil por su identificador. |
 | PUT | `/api/doctores/:id` | Al menos un campo profesional admitido, por ejemplo `telefono` | Actualizar información profesional del doctor. |
+| PUT | `/api/doctores/:id/especialidad` | `id` del perfil de doctor en la URL; `especialidad` en JSON | Asignar o reemplazar su especialidad, siempre que exista y esté activa. |
 | DELETE | `/api/doctores/:id` | `id` en la URL | Desactivación lógica: establecer `activo: false`, sin borrar el registro. |
 
 **Ejemplo POST `/api/doctores`:**
@@ -317,6 +318,16 @@ Reemplazar los identificadores de ejemplo por los `_id` que existan en MongoDB. 
 }
 ```
 
+**Ejemplo PUT `/api/doctores/:id/especialidad`:**
+
+```json
+{
+  "especialidad": "ID_REAL_DE_UNA_ESPECIALIDAD_ACTIVA"
+}
+```
+
+En la URL se utiliza el `_id` del **perfil médico**, no el `_id` del usuario con rol `doctor`. Este endpoint reemplaza la especialidad actualmente asignada; por ahora, un perfil solo admite una especialidad a la vez. Una asignación válida devuelve `200 OK` y el perfil con sus referencias pobladas mediante `populate`.
+
 **Validaciones y reglas comprobadas:**
 
 - Se exige usuario, especialidad y número de colegiado para crear el perfil.
@@ -324,10 +335,12 @@ Reemplazar los identificadores de ejemplo por los `_id` que existan en MongoDB. 
 - No se permite duplicar un perfil para el mismo usuario ni reutilizar un número de colegiado registrado.
 - La desactivación lógica mantiene el documento con `activo: false`; desactivarlo de nuevo devuelve `409 Conflict`.
 - Las consultas realizadas con `GET` muestran los datos relacionados del usuario y la especialidad sin incluir la contraseña.
+- La asignación de especialidad exige un ID válido, una especialidad existente y activa, y un perfil médico existente. La solicitud sin especialidad o con identificadores inválidos devuelve `400`; los registros inexistentes devuelven `404`.
+- Se comprobó la reasignación desde «Especialidad Demo Octubre 2026» hacia «Pediatría Demo 2026» y su persistencia posterior mediante `GET /api/doctores/:id`.
 
-**Pruebas manuales con Thunder Client (28 de octubre de 2026):** en la carpeta `07 - Doctores` se configuraron diez solicitudes: registro, listado, consulta por ID, actualización, desactivación, ID inválido (`400`), doctor inexistente (`404`), perfil duplicado (`409`), campos obligatorios faltantes (`400`) y doctor ya desactivado (`409`). Se verificaron los resultados esperados mediante los códigos HTTP y las respuestas JSON. En particular, `POST` devolvió `201` durante el primer registro y `PUT` devolvió `200` al actualizar el teléfono. Estos son ensayos manuales, no pruebas automatizadas.
+**Pruebas manuales con Thunder Client (28 de octubre de 2026):** la carpeta `07 - Doctores` contiene **17 solicitudes**: las diez originales para el CRUD y sus errores más otras siete para la asignación de especialidad (un `PUT` exitoso y seis escenarios de validación). Se observó `200 OK` al cambiar la especialidad, y un `GET` posterior devolvió «Pediatría Demo 2026». Las seis pruebas negativas cubrieron especialidad con ID inválido (`400`), inexistente (`404`), inactiva (`400`), omitida (`400`), doctor con ID inválido (`400`) y doctor inexistente (`404`). La especialidad alternativa se creó con `POST /api/especialidades` (`201`) y quedó guardada como solicitud de prueba en `04 - Especialidades`. Son ensayos manuales, no pruebas automatizadas.
 
-**Nota de alcance:** por ahora, el endpoint de actualización puede modificar los datos de un perfil marcado como inactivo; más adelante podrá restringirse esa operación como regla adicional de negocio. Los endpoints todavía requieren autenticación y autorización de servidor antes de un uso real.
+**Nota de alcance:** por ahora, las actualizaciones de perfil y de especialidad también pueden ejecutarse sobre un doctor con `activo: false`; la reasignación no reactiva su perfil. La restricción de modificaciones a doctores inactivos, las múltiples especialidades por doctor y la comprobación de que la especialidad elegida en una cita pertenezca al médico son reglas adicionales aún no implementadas o verificadas. Los endpoints todavía requieren autenticación y autorización de servidor antes de un uso real.
 
 ### 4.6. Comprobación del servidor
 
@@ -358,6 +371,8 @@ Las respuestas se devuelven en JSON y los controladores utilizan bloques `try/ca
 5. Para GET y DELETE, no enviar un cuerpo de solicitud.
 6. Verificar el código HTTP y el mensaje o documento devuelto.
 
+**Orden sugerido para la reasignación de especialidad:** crear una especialidad activa distinta, guardar su `_id` como `especialidadAlternativaId` en el entorno de Thunder Client, enviar `PUT /api/doctores/:id/especialidad` y confirmar el cambio con `GET /api/doctores/:id`. Usar datos ficticios y evitar ejecutar todas las peticiones de prueba en bloque, porque algunas modifican registros.
+
 **Orden sugerido para pruebas de Citas:** crear primero un usuario paciente, un usuario doctor y una especialidad activa; copiar sus IDs; registrar la cita; consultar y reprogramarla; cancelarla; comprobar que sigue almacenada con estado `cancelada`; intentar cancelarla nuevamente y esperar `409`.
 
 ### 6.1. Resultados de las pruebas manuales (26–28 de octubre de 2026)
@@ -369,14 +384,14 @@ Las siguientes operaciones se comprobaron en **Thunder Client** contra la API lo
 | 01 — Verificación y datos de prueba | Estado del servidor; creación de paciente, doctor y especialidad de prueba. | `GET /api/prueba`: `200`; creación de registros: `201`. |
 | 02 — Usuarios | Listado, consulta por ID, creación, actualización y eliminación; correo duplicado e ID inválido. | Respuestas `200`, `201`, `400` y `404` según el caso. Las consultas no mostraron contraseñas. |
 | 03 — Autenticación | Inicio de sesión válido, contraseña incorrecta, campos faltantes y verificación de correo. | `200` para casos válidos; `401` por contraseña incorrecta; `400` por datos obligatorios faltantes. |
-| 04 — Especialidades | Listado, consulta por ID, actualización, duplicados, ID inválido y desactivación lógica. | `200` en consultas y actualización; `400` en casos inválidos; al desactivar, `activo` cambió a `false`. |
+| 04 — Especialidades | Listado, consulta por ID, actualización, duplicados, ID inválido, desactivación lógica y creación de «Pediatría Demo 2026» para probar reasignación. | `201` al crear la especialidad alternativa; `200` en consultas y actualización; `400` en casos inválidos; al desactivar, `activo` cambió a `false`. |
 | 05 — Citas médicas | Registro, listado, consulta por ID, reprogramación, conflicto de horario, cancelación lógica e IDs inválidos o inexistentes. | `201` al crear; `200` al consultar/reprogramar/cancelar; `409` para horario ocupado o cancelación repetida; `400` y `404` para IDs problemáticos. |
 | 06 — Operaciones que modifican o cierran registros | Cambio de contraseña de un usuario temporal, autenticación con contraseña antigua y nueva, eliminación del usuario; cancelación de cita y desactivación de especialidad. | Contraseña actualizada: `200`; contraseña antigua: `401`; nueva: `200`; eliminación de usuario: `200`; consulta posterior de especialidad desactivada: `200` con `activo: false`. |
-| 07 — Doctores | Registro, listado, consulta por ID, actualización y desactivación lógica; ID inválido, doctor inexistente, duplicación, campos obligatorios y desactivación repetida. | Registro inicial: `201`; consultas/actualización/desactivación: `200`; validaciones: `400`, `404` y `409`. Tras la desactivación, el perfil permaneció consultable con `activo: false`. |
+| 07 — Doctores | Diez solicitudes de CRUD y errores, más siete para `PUT /api/doctores/:id/especialidad`: asignación, ID de especialidad inválido o inexistente, especialidad inactiva u omitida, e ID de doctor inválido o inexistente. | Asignación y consulta posterior: `200`, con especialidad «Pediatría Demo 2026» persistida; errores de entrada: `400`; registros inexistentes: `404`; conflictos de operaciones anteriores: `409`. El perfil continuó inactivo. |
 
 **Alcance de la evidencia:** estas fueron pruebas **manuales**, verificadas mediante los códigos HTTP y los cuerpos JSON de las respuestas. No equivalen a una suite automatizada ni acreditan seguridad de producción. Los datos de MongoDB son locales y los registros usados en pruebas pueden cambiarse o eliminarse.
 
-**Colección exportable:** el repositorio contiene `ThunderClientSistemaCitasMedicas.json`, que corresponde a una exportación previa. La carpeta `07 - Doctores` ya está guardada en Thunder Client; **aún falta exportar nuevamente la colección y reemplazar el JSON anterior** para que la entrega incluya las diez solicitudes del módulo. Antes de exportarla, revisar que no contenga contraseñas reales, tokens ni información sensible. Las pruebas manuales no sustituyen una suite automatizada.
+**Colección exportable:** se volvió a exportar localmente `ThunderClientSistemaCitasMedicas.json`, que incluye las nuevas solicitudes de `07 - Doctores` y la creación de la especialidad alternativa. **Esta actualización todavía está pendiente de commit/push.** La colección utiliza variables como `{{baseUrl}}`, `{{perfilDoctorId}}` y `{{especialidadAlternativaId}}`; deben configurarse en el entorno de Thunder Client para que las solicitudes se puedan ejecutar en otra instalación. Los IDs son específicos de la base local. Antes de publicar, comprobar que el JSON y cualquier entorno exportado no contengan contraseñas reales, tokens ni información sensible. Las pruebas manuales no sustituyen una suite automatizada.
 
 
 ## 7. Frontend actual
@@ -402,8 +417,9 @@ Para probar las páginas, se puede utilizar un servidor local de archivos (por e
 - Sustituir la recuperación de contraseña actual por un proceso seguro con tokens temporales y verificación de identidad.
 - Añadir validaciones completas de fechas, agenda, disponibilidad y concurrencia en las reservas.
 - Construir e integrar las interfaces de administración de Usuarios, Especialidades y Citas.
-- Integrar los perfiles de **Doctores**, ya disponibles en la API, con las interfaces correspondientes y con la gestión de citas; continuar los módulos de Pacientes, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
-- Volver a exportar la colección de Thunder Client para incluir `07 - Doctores`, reemplazar `ThunderClientSistemaCitasMedicas.json` y subir la documentación y el código actualizado al repositorio, sin credenciales reales.
+- Integrar los perfiles de **Doctores** y su asignación de especialidad con las interfaces correspondientes y la gestión de citas; comprobar en el futuro que las citas utilicen una especialidad realmente asociada al doctor. Continuar los módulos de Pacientes, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
+- Definir si un doctor puede tener varias especialidades y si debe bloquearse la reasignación cuando el perfil está inactivo.
+- Revisar la nueva exportación de Thunder Client para excluir credenciales sensibles y publicar el JSON, el README y el código actualizado en GitHub.
 - Verificar desde el navegador los flujos completos del frontend contra la API; las pruebas de Thunder Client no comprueban por sí solas la integración visual.
 
 **Este proyecto es académico y todavía no es apropiado para almacenar datos médicos reales ni para exponerse públicamente en producción.**

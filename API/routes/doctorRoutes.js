@@ -7,7 +7,8 @@ const {
   listarDoctores,
   obtenerDoctorPorId,
   actualizarDoctor,
-  desactivarDoctor
+  desactivarDoctor,
+  asignarEspecialidadDoctor
 } = require("../controllers/doctorController");
 
 // Registrar un perfil médico
@@ -18,6 +19,8 @@ router.get("/", listarDoctores);
 
 // Consultar un doctor por ID
 router.get("/:id", obtenerDoctorPorId);
+
+router.put("/:id/especialidad", asignarEspecialidadDoctor);
 
 // Actualizar la información profesional
 router.put("/:id", actualizarDoctor);
