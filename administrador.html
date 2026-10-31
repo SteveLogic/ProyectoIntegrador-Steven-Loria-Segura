@@ -1,40 +1,527 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Administrador - Sistema de Citas Médicas</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Panel administrativo del Sistema de Citas Médicas">
+  <title>Panel administrativo | Sistema de Citas Médicas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
 </head>
-
 <body>
-
-    <nav class="navbar navbar-dark bg-primary">
-        <div class="container">
-            <span class="navbar-brand">
-                Sistema de Citas Médicas
-            </span>
+  <!-- Seguridad académica del prototipo: se conserva el acceso por sessionStorage.
+       No constituye una autorización real en el servidor. -->
+  <script>
+    if (sessionStorage.getItem('usuarioAutenticado') !== 'true' ||
+        sessionStorage.getItem('rolUsuario') !== 'administrador') {
+      window.location.replace('login.html');
+    }
+  </script>
+  <header class="app-topbar sticky-top">
+    <nav class="navbar h-100" aria-label="Barra superior">
+      <div class="container-fluid px-3 px-lg-4 py-2">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-app d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMovil" aria-controls="menuMovil" aria-label="Abrir menú de navegación">☰</button>
+          <a class="app-brand" href="#resumen"><span class="app-brand-mark" aria-hidden="true">+</span><span>Sistema de Citas Médicas</span></a>
         </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <span class="d-none d-sm-inline text-muted-app small" id="saludoUsuario">Administrador</span>
+          <button class="btn btn-sm btn-outline-app" id="cerrarSesion" type="button">Cerrar sesión</button>
+        </div>
+      </div>
     </nav>
-
-    <main class="container py-5">
-        <h1>Panel del administrador</h1>
-        <p>Bienvenido al sistema de citas médicas.</p>
+  </header>
+  <!-- Navegación móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="menuMovil" aria-labelledby="menuMovilTitulo">
+    <div class="offcanvas-header border-bottom">
+      <h2 class="offcanvas-title fs-6" id="menuMovilTitulo">Navegación</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar menú"></button>
+    </div>
+    <div class="offcanvas-body app-mobile-nav">
+      <nav class="nav flex-column" aria-label="Menú móvil">
+        <a class="nav-link active" href="#resumen" data-bs-dismiss="offcanvas">Resumen</a>
+        <a class="nav-link" href="#usuarios" data-bs-dismiss="offcanvas">Usuarios</a>
+        <a class="nav-link" href="#doctores" data-bs-dismiss="offcanvas">Doctores</a>
+        <a class="nav-link" href="#especialidades" data-bs-dismiss="offcanvas">Especialidades</a>
+        <a class="nav-link" href="#citas" data-bs-dismiss="offcanvas">Citas</a>
+      </nav>
+    </div>
+  </div>
+  <div class="app-shell d-lg-flex">
+    <aside class="app-sidebar d-none d-lg-block" aria-label="Navegación principal">
+      <p class="app-sidebar-heading mb-1">Administración</p>
+      <nav class="nav flex-column">
+        <a class="nav-link active" href="#resumen"><span aria-hidden="true">▦</span> Resumen</a>
+        <a class="nav-link" href="#usuarios"><span aria-hidden="true">◯</span> Usuarios</a>
+        <a class="nav-link" href="#doctores"><span aria-hidden="true">✚</span> Doctores</a>
+        <a class="nav-link" href="#especialidades"><span aria-hidden="true">◇</span> Especialidades</a>
+        <a class="nav-link" href="#citas"><span aria-hidden="true">▤</span> Citas</a>
+      </nav>
+      <hr class="my-4">
+      <p class="small px-3 text-muted-app">Maquetación del segundo avance. Los formularios se conectarán a la API en una etapa posterior.</p>
+    </aside>
+    <main class="app-main" id="resumen">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+          <p class="eyebrow mb-1">Área administrativa</p>
+          <h1 class="page-title">Panel de administración</h1>
+          <p class="page-intro mb-0">Administra la estructura del sistema, los perfiles médicos y las citas desde un solo lugar.</p>
+        </div>
+        <button class="btn btn-app-primary btn-mobile-wide" type="button" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Nueva cita</button>
+      </div>
+      <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
+        <span aria-hidden="true">ⓘ</span>
+        <div><strong>Prototipo visual:</strong> estos componentes todavía muestran datos de ejemplo o contenedores vacíos; no crean ni actualizan registros hasta integrar los endpoints.</div>
+      </div>
+      <section aria-labelledby="indicadoresTitulo" class="mb-4">
+        <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+        </div>
+      </section>
+      <section aria-labelledby="modulosTitulo" class="mb-4">
+        <div class="d-flex align-items-end justify-content-between gap-2 mb-3"><h2 class="section-title mb-0" id="modulosTitulo">Módulos principales</h2><span class="text-muted-app small">Acceso rápido a las vistas</span></div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6 col-xl-3"><a class="app-card app-card-body module-card" href="#usuarios"><div class="kpi-icon mb-3" aria-hidden="true">◯</div><h3 class="h6 fw-bold">Usuarios</h3><p class="small text-muted-app mb-3">Registro, consulta y edición de cuentas.</p><span class="badge-soft">Ver sección</span></a></div>
+          <div class="col-12 col-md-6 col-xl-3"><a class="app-card app-card-body module-card" href="#doctores"><div class="kpi-icon mb-3" aria-hidden="true">✚</div><h3 class="h6 fw-bold">Doctores</h3><p class="small text-muted-app mb-3">Perfiles y asignación de especialidades.</p><span class="badge-soft">Ver sección</span></a></div>
+          <div class="col-12 col-md-6 col-xl-3"><a class="app-card app-card-body module-card" href="#especialidades"><div class="kpi-icon mb-3" aria-hidden="true">◇</div><h3 class="h6 fw-bold">Especialidades</h3><p class="small text-muted-app mb-3">Catálogo médico y estados de registro.</p><span class="badge-soft">Ver sección</span></a></div>
+          <div class="col-12 col-md-6 col-xl-3"><a class="app-card app-card-body module-card" href="#citas"><div class="kpi-icon mb-3" aria-hidden="true">▤</div><h3 class="h6 fw-bold">Citas</h3><p class="small text-muted-app mb-3">Programación y seguimiento de consultas.</p><span class="badge-soft">Ver sección</span></a></div>
+        </div>
+      </section>
+      <section class="row g-3 mb-4" aria-label="Vistas administrativas de ejemplo">
+        <div class="col-12 col-xl-7" id="doctores">
+          <div class="app-card h-100">
+            <div class="app-card-header d-flex justify-content-between align-items-center gap-2 flex-wrap"><div><h2 class="section-title mb-1">Gestión de doctores</h2><p class="small text-muted-app mb-0">Vista previa de listado y registro</p></div><button class="btn btn-sm btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalDoctor">+ Registrar doctor</button></div>
+            <div class="table-responsive"><table class="table app-table"><caption class="visually-hidden">Listado de doctores; pendiente de integración con la API</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Estado</th></tr></thead><tbody><tr><td colspan="3"><div class="empty-state"><strong>Sin datos cargados</strong><p class="small mb-0 mt-1">Aquí se mostrará la información desde <code>GET /api/doctores</code>.</p></div></td></tr></tbody></table></div>
+          </div>
+        </div>
+        <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Vista previa del seguimiento</p></div><div class="app-card-body"><div class="empty-state"><strong>Agenda pendiente de cargar</strong><p class="small mb-0 mt-1">Datos provenientes de <code>GET /api/citas</code>.</p></div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
+      </section>
+      <!-- Gestión de usuarios: maqueta visual alineada con API/models/Usuario.js.
+           Los datos de ejemplo NO provienen de MongoDB. -->
+      <section class="mb-4" id="usuarios" aria-labelledby="usuariosTitulo">
+        <div class="app-card">
+          <div class="app-card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+              <p class="eyebrow mb-1">Administración de cuentas</p>
+              <h2 class="section-title mb-1" id="usuariosTitulo">Gestión de usuarios</h2>
+              <p class="small text-muted-app mb-0">Listado de muestra, búsqueda, filtros y formularios preparados para la API.</p>
+            </div>
+            <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">+ Registrar usuario</button>
+          </div>
+          <div class="app-card-body pb-2">
+            <div class="alert alert-light border mb-3" role="note">
+              <strong>Datos ilustrativos.</strong> Los usuarios de esta tabla no son registros reales de MongoDB. Los formularios son prototipos y no guardan cambios.
+            </div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios de ejemplo">
+              <div class="col-12 col-md-7">
+                <label for="buscarUsuario" class="form-label">Buscar por nombre o correo</label>
+                <input id="buscarUsuario" type="search" class="form-control" placeholder="Ej.: paciente, doctor o ejemplo.com" autocomplete="off">
+              </div>
+              <div class="col-12 col-md-3">
+                <label for="filtrarRolUsuario" class="form-label">Filtrar por rol</label>
+                <select id="filtrarRolUsuario" class="form-select">
+                  <option value="todos">Todos los roles</option>
+                  <option value="paciente">Paciente</option>
+                  <option value="doctor">Doctor</option>
+                  <option value="administrador">Administrador</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-2">
+                <button id="limpiarFiltrosUsuario" class="btn btn-outline-app w-100" type="button">Limpiar</button>
+              </div>
+            </div>
+            <p class="small text-muted-app mt-3 mb-2" aria-live="polite" id="contadorUsuarios">3 usuarios de ejemplo</p>
+          </div>
+          <div class="table-responsive">
+            <table class="table app-table mb-0" id="tablaUsuarios">
+              <caption class="visually-hidden">Listado de usuarios ilustrativos para probar la interfaz. No corresponde a datos de MongoDB.</caption>
+              <thead><tr><th scope="col">Nombre</th><th scope="col">Correo electrónico</th><th scope="col">Rol</th><th scope="col">Acciones</th></tr></thead>
+              <tbody>
+                <tr data-rol="paciente" data-nombre="Paciente de ejemplo" data-email="paciente@example.com">
+                  <td class="fw-semibold">Paciente de ejemplo</td><td>paciente@example.com</td><td><span class="badge-role">Paciente</span></td>
+                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
+                </tr>
+                <tr data-rol="doctor" data-nombre="Doctor de ejemplo" data-email="doctor@example.com">
+                  <td class="fw-semibold">Doctor de ejemplo</td><td>doctor@example.com</td><td><span class="badge-role">Doctor</span></td>
+                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
+                </tr>
+                <tr data-rol="administrador" data-nombre="Administrador de ejemplo" data-email="admin@example.com">
+                  <td class="fw-semibold">Administrador de ejemplo</td><td>admin@example.com</td><td><span class="badge-role">Administrador</span></td>
+                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="sinResultadosUsuarios" class="empty-state m-3 d-none" role="status">No hay usuarios de ejemplo que coincidan con los filtros.</div>
+          <div class="app-card-body pt-2">
+            <p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/usuarios</code>, <code>POST /api/usuarios</code> y <code>PUT /api/usuarios/:id</code>. El backend de edición permite modificar <code>nombre</code> y <code>email</code>; los cambios de rol y estado requieren desarrollo adicional.</p>
+          </div>
+        </div>
+      </section>
+      <!-- Especialidades: prototipo, sin integración con MongoDB. -->
+      <section id="especialidades" aria-labelledby="especialidadesTitulo" class="mb-4">
+        <div class="app-card">
+          <div class="app-card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div><p class="eyebrow mb-1">Catálogo médico</p><h2 class="section-title mb-1" id="especialidadesTitulo">Gestión de especialidades médicas</h2><p class="small text-muted-app mb-0">Consulta, búsqueda y mantenimiento visual del catálogo de especialidades.</p></div>
+            <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEspecialidad">+ Registrar especialidad</button>
+          </div>
+          <div class="app-card-body pb-2">
+            <div class="alert alert-light border mb-3" role="note"><strong>Datos ilustrativos.</strong> Los registros de esta tabla son ficticios. Los formularios no crean, editan ni desactivan especialidades en MongoDB.</div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar especialidades de ejemplo">
+              <div class="col-12 col-md-7"><label class="form-label" for="buscarEspecialidad">Buscar especialidad por nombre o descripción</label><input class="form-control" id="buscarEspecialidad" type="search" placeholder="Ej.: Pediatría" autocomplete="off"></div>
+              <div class="col-12 col-md-3"><label class="form-label" for="filtrarEstadoEspecialidad">Estado</label><select id="filtrarEstadoEspecialidad" class="form-select"><option value="todos">Todos los estados</option><option value="activo">Activa</option><option value="inactivo">Inactiva</option></select></div>
+              <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarFiltrosEspecialidad">Limpiar</button></div>
+            </div>
+            <p class="small text-muted-app mt-3 mb-2" id="contadorEspecialidades" aria-live="polite">3 especialidades de ejemplo</p>
+          </div>
+          <div class="table-responsive">
+            <table class="table app-table mb-0" id="tablaEspecialidades"><caption class="visually-hidden">Especialidades ficticias para las pruebas de interfaz</caption><thead><tr><th scope="col">Especialidad</th><th scope="col">Descripción</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
+              <tr data-nombre="Medicina general" data-descripcion="Atención médica primaria y preventiva" data-activo="true"><td class="fw-semibold">Medicina general</td><td>Atención médica primaria y preventiva</td><td><span class="badge-estado badge-estado-activa">Activa</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
+              <tr data-nombre="Pediatría" data-descripcion="Atención médica para niñas y niños" data-activo="true"><td class="fw-semibold">Pediatría</td><td>Atención médica para niñas y niños</td><td><span class="badge-estado badge-estado-activa">Activa</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
+              <tr data-nombre="Dermatología" data-descripcion="Cuidado y evaluación de la piel" data-activo="false"><td class="fw-semibold">Dermatología</td><td>Cuidado y evaluación de la piel</td><td><span class="badge-estado badge-estado-inactiva">Inactiva</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
+            </tbody></table>
+          </div>
+          <div id="sinResultadosEspecialidades" role="status" class="empty-state m-3 d-none">No se encontraron especialidades con esos filtros.</div>
+          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Correspondencia con API: <code>GET /api/especialidades</code>, <code>POST /api/especialidades</code>, <code>PUT /api/especialidades/:id</code> y <code>DELETE /api/especialidades/:id</code>. La desactivación es lógica y <strong>no hay reactivación implementada</strong> en la API actual.</p></div>
+        </div>
+      </section>
+      <!-- Gestión de citas: maqueta visual; fechas, datos y estados ficticios. -->
+      <section id="citas" aria-labelledby="gestionCitasTitulo" class="mb-4">
+        <div class="app-card">
+          <div class="app-card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+              <p class="eyebrow mb-1">Control de consultas</p>
+              <h2 class="section-title mb-1" id="gestionCitasTitulo">Gestión de citas médicas</h2>
+              <p class="small text-muted-app mb-0">Consultar citas, buscar pacientes y revisar opciones de reprogramación o cancelación.</p>
+            </div>
+            <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Registrar cita</button>
+          </div>
+          <div class="app-card-body pb-2">
+            <div class="alert alert-light border mb-3" role="note"><strong>Datos ilustrativos.</strong> Los siguientes registros son ficticios. Los botones de esta maqueta no reservan, reprograman ni cancelan citas en MongoDB.</div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas de ejemplo">
+              <div class="col-12 col-lg-5">
+                <label for="buscarCita" class="form-label">Buscar paciente, doctor o especialidad</label>
+                <input type="search" id="buscarCita" class="form-control" placeholder="Ej.: Maria, pediatria o doctor" autocomplete="off">
+              </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label for="filtrarEstadoCita" class="form-label">Estado</label>
+                <select class="form-select" id="filtrarEstadoCita">
+                  <option value="todos">Todos los estados</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="completada">Completada</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6 col-lg-2">
+                <label for="filtrarFechaCita" class="form-label">Fecha</label>
+                <input class="form-control" type="date" id="filtrarFechaCita">
+              </div>
+              <div class="col-12 col-lg-2">
+                <button type="button" id="limpiarFiltrosCita" class="btn btn-outline-app w-100">Limpiar</button>
+              </div>
+            </div>
+            <p class="small text-muted-app mt-3 mb-2" id="contadorCitas" aria-live="polite">4 citas de ejemplo</p>
+          </div>
+          <div class="table-responsive">
+            <table class="table app-table mb-0" id="tablaCitas">
+              <caption class="visually-hidden">Listado de citas ficticias para comprobar el diseño; no son datos de MongoDB</caption>
+              <thead><tr><th scope="col">Paciente</th><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+              <tbody>
+                <tr data-paciente="María López" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-11-04" data-hora="09:30" data-estado="pendiente">
+                  <td class="fw-semibold">María López</td><td>Dr. Andrés Vega</td><td>Pediatría</td><td>04/11/2026</td><td>09:30</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td>
+                  <td><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarCita">Reprogramar</button><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarCita">Cancelar</button></div></td>
+                </tr>
+                <tr data-paciente="Carlos Méndez" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-11-05" data-hora="14:00" data-estado="confirmada">
+                  <td class="fw-semibold">Carlos Méndez</td><td>Dra. Elena Rojas</td><td>Medicina general</td><td>05/11/2026</td><td>14:00</td><td><span class="badge-cita badge-cita-confirmada">Confirmada</span></td>
+                  <td><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarCita">Reprogramar</button><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarCita">Cancelar</button></div></td>
+                </tr>
+                <tr data-paciente="Lucía Fernández" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-10-23" data-hora="11:00" data-estado="cancelada">
+                  <td class="fw-semibold">Lucía Fernández</td><td>Dr. Andrés Vega</td><td>Pediatría</td><td>23/10/2026</td><td>11:00</td><td><span class="badge-cita badge-cita-cancelada">Cancelada</span></td><td><span class="text-muted-app small">Sin acciones</span></td>
+                </tr>
+                <tr data-paciente="José Vargas" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-10-25" data-hora="08:00" data-estado="completada">
+                  <td class="fw-semibold">José Vargas</td><td>Dra. Elena Rojas</td><td>Medicina general</td><td>25/10/2026</td><td>08:00</td><td><span class="badge-cita badge-cita-completada">Completada</span></td><td><span class="text-muted-app small">Sin acciones</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No se encontraron citas con esos filtros.</div>
+          <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> y <code>completada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
+        </div>
+      </section>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Vista académica del segundo avance</footer>
     </main>
-
-    <script>
-        const autenticado = sessionStorage.getItem("usuarioAutenticado");
-        const rol = sessionStorage.getItem("rolUsuario");
-
-        if (autenticado !== "true" || rol !== "administrador") {
-            window.location.href = "login.html";
+  </div>
+  <!-- Modales de especialidades: solo diseño visual. -->
+  <div class="modal fade" id="modalCrearEspecialidad" tabindex="-1" aria-labelledby="modalCrearEspecialidadTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearEspecialidadTitulo">Registrar especialidad médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" action="#" method="post"><div class="modal-body"><p class="small text-muted-app">Vista previa de <code>POST /api/especialidades</code>. No se guardan datos.</p>
+        <div class="row g-3"><div class="col-12"><label for="especialidadNombre" class="form-label">Nombre de la especialidad</label><input type="text" class="form-control" id="especialidadNombre" name="nombre" required maxlength="120" placeholder="Ej.: Cardiología"></div>
+        <div class="col-12"><label for="especialidadDescripcion" class="form-label">Descripción</label><textarea id="especialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500" placeholder="Descripción breve de la especialidad"></textarea></div></div>
+      </div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div></form>
+    </div></div>
+  </div>
+  <div class="modal fade" id="modalEditarEspecialidad" tabindex="-1" aria-labelledby="modalEditarEspecialidadTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarEspecialidadTitulo">Editar especialidad de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" action="#" method="post"><div class="modal-body"><p class="small text-muted-app">Vista previa de <code>PUT /api/especialidades/:id</code>. No se guardan cambios.</p>
+        <div class="row g-3"><div class="col-12"><label for="editarEspecialidadNombre" class="form-label">Nombre de la especialidad</label><input type="text" class="form-control" name="nombre" id="editarEspecialidadNombre" required maxlength="120"></div>
+        <div class="col-12"><label for="editarEspecialidadDescripcion" class="form-label">Descripción</label><textarea id="editarEspecialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500"></textarea></div>
+        <div class="col-12"><label for="editarEspecialidadEstado" class="form-label">Estado (solo lectura)</label><input id="editarEspecialidadEstado" type="text" class="form-control" disabled><div class="form-text">La API actual permite desactivar una especialidad mediante DELETE; no tiene un endpoint para reactivarla. El prototipo no cambia el estado.</div></div></div>
+      </div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div></form>
+    </div></div>
+  </div>
+  <!-- Modales de Usuarios (solo demostración; no persisten cambios). -->
+  <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearUsuarioTitulo">Registrar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" action="#" method="post">
+        <div class="modal-body">
+          <p class="small text-muted-app">Prototipo del endpoint <code>POST /api/usuarios</code>. Este formulario no envía datos a MongoDB.</p>
+          <div class="row g-3">
+            <div class="col-12"><label for="usuarioNombre" class="form-label">Nombre completo</label><input type="text" id="usuarioNombre" name="nombre" class="form-control" maxlength="120" autocomplete="name" placeholder="Ej.: María Pérez" required></div>
+            <div class="col-12 col-md-6"><label for="usuarioEmail" class="form-label">Correo electrónico</label><input type="email" id="usuarioEmail" name="email" class="form-control" autocomplete="email" placeholder="nombre@example.com" required></div>
+            <div class="col-12 col-md-6"><label for="usuarioRol" class="form-label">Rol</label><select id="usuarioRol" name="rol" class="form-select" required><option value="">Seleccionar rol</option><option value="paciente">Paciente</option><option value="doctor">Doctor</option><option value="administrador">Administrador</option></select></div>
+            <div class="col-12"><label for="usuarioPassword" class="form-label">Contraseña</label><input type="password" id="usuarioPassword" name="password" class="form-control" minlength="8" autocomplete="new-password" required><div class="form-text">Campo de demostración; no se guardará ni enviará la contraseña.</div></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div>
+      </form>
+    </div></div>
+  </div>
+  <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarUsuarioTitulo">Editar usuario de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" action="#" method="post">
+        <div class="modal-body">
+          <p class="small text-muted-app">Prototipo de <code>PUT /api/usuarios/:id</code>: actualmente este endpoint permite modificar <code>nombre</code> y <code>email</code>. Aquí no se guardarán cambios.</p>
+          <div class="row g-3">
+            <div class="col-12"><label for="editarUsuarioNombre" class="form-label">Nombre completo</label><input type="text" id="editarUsuarioNombre" name="nombre" class="form-control" required></div>
+            <div class="col-12"><label for="editarUsuarioEmail" class="form-label">Correo electrónico</label><input type="email" id="editarUsuarioEmail" name="email" class="form-control" required></div>
+            <div class="col-12"><label for="editarUsuarioRol" class="form-label">Rol actual (solo lectura)</label><input type="text" id="editarUsuarioRol" class="form-control" disabled><div class="form-text">Cambiar roles aún no está contemplado en el endpoint de actualización.</div></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div>
+      </form>
+    </div></div>
+  </div>
+  <!-- Modal: registro de doctor (solo maqueta). Los name coinciden con el modelo Doctor. -->
+  <div class="modal fade" id="modalDoctor" tabindex="-1" aria-labelledby="modalDoctorTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" novalidate><div class="modal-body"><p class="small text-muted-app">Formulario preparado para <code>POST /api/doctores</code>. Los selectores se poblarán con la API.</p><div class="row g-3">
+        <div class="col-12 col-md-6"><label for="doctorUsuario" class="form-label">Usuario con rol doctor</label><select name="usuario" id="doctorUsuario" class="form-select" required><option value="">Seleccione un usuario</option></select></div>
+        <div class="col-12 col-md-6"><label for="doctorEspecialidad" class="form-label">Especialidad médica</label><select name="especialidad" id="doctorEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
+        <div class="col-12 col-md-6"><label for="doctorColegiado" class="form-label">Número de colegiado</label><input class="form-control" type="text" name="numeroColegiado" id="doctorColegiado" maxlength="80" required placeholder="Ej.: COL-2026-001"></div>
+        <div class="col-12 col-md-6"><label for="doctorTelefono" class="form-label">Teléfono</label><input class="form-control" type="tel" name="telefono" id="doctorTelefono" placeholder="Ej.: 8888-0000"></div>
+      </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Vista previa del registro</button></div></form>
+    </div></div>
+  </div>
+  <!-- Modal: nueva cita (solo maqueta). Los name coinciden con el modelo Cita. -->
+  <div class="modal fade" id="modalNuevaCita" tabindex="-1" aria-labelledby="modalCitaTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalCitaTitulo">Nueva cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" novalidate><div class="modal-body"><p class="small text-muted-app">Formulario preparado para <code>POST /api/citas</code>.</p><div class="row g-3">
+        <div class="col-12 col-md-6"><label for="citaPaciente" class="form-label">Paciente</label><select name="paciente" id="citaPaciente" class="form-select" required><option value="">Seleccione un paciente</option></select></div>
+        <div class="col-12 col-md-6"><label for="citaDoctor" class="form-label">Doctor</label><select name="doctor" id="citaDoctor" class="form-select" required><option value="">Seleccione un doctor</option></select></div>
+        <div class="col-12 col-md-6"><label for="citaEspecialidad" class="form-label">Especialidad</label><select name="especialidad" id="citaEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
+        <div class="col-6 col-md-3"><label for="citaFecha" class="form-label">Fecha</label><input type="date" class="form-control" name="fecha" id="citaFecha" required></div>
+        <div class="col-6 col-md-3"><label for="citaHora" class="form-label">Hora</label><input type="time" class="form-control" name="hora" id="citaHora" required></div>
+        <div class="col-12"><label for="citaMotivo" class="form-label">Motivo de consulta</label><textarea name="motivo" id="citaMotivo" class="form-control" maxlength="500" rows="3"></textarea></div>
+      </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Vista previa de la cita</button></div></form>
+    </div></div>
+  </div>
+  <!-- Modales de reprogramación y cancelación de citas: solo demostración. -->
+  <div class="modal fade" id="modalReprogramarCita" tabindex="-1" aria-labelledby="modalReprogramarCitaTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalReprogramarCitaTitulo">Reprogramar cita de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-maqueta" action="#" method="post">
+        <div class="modal-body">
+          <p class="small text-muted-app">Vista previa de <code>PUT /api/citas/:id</code>. No se consulta disponibilidad real ni se guardan cambios.</p>
+          <div class="row g-3">
+            <div class="col-12 col-sm-6"><label for="reprogramarPaciente" class="form-label">Paciente (solo lectura)</label><input id="reprogramarPaciente" type="text" class="form-control" readonly></div>
+            <div class="col-12 col-sm-6"><label for="reprogramarDoctor" class="form-label">Doctor (solo lectura)</label><input id="reprogramarDoctor" type="text" class="form-control" readonly></div>
+            <div class="col-12 col-sm-6"><label for="reprogramarFecha" class="form-label">Nueva fecha</label><input id="reprogramarFecha" type="date" name="fecha" class="form-control" required></div>
+            <div class="col-12 col-sm-6"><label for="reprogramarHora" class="form-label">Nueva hora</label><input id="reprogramarHora" type="time" name="hora" class="form-control" required></div>
+          </div>
+          <div class="alert alert-light border small mt-3 mb-0" role="note">Este formulario no comprueba horarios disponibles. Para habilitarlo de verdad habrá que consultar el backend y verificar los posibles conflictos.</div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div>
+      </form>
+    </div></div>
+  </div>
+  <div class="modal fade" id="modalCancelarCita" tabindex="-1" aria-labelledby="modalCancelarCitaTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalCancelarCitaTitulo">Vista previa de cancelación</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body">
+        <p class="mb-2">Cita seleccionada: <strong id="cancelarCitaDetalle"></strong></p>
+        <p class="small text-muted-app mb-0">Esta es una demostración de la acción <code>DELETE /api/citas/:id</code>. No se modifica ni elimina ninguna cita.</p>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="vistaPreviaCancelarCita" class="btn btn-app-primary">Validar vista previa</button></div>
+    </div></div>
+  </div>
+  <div id="mensajePrototipo" role="status" class="visually-hidden" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // El nombre del usuario procede del flujo de login existente.
+    const nombre = sessionStorage.getItem('nombreUsuario');
+    if (nombre) document.getElementById('saludoUsuario').textContent = nombre;
+    document.getElementById('cerrarSesion').addEventListener('click', () => {
+      sessionStorage.removeItem('usuarioAutenticado');
+      sessionStorage.removeItem('rolUsuario');
+      sessionStorage.removeItem('usuarioId');
+      sessionStorage.removeItem('nombreUsuario');
+      window.location.href = 'login.html';
+    });
+    // No envía datos: el segundo avance requiere maquetación, no integración completa.
+    document.querySelectorAll('.form-maqueta').forEach(form => {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
         }
-    </script>
-
+        const aviso = 'Vista previa validada. Este formulario es de demostración y NO envía datos a MongoDB.';
+        document.getElementById('mensajePrototipo').textContent = aviso;
+        window.alert(aviso);
+      });
+    });
+    // Hace que las búsquedas no dependan de mayúsculas, tildes o espacios repetidos.
+    // Conservamos la ñ como letra diferente de la n.
+    function normalizarBusqueda(valor) {
+      return String(valor ?? '')
+        .trim()
+        .toLocaleLowerCase('es')
+        .normalize('NFD')
+        .replace(/n\u0303/g, 'ñ')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ');
+    }
+    // Buscar y filtrar la tabla ilustrativa de usuarios (sin llamadas al backend).
+    const buscarUsuario = document.getElementById('buscarUsuario');
+    const filtrarRolUsuario = document.getElementById('filtrarRolUsuario');
+    const filasUsuarios = [...document.querySelectorAll('#tablaUsuarios tbody tr[data-rol]')];
+    function actualizarTablaUsuarios() {
+      const termino = normalizarBusqueda(buscarUsuario.value);
+      const rol = filtrarRolUsuario.value;
+      let visibles = 0;
+      filasUsuarios.forEach(fila => {
+        const coincideTexto = normalizarBusqueda(fila.dataset.nombre + ' ' + fila.dataset.email).includes(termino);
+        const coincideRol = rol === 'todos' || fila.dataset.rol === rol;
+        const mostrar = coincideTexto && coincideRol;
+        fila.classList.toggle('d-none', !mostrar);
+        if (mostrar) visibles++;
+      });
+      document.getElementById('contadorUsuarios').textContent = `${visibles} de ${filasUsuarios.length} usuarios de ejemplo`;
+      document.getElementById('sinResultadosUsuarios').classList.toggle('d-none', visibles !== 0);
+    }
+    buscarUsuario.addEventListener('input', actualizarTablaUsuarios);
+    filtrarRolUsuario.addEventListener('change', actualizarTablaUsuarios);
+    document.getElementById('limpiarFiltrosUsuario').addEventListener('click', () => {
+      buscarUsuario.value = '';
+      filtrarRolUsuario.value = 'todos';
+      actualizarTablaUsuarios();
+      buscarUsuario.focus();
+    });
+    // Al seleccionar Editar, mostrar los datos de esa fila de demostración.
+    document.getElementById('modalEditarUsuario').addEventListener('show.bs.modal', event => {
+      const fila = event.relatedTarget?.closest('tr[data-rol]');
+      if (!fila) return;
+      document.getElementById('editarUsuarioNombre').value = fila.dataset.nombre;
+      document.getElementById('editarUsuarioEmail').value = fila.dataset.email;
+      const etiqueta = {paciente:'Paciente', doctor:'Doctor', administrador:'Administrador'};
+      document.getElementById('editarUsuarioRol').value = etiqueta[fila.dataset.rol] || fila.dataset.rol;
+    });
+    // Búsqueda y estado de especialidades: datos de demostración, sin API.
+    const buscarEspecialidad = document.getElementById('buscarEspecialidad');
+    const filtrarEstadoEspecialidad = document.getElementById('filtrarEstadoEspecialidad');
+    const filasEspecialidades = [...document.querySelectorAll('#tablaEspecialidades tbody tr[data-activo]')];
+    function actualizarTablaEspecialidades() {
+      const termino = normalizarBusqueda(buscarEspecialidad.value);
+      const estado = filtrarEstadoEspecialidad.value;
+      let visibles = 0;
+      filasEspecialidades.forEach(fila => {
+        const coincideTexto = normalizarBusqueda(fila.dataset.nombre + ' ' + fila.dataset.descripcion).includes(termino);
+        const coincideEstado = estado === 'todos' || (estado === 'activo' ? fila.dataset.activo === 'true' : fila.dataset.activo === 'false');
+        const mostrar = coincideTexto && coincideEstado;
+        fila.classList.toggle('d-none', !mostrar);
+        if (mostrar) visibles++;
+      });
+      document.getElementById('contadorEspecialidades').textContent = `${visibles} de ${filasEspecialidades.length} especialidades de ejemplo`;
+      document.getElementById('sinResultadosEspecialidades').classList.toggle('d-none', visibles !== 0);
+    }
+    buscarEspecialidad.addEventListener('input', actualizarTablaEspecialidades);
+    filtrarEstadoEspecialidad.addEventListener('change', actualizarTablaEspecialidades);
+    document.getElementById('limpiarFiltrosEspecialidad').addEventListener('click', () => {
+      buscarEspecialidad.value = '';
+      filtrarEstadoEspecialidad.value = 'todos';
+      actualizarTablaEspecialidades();
+      buscarEspecialidad.focus();
+    });
+    document.getElementById('modalEditarEspecialidad').addEventListener('show.bs.modal', event => {
+      const fila = event.relatedTarget?.closest('tr[data-activo]');
+      if (!fila) return;
+      document.getElementById('editarEspecialidadNombre').value = fila.dataset.nombre;
+      document.getElementById('editarEspecialidadDescripcion').value = fila.dataset.descripcion;
+      document.getElementById('editarEspecialidadEstado').value = fila.dataset.activo === 'true' ? 'Activa' : 'Inactiva';
+    });
+    // Filtros de la tabla de citas: se trabaja exclusivamente con datos ilustrativos.
+    const buscarCita = document.getElementById('buscarCita');
+    const filtrarEstadoCita = document.getElementById('filtrarEstadoCita');
+    const filtrarFechaCita = document.getElementById('filtrarFechaCita');
+    const filasCitas = [...document.querySelectorAll('#tablaCitas tbody tr[data-estado]')];
+    function actualizarTablaCitas() {
+      const termino = normalizarBusqueda(buscarCita.value);
+      const estado = filtrarEstadoCita.value;
+      const fecha = filtrarFechaCita.value;
+      let visibles = 0;
+      filasCitas.forEach(fila => {
+        const texto = normalizarBusqueda(fila.dataset.paciente + ' ' + fila.dataset.doctor + ' ' + fila.dataset.especialidad);
+        const mostrar = texto.includes(termino) && (estado === 'todos' || fila.dataset.estado === estado) && (!fecha || fila.dataset.fecha === fecha);
+        fila.classList.toggle('d-none', !mostrar);
+        if (mostrar) visibles++;
+      });
+      document.getElementById('contadorCitas').textContent = `${visibles} de ${filasCitas.length} citas de ejemplo`;
+      document.getElementById('sinResultadosCitas').classList.toggle('d-none', visibles !== 0);
+    }
+    buscarCita.addEventListener('input', actualizarTablaCitas);
+    filtrarEstadoCita.addEventListener('change', actualizarTablaCitas);
+    filtrarFechaCita.addEventListener('change', actualizarTablaCitas);
+    document.getElementById('limpiarFiltrosCita').addEventListener('click', () => {
+      buscarCita.value = '';
+      filtrarEstadoCita.value = 'todos';
+      filtrarFechaCita.value = '';
+      actualizarTablaCitas();
+      buscarCita.focus();
+    });
+    // Los modales reciben la fila seleccionada sin acceder a datos privados ni a la API.
+    document.getElementById('modalReprogramarCita').addEventListener('show.bs.modal', event => {
+      const fila = event.relatedTarget?.closest('tr[data-estado]');
+      if (!fila) return;
+      document.getElementById('reprogramarPaciente').value = fila.dataset.paciente;
+      document.getElementById('reprogramarDoctor').value = fila.dataset.doctor;
+      document.getElementById('reprogramarFecha').value = fila.dataset.fecha;
+      document.getElementById('reprogramarHora').value = fila.dataset.hora;
+    });
+    document.getElementById('modalCancelarCita').addEventListener('show.bs.modal', event => {
+      const fila = event.relatedTarget?.closest('tr[data-estado]');
+      if (!fila) return;
+      document.getElementById('cancelarCitaDetalle').textContent = `${fila.dataset.paciente} · ${fila.dataset.fecha} · ${fila.dataset.hora}`;
+    });
+    document.getElementById('vistaPreviaCancelarCita').addEventListener('click', () => {
+      const aviso = 'Vista previa validada. La cita ficticia NO ha sido cancelada ni modificada.';
+      document.getElementById('mensajePrototipo').textContent = aviso;
+      window.alert(aviso);
+    });
+    // Corrección de accesibilidad probada: no dejar el foco en un modal que se oculta.
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('hide.bs.modal', () => {
+        if (modal.contains(document.activeElement)) document.activeElement.blur();
+      });
+    });
+  </script>
 </body>
 </html>

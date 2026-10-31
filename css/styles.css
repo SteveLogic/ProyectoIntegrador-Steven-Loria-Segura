@@ -1,0 +1,149 @@
+/* Sistema de Citas Médicas — identidad visual inicial del segundo avance.
+   Hoja compartida: diseño claro, grises neutros y componentes Bootstrap 5.3. */
+:root {
+  --app-bg: #f6f7f8;
+  --app-surface: #ffffff;
+  --app-muted-surface: #f1f3f5;
+  --app-border: #e4e7eb;
+  --app-text: #23272f;
+  --app-muted: #6b7280;
+  --app-accent: #414b57;
+  --app-accent-hover: #303943;
+  --app-radius: 14px;
+  --app-shadow: 0 8px 28px rgba(21, 27, 34, .035);
+  --bs-primary: #414b57;
+  --bs-primary-rgb: 65, 75, 87;
+  --bs-body-color: #23272f;
+  --bs-body-bg: #f6f7f8;
+  --bs-border-color: #e4e7eb;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { color: var(--app-text); background: var(--app-bg); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+a { color: var(--app-accent); }
+a:hover { color: var(--app-accent-hover); }
+:focus-visible { outline: 3px solid #8793a1; outline-offset: 3px; }
+.app-topbar { background: #fff; border-bottom: 1px solid var(--app-border); min-height: 68px; }
+.app-brand { display: inline-flex; align-items: center; gap: .7rem; color: #252c34; text-decoration: none; font-weight: 750; letter-spacing: -.025em; }
+.app-brand:hover { color: #252c34; }
+.app-brand-mark { display: inline-grid; place-items: center; width: 36px; height: 36px; color: #fff; background: #414b57; border-radius: 10px; font-size: 1.3rem; line-height: 1; }
+.app-shell { min-height: calc(100vh - 68px); }
+.app-sidebar { background: #fff; border-right: 1px solid var(--app-border); padding: 1.4rem 1rem; }
+.app-sidebar .nav-link, .app-mobile-nav .nav-link { display: flex; align-items: center; gap: .7rem; color: #5a6370; border-radius: 9px; padding: .75rem .9rem; font-size: .94rem; text-decoration: none; }
+.app-sidebar .nav-link:hover, .app-mobile-nav .nav-link:hover { background: #f3f4f6; color: var(--app-text); }
+.app-sidebar .nav-link.active, .app-mobile-nav .nav-link.active { color: #252c34; font-weight: 700; background: #e9ecef; }
+.app-sidebar-heading { color: #9299a2; font-size: .72rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; padding: .5rem .9rem; }
+.app-main { padding: 2rem 1.8rem 3rem; width: 100%; min-width: 0; }
+.eyebrow { color: var(--app-muted); text-transform: uppercase; font-size: .73rem; letter-spacing: .1em; font-weight: 750; }
+.page-title { font-weight: 750; letter-spacing: -.04em; margin: .25rem 0 .35rem; }
+.page-intro { color: var(--app-muted); max-width: 760px; }
+.app-card { background: #fff; border: 1px solid var(--app-border); border-radius: var(--app-radius); box-shadow: var(--app-shadow); }
+.app-card-header { border-bottom: 1px solid var(--app-border); padding: 1.15rem 1.3rem; }
+.app-card-body { padding: 1.3rem; }
+.kpi-icon { display: inline-grid; place-items: center; width: 40px; height: 40px; background: #f0f2f4; color: #434d58; font-size: 1.15rem; border-radius: 11px; }
+.kpi-value { font-size: 1.8rem; line-height: 1.15; letter-spacing: -.04em; font-weight: 750; }
+.kpi-label { color: var(--app-muted); font-size: .84rem; }
+.module-card { text-decoration: none; display: block; color: inherit; height: 100%; transition: transform .15s, box-shadow .15s; }
+.module-card:hover { transform: translateY(-2px); box-shadow: 0 13px 28px rgba(21, 27, 34, .08); color: inherit; }
+.section-title { font-weight: 730; letter-spacing: -.025em; font-size: 1.17rem; }
+.text-muted-app { color: var(--app-muted); }
+.badge-soft { display: inline-block; padding: .38rem .65rem; border-radius: 999px; background: #f0f2f4; color: #4e5965; font-size: .72rem; font-weight: 650; }
+.app-table { margin-bottom: 0; }
+.app-table th { text-transform: uppercase; font-size: .72rem; letter-spacing: .065em; color: #858d97; font-weight: 750; background: #fafafb; }
+.app-table td, .app-table th { padding: .95rem 1.15rem; vertical-align: middle; border-color: #edf0f2; }
+.empty-state { border: 1px dashed #d5dbe1; background: #fbfbfc; border-radius: 12px; text-align: center; padding: 2.4rem 1.2rem; color: #606b77; }
+.btn-app-primary { --bs-btn-color: #fff; --bs-btn-bg: #414b57; --bs-btn-border-color: #414b57; --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #303943; --bs-btn-hover-border-color: #303943; --bs-btn-active-bg: #29313b; --bs-btn-active-border-color: #29313b; }
+.btn-outline-app { --bs-btn-color: #414b57; --bs-btn-border-color: #cfd5dc; --bs-btn-hover-bg: #414b57; --bs-btn-hover-color: #fff; --bs-btn-hover-border-color: #414b57; }
+.form-control:focus, .form-select:focus { border-color: #9ba5b0; box-shadow: 0 0 0 .2rem rgba(65,75,87,.10); }
+.modal-content { border: 1px solid var(--app-border); border-radius: 15px; }
+.modal-header, .modal-footer { border-color: #edf0f2; }
+.app-footer { font-size: .79rem; color: #929aa3; margin-top: 2.5rem; }
+@media (min-width: 992px) { .app-sidebar { min-height: calc(100vh - 68px); width: 238px; flex: 0 0 238px; } }
+@media (max-width: 991.98px) { .app-main { padding: 1.5rem 1rem 2.5rem; } .page-title { font-size: 1.75rem; } }
+@media (max-width: 575.98px) { .app-card-body { padding: 1.05rem; } .app-card-header { padding: 1.05rem; } .btn-mobile-wide { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .module-card { transition: none; } }
+
+/* Usuarios: tabla de ejemplo, filtros y formulario de registro/edición. */
+#usuarios, #doctores, #citas, #especialidades { scroll-margin-top: 90px; }
+#usuarios .form-label { font-size: .86rem; font-weight: 600; }
+#usuarios .app-table { min-width: 580px; }
+.badge-role { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid #e4e7eb; background: #f5f6f7; color: #414b57; font-size: .75rem; font-weight: 650; padding: .3rem .62rem; }
+#usuarios .table-responsive { border-top: 1px solid var(--app-border); }
+#usuarios button { white-space: nowrap; }
+@media (max-width: 575.98px) {
+  #usuarios .app-card-header .btn { width: 100%; }
+  #usuarios .table-responsive { -webkit-overflow-scrolling: touch; }
+}
+
+/* Especialidades: catálogo ilustrativo responsive. */
+#especialidades .form-label { font-size: .86rem; font-weight: 600; }
+#especialidades .app-table { min-width: 630px; }
+#especialidades .table-responsive { border-top: 1px solid var(--app-border); -webkit-overflow-scrolling: touch; }
+#especialidades button { white-space: nowrap; }
+.badge-estado { display: inline-flex; border: 1px solid #dce1e6; border-radius: 999px; padding: .28rem .65rem; font-size: .75rem; font-weight: 650; }
+.badge-estado-activa { background: #edf1ef; color: #37554a; }
+.badge-estado-inactiva { background: #f1f2f4; color: #626b76; }
+@media (max-width: 575.98px) { #especialidades .app-card-header .btn { width: 100%; } }
+
+/* Citas: gestión ilustrativa, estados del modelo Cita y modales responsive. */
+#citas .form-label { font-size: .86rem; font-weight: 600; }
+#citas .app-table { min-width: 940px; }
+#citas .table-responsive { border-top: 1px solid var(--app-border); -webkit-overflow-scrolling: touch; }
+#citas .app-table td:last-child { white-space: nowrap; }
+.badge-cita { display: inline-flex; align-items: center; border: 1px solid #dce1e6; border-radius: 999px; padding: .28rem .65rem; font-size: .75rem; font-weight: 650; white-space: nowrap; }
+.badge-cita-pendiente { background: #f6f2e8; color: #776136; }
+.badge-cita-confirmada { background: #edf1ef; color: #37554a; }
+.badge-cita-cancelada { background: #f1f2f4; color: #626b76; }
+.badge-cita-completada { background: #eef0f5; color: #424d64; }
+@media (max-width: 575.98px) {
+  #citas .app-card-header .btn { width: 100%; }
+  #citas .modal-footer { flex-wrap: wrap; }
+}
+
+
+/* Panel del paciente — estilos propios sin alterar los módulos administrativos. */
+#paciente-main section[id] { scroll-margin-top: 92px; }
+.patient-welcome { background: linear-gradient(115deg, #fff 10%, #f1f3f5 100%); }
+.patient-welcome .eyebrow { color: #65707c; }
+.patient-stat { display: flex; gap: .9rem; align-items: flex-start; }
+.patient-stat .kpi-icon { flex: 0 0 40px; }
+.patient-doctor-card { height: 100%; display: flex; flex-direction: column; }
+.patient-doctor-card[hidden] { display: none !important; }
+.patient-doctor-card .doctor-avatar { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; background: #f1f3f5; color: #475362; font-weight: 750; }
+.patient-doctor-card .btn { margin-top: auto; }
+.patient-doctor-card.is-selected { border-color: #7a8794; box-shadow: 0 0 0 2px rgba(65,75,87,.11); }
+.patient-times { display: flex; gap: .5rem; flex-wrap: wrap; }
+.patient-time { border: 1px solid #d9dee4; background: #fff; color: #394450; border-radius: 9px; padding: .48rem .72rem; }
+.patient-time:hover, .patient-time[aria-pressed="true"] { background: #414b57; border-color: #414b57; color: white; }
+.patient-help { font-size: .8rem; color: var(--app-muted); }
+.patient-table { min-width: 760px; }
+.patient-appointment-actions { white-space: nowrap; }
+.patient-profile-label { font-size: .78rem; color: var(--app-muted); }
+.patient-profile-value { font-weight: 600; overflow-wrap: anywhere; }
+.patient-empty { border: 1px dashed #d4dae0; background: #fbfbfc; border-radius: 11px; padding: 1.4rem; color: #626d78; }
+@media (max-width: 575.98px) {
+  .patient-doctor-card { min-height: 0; }
+  .patient-booking-actions .btn { width: 100%; }
+  .patient-table th, .patient-table td { padding: .85rem .8rem; }
+}
+
+/* Panel del doctor — componentes propios de la maqueta, sin alterar Paciente ni Administrador. */
+#doctor-main section[id] { scroll-margin-top: 92px; }
+.doctor-welcome { background: linear-gradient(115deg, #fff 10%, #f1f3f5 100%); }
+.doctor-kpi { display: flex; align-items: flex-start; gap: .9rem; min-height: 125px; }
+.doctor-kpi .kpi-icon { flex: 0 0 40px; }
+.doctor-table { min-width: 810px; }
+.doctor-table-scroll { border-top: 1px solid var(--app-border); -webkit-overflow-scrolling: touch; }
+.doctor-table td:last-child { white-space: nowrap; }
+.doctor-slot { display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--app-border); padding: 1.2rem; border-radius: 12px; background: #fbfbfc; }
+.doctor-slot .btn { align-self: flex-start; }
+.doctor-patient { display: flex; align-items: center; gap: .85rem; border: 1px solid var(--app-border); padding: 1rem; border-radius: 12px; height: 100%; }
+.doctor-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 11px; background: #f1f3f5; color: #475362; font-weight: 750; }
+.doctor-empty { border: 1px dashed #d4dae0; background: #fbfbfc; border-radius: 11px; padding: 1.2rem; color: #626d78; }
+.doctor-profile-label { font-size: .78rem; color: var(--app-muted); }
+.doctor-profile-value { font-weight: 600; overflow-wrap: anywhere; }
+.doctor-detail-list dt { color: var(--app-muted); font-weight: 550; }
+@media (max-width: 575.98px) {
+  #doctor-main .app-card-header > .btn { width: 100%; }
+  .doctor-kpi { min-height: 0; }
+  .doctor-slot .btn { width: 100%; }
+}

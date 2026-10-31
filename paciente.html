@@ -1,40 +1,359 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Paciente - Sistema de Citas Médicas</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Panel de paciente del Sistema de Citas Médicas: especialidades, doctores y citas de ejemplo.">
+  <title>Panel del paciente | Sistema de Citas Médicas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
 </head>
-
 <body>
-
-    <nav class="navbar navbar-dark bg-primary">
-        <div class="container">
-            <span class="navbar-brand">
-                Sistema de Citas Médicas
-            </span>
+  <!-- El control de sesión del frontend es ilustrativo; la autorización real debe validarse en el backend. -->
+  <script>
+    if (sessionStorage.getItem('usuarioAutenticado') !== 'true' ||
+        sessionStorage.getItem('rolUsuario') !== 'paciente') {
+      window.location.replace('login.html');
+    }
+  </script>
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 bg-white p-2" href="#paciente-main">Saltar al contenido</a>
+  <header class="app-topbar sticky-top">
+    <nav class="navbar h-100" aria-label="Barra superior">
+      <div class="container-fluid px-3 px-lg-4 py-2">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-app d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuPacienteMovil" aria-controls="menuPacienteMovil" aria-label="Abrir menú de navegación">☰</button>
+          <a class="app-brand" href="#inicio"><span class="app-brand-mark" aria-hidden="true">+</span><span>Sistema de Citas Médicas</span></a>
         </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <span class="d-none d-sm-inline text-muted-app small" id="nombrePacienteBarra">Paciente</span>
+          <button class="btn btn-sm btn-outline-app" id="cerrarSesionPaciente" type="button">Cerrar sesión</button>
+        </div>
+      </div>
     </nav>
-
-    <main class="container py-5">
-        <h1>Panel del paciente</h1>
-        <p>Bienvenido al sistema de citas médicas.</p>
+  </header>
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="menuPacienteMovil" aria-labelledby="menuPacienteTitulo">
+    <div class="offcanvas-header border-bottom">
+      <h2 class="offcanvas-title fs-6" id="menuPacienteTitulo">Navegación del paciente</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar menú"></button>
+    </div>
+    <div class="offcanvas-body app-mobile-nav">
+      <nav class="nav flex-column" aria-label="Menú móvil del paciente">
+        <a class="nav-link active" href="#inicio">Resumen</a>
+        <a class="nav-link" href="#buscarDoctores">Buscar doctores</a>
+        <a class="nav-link" href="#reservarCita">Reservar cita</a>
+        <a class="nav-link" href="#misCitas">Mis citas</a>
+        <a class="nav-link" href="#miPerfil">Mi perfil</a>
+      </nav>
+    </div>
+  </div>
+  <div class="app-shell d-lg-flex">
+    <aside class="app-sidebar d-none d-lg-block" aria-label="Navegación principal del paciente">
+      <p class="app-sidebar-heading mb-1">Área del paciente</p>
+      <nav class="nav flex-column">
+        <a class="nav-link active" href="#inicio"><span aria-hidden="true">▦</span> Resumen</a>
+        <a class="nav-link" href="#buscarDoctores"><span aria-hidden="true">⌕</span> Buscar doctores</a>
+        <a class="nav-link" href="#reservarCita"><span aria-hidden="true">＋</span> Reservar cita</a>
+        <a class="nav-link" href="#misCitas"><span aria-hidden="true">▤</span> Mis citas</a>
+        <a class="nav-link" href="#miPerfil"><span aria-hidden="true">◯</span> Mi perfil</a>
+      </nav>
+      <hr class="my-4">
+      <p class="small px-3 text-muted-app">Segundo avance · Maqueta de la interfaz del paciente, con datos de demostración.</p>
+    </aside>
+    <main class="app-main" id="paciente-main">
+      <section id="inicio" aria-labelledby="inicioTitulo" class="mb-4">
+        <div class="app-card patient-welcome app-card-body">
+          <div class="d-flex flex-wrap gap-3 justify-content-between align-items-start">
+            <div>
+              <p class="eyebrow mb-1">Portal del paciente</p>
+              <h1 class="page-title" id="inicioTitulo">Bienvenido, <span id="saludoPaciente">paciente</span></h1>
+              <p class="page-intro mb-0">Busca un profesional, prepara tu reserva y consulta tus citas desde un mismo espacio.</p>
+            </div>
+            <a class="btn btn-app-primary btn-mobile-wide" href="#reservarCita">+ Solicitar cita</a>
+          </div>
+        </div>
+        <div class="alert alert-light border mt-3" role="status"><strong>Prototipo visual:</strong> los profesionales, horarios y citas que aparecen son ejemplos ficticios. No se consulta disponibilidad real ni se crean, modifican o cancelan citas en MongoDB.</div>
+        <div class="row g-3" aria-label="Resumen ilustrativo">
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value">2</div><div class="kpi-label">Solo datos de ejemplo</div></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value">2</div><div class="kpi-label">Catálogo ilustrativo</div></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">◯</span><div><div class="kpi-label">Profesionales de ejemplo</div><div class="kpi-value">3</div><div class="kpi-label">No representan disponibilidad real</div></div></div></div>
+        </div>
+      </section>
+      <section id="buscarDoctores" class="mb-4" aria-labelledby="buscarTitulo">
+        <div class="app-card">
+          <div class="app-card-header">
+            <p class="eyebrow mb-1">Directorio médico</p>
+            <h2 class="section-title mb-1" id="buscarTitulo">Buscar doctores por especialidad</h2>
+            <p class="small text-muted-app mb-0">Filtra profesionales de ejemplo por especialidad o nombre y continúa con la reserva.</p>
+          </div>
+          <div class="app-card-body">
+            <div class="row g-3 align-items-end mb-3">
+              <div class="col-12 col-md-5"><label class="form-label" for="filtroEspecialidad">Especialidad médica</label><select class="form-select" id="filtroEspecialidad"><option value="">Todas las especialidades activas</option><option value="pediatria">Pediatría</option><option value="medicina-general">Medicina general</option></select></div>
+              <div class="col-12 col-md-5"><label class="form-label" for="filtroDoctor">Buscar por nombre</label><input class="form-control" id="filtroDoctor" type="search" placeholder="Ej.: andres o elena" autocomplete="off"></div>
+              <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarDoctores">Limpiar</button></div>
+            </div>
+            <p class="small text-muted-app mb-3" id="contadorDoctores" role="status" aria-live="polite">3 profesionales de ejemplo</p>
+            <div class="row g-3" id="directorioDoctores">
+              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Andrés Vega" data-especialidad="pediatria">
+                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">AV</div><div><h3 class="h6 fw-bold mb-1">Dr. Andrés Vega</h3><span class="badge-soft">Pediatría</span></div></div><p class="small text-muted-app mb-3">Atención pediátrica y seguimiento infantil. Profesional ficticio.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="andres" data-especialidad="pediatria" aria-label="Seleccionar al Dr. Andrés Vega">Seleccionar para cita</button></article>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Elena Rojas" data-especialidad="medicina-general">
+                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">ER</div><div><h3 class="h6 fw-bold mb-1">Dra. Elena Rojas</h3><span class="badge-soft">Medicina general</span></div></div><p class="small text-muted-app mb-3">Consulta primaria y prevención. Profesional ficticia.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="elena" data-especialidad="medicina-general" aria-label="Seleccionar a la Dra. Elena Rojas">Seleccionar para cita</button></article>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Daniel Soto" data-especialidad="medicina-general">
+                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">DS</div><div><h3 class="h6 fw-bold mb-1">Dr. Daniel Soto</h3><span class="badge-soft">Medicina general</span></div></div><p class="small text-muted-app mb-3">Orientación y control de salud general. Profesional ficticio.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="daniel" data-especialidad="medicina-general" aria-label="Seleccionar al Dr. Daniel Soto">Seleccionar para cita</button></article>
+              </div>
+            </div>
+            <div class="patient-empty mt-3" id="sinDoctores" role="status" hidden>No encontramos profesionales de ejemplo que coincidan con esos filtros. Intenta otra búsqueda.</div>
+          </div>
+        </div>
+      </section>
+      <section id="reservarCita" class="mb-4" aria-labelledby="reservarTitulo">
+        <div class="app-card">
+          <div class="app-card-header"><p class="eyebrow mb-1">Solicitud de atención</p><h2 class="section-title mb-1" id="reservarTitulo">Reservar cita médica</h2><p class="small text-muted-app mb-0">Vista previa de <code>POST /api/citas</code>: los horarios son ilustrativos y aún no se consulta la agenda real.</p></div>
+          <form class="app-card-body" id="formReserva">
+            <div class="row g-3">
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaEspecialidad">Especialidad <span aria-hidden="true">*</span></label><select class="form-select" id="reservaEspecialidad" name="especialidad" required><option value="">Selecciona una especialidad</option><option value="pediatria">Pediatría</option><option value="medicina-general">Medicina general</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaDoctor">Doctor <span aria-hidden="true">*</span></label><select class="form-select" id="reservaDoctor" name="doctor" required disabled><option value="">Selecciona primero una especialidad</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaFecha">Fecha <span aria-hidden="true">*</span></label><input type="date" class="form-control" id="reservaFecha" name="fecha" required><div class="form-text">Fecha ilustrativa; no se consulta disponibilidad real.</div></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaHora">Hora <span aria-hidden="true">*</span></label><input type="time" class="form-control" id="reservaHora" name="hora" required><div class="form-text">Puedes utilizar uno de los horarios de ejemplo.</div></div>
+              <div class="col-12"><span class="form-label d-block">Horarios sugeridos (demostración)</span><div class="patient-times" role="group" aria-label="Horarios de ejemplo"><button class="patient-time" type="button" data-hora="09:00" aria-pressed="false">09:00</button><button class="patient-time" type="button" data-hora="10:30" aria-pressed="false">10:30</button><button class="patient-time" type="button" data-hora="14:00" aria-pressed="false">14:00</button><button class="patient-time" type="button" data-hora="16:00" aria-pressed="false">16:00</button></div></div>
+              <div class="col-12"><label class="form-label" for="reservaMotivo">Motivo de consulta (opcional)</label><textarea class="form-control" id="reservaMotivo" name="motivo" maxlength="500" rows="3" placeholder="Escribe un breve motivo de tu consulta"></textarea><div class="form-text">Máximo 500 caracteres. No ingreses información médica real en esta maqueta.</div></div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end flex-wrap mt-4 patient-booking-actions"><button type="reset" class="btn btn-outline-app">Limpiar formulario</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div>
+            <div class="alert alert-secondary mt-3 mb-0" id="mensajeReserva" role="status" aria-live="polite" hidden></div>
+          </form>
+        </div>
+      </section>
+      <section id="misCitas" class="mb-4" aria-labelledby="misCitasTitulo">
+        <div class="app-card">
+          <div class="app-card-header"><p class="eyebrow mb-1">Seguimiento de consultas</p><h2 class="section-title mb-1" id="misCitasTitulo">Mis citas</h2><p class="small text-muted-app mb-0">Ejemplo de próximas citas e historial. No son citas reales de tu cuenta.</p></div>
+          <div class="app-card-body">
+            <div class="row g-3 align-items-end">
+              <div class="col-12 col-md-6"><label for="buscarCitasPaciente" class="form-label">Buscar doctor o especialidad</label><input class="form-control" id="buscarCitasPaciente" type="search" placeholder="Ej.: pediatria, elena"></div>
+              <div class="col-12 col-md-4"><label for="estadoCitasPaciente" class="form-label">Estado</label><select class="form-select" id="estadoCitasPaciente"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option></select></div>
+              <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarCitasPaciente">Limpiar</button></div>
+            </div>
+            <p class="small text-muted-app my-3" id="contadorCitasPaciente" role="status" aria-live="polite">4 citas de ejemplo</p>
+          </div>
+          <div class="table-responsive">
+            <table class="table app-table patient-table"><caption class="visually-hidden">Tabla de citas de ejemplo del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasCitasPaciente">
+              <tr data-busqueda="andres vega pediatria" data-estado="pendiente"><td>Dr. Andrés Vega</td><td>Pediatría</td><td>04/11/2026</td><td>09:30</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td><td class="patient-appointment-actions"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarPaciente" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-11-04" data-hora="09:30">Reprogramar</button> <button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarPaciente" data-doctor="Dr. Andrés Vega" data-fecha="2026-11-04" data-hora="09:30">Cancelar</button></td></tr>
+              <tr data-busqueda="elena rojas medicina general" data-estado="confirmada"><td>Dra. Elena Rojas</td><td>Medicina general</td><td>05/11/2026</td><td>14:00</td><td><span class="badge-cita badge-cita-confirmada">Confirmada</span></td><td class="patient-appointment-actions"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarPaciente" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-11-05" data-hora="14:00">Reprogramar</button> <button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarPaciente" data-doctor="Dra. Elena Rojas" data-fecha="2026-11-05" data-hora="14:00">Cancelar</button></td></tr>
+              <tr data-busqueda="andres vega pediatria" data-estado="cancelada"><td>Dr. Andrés Vega</td><td>Pediatría</td><td>23/10/2026</td><td>11:00</td><td><span class="badge-cita badge-cita-cancelada">Cancelada</span></td><td>Sin acciones</td></tr>
+              <tr data-busqueda="elena rojas medicina general" data-estado="completada"><td>Dra. Elena Rojas</td><td>Medicina general</td><td>25/10/2026</td><td>08:00</td><td><span class="badge-cita badge-cita-completada">Completada</span></td><td>Sin acciones</td></tr>
+            </tbody></table>
+          </div>
+          <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas de demostración que coincidan con tu búsqueda.</p>
+          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Referencia técnica: <code>GET /api/citas</code> y <code>PUT /api/citas/:id</code> / <code>DELETE /api/citas/:id</code>. La integración definitiva deberá filtrar las citas en el servidor por el usuario autenticado, no solamente en el navegador.</p></div>
+        </div>
+      </section>
+      <section id="miPerfil" class="mb-4" aria-labelledby="miPerfilTitulo">
+        <div class="app-card">
+          <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Vista visual de los datos del usuario autenticado.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar vista previa</button></div>
+          <div class="app-card-body"><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0">Pendiente de consulta a la API. No se inventan datos de la cuenta.</p></div></div></div>
+        </div>
+      </section>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Maqueta académica del segundo avance · Sin datos médicos reales</footer>
     </main>
+  </div>
+  <!-- Reprogramación de ejemplo -->
+  <div class="modal fade" id="modalReprogramarPaciente" tabindex="-1" aria-labelledby="reprogramarPacienteTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="reprogramarPacienteTitulo">Reprogramar mi cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form class="form-vista-previa"><div class="modal-body"><p class="small text-muted-app">Demostración de <code>PUT /api/citas/:id</code>. No se verificará disponibilidad real.</p><div class="mb-3"><label class="form-label" for="reprogramarDoctorPaciente">Doctor (solo lectura)</label><input class="form-control" id="reprogramarDoctorPaciente" readonly></div><div class="row g-3"><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarFechaPaciente">Nueva fecha</label><input class="form-control" type="date" id="reprogramarFechaPaciente" required></div><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarHoraPaciente">Nueva hora</label><input class="form-control" type="time" id="reprogramarHoraPaciente" required></div></div><div class="alert alert-light border small mt-3 mb-0">El backend deberá comprobar horarios ocupados y disponibilidad del doctor antes de guardar.</div></div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Volver</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div></form>
+    </div></div>
+  </div>
+  <!-- Cancelación ilustrativa -->
+  <div class="modal fade" id="modalCancelarPaciente" tabindex="-1" aria-labelledby="cancelarPacienteTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">Vista previa de <code>DELETE /api/citas/:id</code>. Esta acción no cancela ninguna cita.</p></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" class="btn btn-app-primary confirmar-vista-previa">Validar vista previa</button></div></div></div>
+  </div>
+  <!-- Edición de perfil de ejemplo -->
+  <div class="modal fade" id="modalPerfilPaciente" tabindex="-1" aria-labelledby="perfilPacienteTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="perfilPacienteTitulo">Editar mi perfil (demostración)</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><form class="form-vista-previa"><div class="modal-body"><p class="small text-muted-app">El formulario no guarda ni actualiza información real.</p><div class="mb-3"><label for="perfilNombrePaciente" class="form-label">Nombre completo</label><input id="perfilNombrePaciente" class="form-control" required maxlength="100"></div><div><label for="perfilCorreoPaciente" class="form-label">Correo electrónico</label><input id="perfilCorreoPaciente" type="email" class="form-control" placeholder="correo@ejemplo.com" required></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div></form></div></div>
+  </div>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite"><div id="toastPaciente" class="toast text-bg-light border shadow-sm" role="status" aria-atomic="true"><div class="d-flex"><div class="toast-body" id="toastPacienteMensaje">Función demostrativa: no se guardaron datos.</div><button class="btn-close me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Cerrar aviso"></button></div></div></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const nombrePaciente = sessionStorage.getItem('nombreUsuario') || 'paciente';
+    document.getElementById('saludoPaciente').textContent = nombrePaciente;
+    document.getElementById('nombrePacienteBarra').textContent = nombrePaciente;
+    document.getElementById('nombrePacientePerfil').textContent = nombrePaciente;
+    document.getElementById('perfilNombrePaciente').value = nombrePaciente;
+    document.getElementById('cerrarSesionPaciente').addEventListener('click', () => {
+      for (const clave of ['usuarioAutenticado', 'rolUsuario', 'usuarioId', 'nombreUsuario']) {
+        sessionStorage.removeItem(clave);
+      }
+      window.location.href = 'login.html';
+    });
 
-    <script>
-        const autenticado = sessionStorage.getItem("usuarioAutenticado");
-        const rol = sessionStorage.getItem("rolUsuario");
+    // Navegación móvil: Bootstrap cancela la navegación nativa de los enlaces
+    // que tienen data-bs-dismiss. Cerramos el offcanvas primero y luego
+    // desplazamos hasta la sección elegida, incluso si es la URL actual.
+    const menuPacienteMovil = document.getElementById('menuPacienteMovil');
+    function marcarSeccionActiva(hash) {
+      document.querySelectorAll('.app-sidebar .nav-link, #menuPacienteMovil .nav-link').forEach(enlace => {
+        const actual = enlace.getAttribute('href') === hash;
+        enlace.classList.toggle('active', actual);
+        if (actual) enlace.setAttribute('aria-current', 'location');
+        else enlace.removeAttribute('aria-current');
+      });
+    }
+    menuPacienteMovil.querySelectorAll('a[href^="#"]').forEach(enlace => {
+      enlace.addEventListener('click', evento => {
+        const hash = enlace.getAttribute('href');
+        const seccion = document.getElementById(hash.slice(1));
+        if (!seccion) return;
+        evento.preventDefault();
 
-        if (autenticado !== "true" || rol !== "paciente") {
-            window.location.href = "login.html";
-        }
-    </script>
+        const navegar = () => {
+          if (window.location.hash !== hash) window.history.pushState(null, '', hash);
+          seccion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          marcarSeccionActiva(hash);
+        };
 
+        // Se espera a que desaparezca el panel y el fondo oscuro antes de desplazar.
+        if (menuPacienteMovil.classList.contains('show')) {
+          menuPacienteMovil.addEventListener('hidden.bs.offcanvas', navegar, { once: true });
+          bootstrap.Offcanvas.getOrCreateInstance(menuPacienteMovil).hide();
+        } else navegar();
+      });
+    });
+    // También sincronizamos el resaltado al navegar en escritorio o con Atrás.
+    window.addEventListener('hashchange', () => marcarSeccionActiva(window.location.hash || '#inicio'));
+    marcarSeccionActiva(window.location.hash || '#inicio');
+
+    // Buscador sin tildes, tolerante a mayúsculas y espacios. Ñ y N se mantienen distintas.
+    function normalizarTexto(valor) {
+      return String(valor ?? '').trim().toLocaleLowerCase('es').normalize('NFD')
+        .replace(/n\u0303/g, 'ñ').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+    }
+    const doctoresEjemplo = [
+      { id: 'andres', nombre: 'Dr. Andrés Vega', especialidad: 'pediatria' },
+      { id: 'elena', nombre: 'Dra. Elena Rojas', especialidad: 'medicina-general' },
+      { id: 'daniel', nombre: 'Dr. Daniel Soto', especialidad: 'medicina-general' }
+    ];
+    const filtroEspecialidad = document.getElementById('filtroEspecialidad');
+    const filtroDoctor = document.getElementById('filtroDoctor');
+    const tarjetasDoctor = [...document.querySelectorAll('.patient-doctor-card-wrap')];
+    const contadorDoctores = document.getElementById('contadorDoctores');
+    const sinDoctores = document.getElementById('sinDoctores');
+    function filtrarDoctores() {
+      const termino = normalizarTexto(filtroDoctor.value);
+      const especialidad = filtroEspecialidad.value;
+      let visibles = 0;
+      tarjetasDoctor.forEach(tarjeta => {
+        const cumple = (!especialidad || tarjeta.dataset.especialidad === especialidad) &&
+          normalizarTexto(tarjeta.dataset.nombre).includes(termino);
+        tarjeta.hidden = !cumple;
+        if (cumple) visibles++;
+      });
+      contadorDoctores.textContent = `${visibles} de ${tarjetasDoctor.length} profesionales de ejemplo`;
+      sinDoctores.hidden = visibles !== 0;
+    }
+    filtroEspecialidad.addEventListener('change', filtrarDoctores);
+    filtroDoctor.addEventListener('input', filtrarDoctores);
+    document.getElementById('limpiarDoctores').addEventListener('click', () => {
+      filtroEspecialidad.value = '';
+      filtroDoctor.value = '';
+      filtrarDoctores();
+    });
+
+    const reservaEspecialidad = document.getElementById('reservaEspecialidad');
+    const reservaDoctor = document.getElementById('reservaDoctor');
+    const reservaHora = document.getElementById('reservaHora');
+    const botonesHora = [...document.querySelectorAll('.patient-time')];
+    function actualizarDoctoresReserva(doctorElegido = '') {
+      const especialidad = reservaEspecialidad.value;
+      reservaDoctor.replaceChildren();
+      const opcionInicial = new Option(especialidad ? 'Selecciona un doctor' : 'Selecciona primero una especialidad', '');
+      reservaDoctor.add(opcionInicial);
+      doctoresEjemplo.filter(d => d.especialidad === especialidad).forEach(d => {
+        reservaDoctor.add(new Option(d.nombre, d.id));
+      });
+      reservaDoctor.disabled = !especialidad;
+      if (doctorElegido) reservaDoctor.value = doctorElegido;
+    }
+    reservaEspecialidad.addEventListener('change', () => actualizarDoctoresReserva());
+    document.querySelectorAll('.elegir-doctor').forEach(boton => {
+      boton.addEventListener('click', () => {
+        reservaEspecialidad.value = boton.dataset.especialidad;
+        actualizarDoctoresReserva(boton.dataset.doctor);
+        document.querySelectorAll('.patient-doctor-card').forEach(t => t.classList.remove('is-selected'));
+        boton.closest('.patient-doctor-card').classList.add('is-selected');
+        document.getElementById('reservarCita').scrollIntoView({ behavior: 'smooth' });
+        reservaFecha.focus({ preventScroll: true });
+      });
+    });
+    const reservaFecha = document.getElementById('reservaFecha');
+    botonesHora.forEach(boton => boton.addEventListener('click', () => {
+      reservaHora.value = boton.dataset.hora;
+      botonesHora.forEach(b => b.setAttribute('aria-pressed', String(b === boton)));
+    }));
+    reservaHora.addEventListener('input', () => botonesHora.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.hora === reservaHora.value))));
+    document.getElementById('formReserva').addEventListener('reset', () => {
+      document.getElementById('mensajeReserva').hidden = true;
+      document.querySelectorAll('.patient-doctor-card').forEach(t => t.classList.remove('is-selected'));
+      setTimeout(() => {
+        actualizarDoctoresReserva();
+        botonesHora.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      }, 0);
+    });
+    document.getElementById('formReserva').addEventListener('submit', event => {
+      event.preventDefault();
+      const mensaje = document.getElementById('mensajeReserva');
+      mensaje.hidden = false;
+      mensaje.textContent = 'Vista previa validada: el formulario contiene los campos requeridos. No se creó ninguna cita. La disponibilidad deberá confirmarse con la API.';
+    });
+
+    const buscarCitasPaciente = document.getElementById('buscarCitasPaciente');
+    const estadoCitasPaciente = document.getElementById('estadoCitasPaciente');
+    const filasCitasPaciente = [...document.querySelectorAll('#filasCitasPaciente tr')];
+    function filtrarCitas() {
+      const termino = normalizarTexto(buscarCitasPaciente.value);
+      const estado = estadoCitasPaciente.value;
+      let visibles = 0;
+      filasCitasPaciente.forEach(fila => {
+        const mostrar = normalizarTexto(fila.dataset.busqueda).includes(termino) && (!estado || fila.dataset.estado === estado);
+        fila.hidden = !mostrar;
+        if (mostrar) visibles++;
+      });
+      document.getElementById('contadorCitasPaciente').textContent = `${visibles} de ${filasCitasPaciente.length} citas de ejemplo`;
+      document.getElementById('sinCitasPaciente').hidden = visibles !== 0;
+    }
+    buscarCitasPaciente.addEventListener('input', filtrarCitas);
+    estadoCitasPaciente.addEventListener('change', filtrarCitas);
+    document.getElementById('limpiarCitasPaciente').addEventListener('click', () => {
+      buscarCitasPaciente.value = '';
+      estadoCitasPaciente.value = '';
+      filtrarCitas();
+    });
+
+    document.getElementById('modalReprogramarPaciente').addEventListener('show.bs.modal', event => {
+      const boton = event.relatedTarget;
+      document.getElementById('reprogramarDoctorPaciente').value = boton.dataset.doctor;
+      document.getElementById('reprogramarFechaPaciente').value = boton.dataset.fecha;
+      document.getElementById('reprogramarHoraPaciente').value = boton.dataset.hora;
+    });
+    document.getElementById('modalCancelarPaciente').addEventListener('show.bs.modal', event => {
+      const boton = event.relatedTarget;
+      document.getElementById('resumenCancelacionPaciente').textContent = `${boton.dataset.doctor} · ${boton.dataset.fecha} · ${boton.dataset.hora}`;
+    });
+    function avisarPrototipo() {
+      document.getElementById('toastPacienteMensaje').textContent = 'Vista previa verificada. No se guardaron ni modificaron datos en MongoDB.';
+      bootstrap.Toast.getOrCreateInstance(document.getElementById('toastPaciente')).show();
+    }
+    document.querySelectorAll('.form-vista-previa').forEach(form => {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        avisarPrototipo();
+      });
+    });
+    document.querySelectorAll('.confirmar-vista-previa').forEach(boton => boton.addEventListener('click', avisarPrototipo));
+    // Evita advertencias aria-hidden al cerrar modales con el foco en un control interno.
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('hide.bs.modal', () => {
+        if (modal.contains(document.activeElement)) document.activeElement.blur();
+      });
+    });
+  </script>
 </body>
 </html>
