@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vista previa del registro de pacientes del Sistema de Citas Médicas" />
+  <title>Registro de paciente | Sistema de Citas Médicas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous" />
+  <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body class="auth-page">
+  <header class="app-topbar">
+    <nav class="navbar container py-3" aria-label="Navegación de acceso">
+      <a class="app-brand" href="login.html">
+        <span class="app-brand-mark" aria-hidden="true">+</span>
+        Sistema de Citas Médicas
+      </a>
+      <a class="btn btn-outline-app btn-sm" href="login.html">Iniciar sesión</a>
+    </nav>
+  </header>
+
+  <main class="container py-4 py-md-5" id="contenidoPrincipal">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <section class="card app-card auth-card" aria-labelledby="tituloRegistro">
+          <div class="card-header auth-card-header px-4 py-4">
+            <p class="eyebrow mb-1">Portal del paciente</p>
+            <h1 class="h3 mb-2" id="tituloRegistro">Crear cuenta de paciente</h1>
+            <p class="text-muted-app mb-0">Prepara tus datos de acceso al Sistema de Citas Médicas.</p>
+          </div>
+          <div class="card-body p-4 p-md-5">
+            <div class="alert alert-secondary small" role="note">
+              <strong>Prototipo académico:</strong> esta pantalla valida campos en el navegador,
+              pero <strong>no crea usuarios ni guarda contraseñas</strong> en MongoDB.
+            </div>
+            <form id="registroPacienteForm" novalidate>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="nombre" class="form-label">Nombre completo <span aria-hidden="true">*</span></label>
+                  <input class="form-control" id="nombre" name="nombre" type="text"
+                         autocomplete="name" maxlength="100" required
+                         placeholder="Ej.: María Pérez" />
+                  <div class="invalid-feedback">Ingresa tu nombre completo.</div>
+                </div>
+                <div class="col-12">
+                  <label for="email" class="form-label">Correo electrónico <span aria-hidden="true">*</span></label>
+                  <input class="form-control" id="email" name="email" type="email"
+                         autocomplete="email" required maxlength="150"
+                         placeholder="nombre@correo.com" />
+                  <div class="invalid-feedback">Ingresa un correo electrónico válido.</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="password" class="form-label">Contraseña <span aria-hidden="true">*</span></label>
+                  <input class="form-control" id="password" name="password" type="password"
+                         autocomplete="new-password" required minlength="8" maxlength="128"
+                         aria-describedby="passwordAyuda" />
+                  <div id="passwordAyuda" class="form-text">Mínimo 8 caracteres para esta demostración.</div>
+                  <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="confirmarPassword" class="form-label">Confirmar contraseña <span aria-hidden="true">*</span></label>
+                  <input class="form-control" id="confirmarPassword" name="confirmarPassword"
+                         type="password" autocomplete="new-password" required minlength="8"
+                         maxlength="128" />
+                  <div class="invalid-feedback">Confirma la contraseña y verifica que ambas coincidan.</div>
+                </div>
+              </div>
+              <!-- Coincide con el campo rol del modelo Usuario.js, limitado a paciente. -->
+              <input type="hidden" id="rol" name="rol" value="paciente" />
+              <p class="small text-muted-app mt-3 mb-3">Los campos marcados con * son obligatorios. El rol de esta vista es <strong>Paciente</strong>.</p>
+              <div id="mensajeRegistro" class="alert d-none" role="status" aria-live="polite"></div>
+              <div class="d-grid d-sm-flex justify-content-sm-end gap-2 mt-4">
+                <button type="reset" class="btn btn-outline-app">Limpiar</button>
+                <button type="submit" class="btn btn-app-primary">Validar vista previa</button>
+              </div>
+            </form>
+          </div>
+        </section>
+        <div class="text-center mt-4">
+          <a href="login.html" class="text-decoration-none">Volver a inicio de sesión</a>
+        </div>
+        <footer class="app-footer text-center mt-4">
+          Sistema de Citas Médicas · Proyecto Integrador 1 · Maqueta del segundo avance
+        </footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    "use strict";
+    const formularioRegistro = document.getElementById("registroPacienteForm");
+    const password = document.getElementById("password");
+    const confirmarPassword = document.getElementById("confirmarPassword");
+    const mensajeRegistro = document.getElementById("mensajeRegistro");
+
+    function verificarCoincidencia() {
+      const coinciden = confirmarPassword.value === password.value;
+      confirmarPassword.setCustomValidity(coinciden ? "" : "Las contraseñas no coinciden");
+    }
+
+    password.addEventListener("input", verificarCoincidencia);
+    confirmarPassword.addEventListener("input", verificarCoincidencia);
+
+    formularioRegistro.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      verificarCoincidencia();
+      formularioRegistro.classList.add("was-validated");
+      if (!formularioRegistro.checkValidity()) {
+        mensajeRegistro.className = "alert alert-warning mt-3";
+        mensajeRegistro.textContent = "Revisa los campos marcados antes de continuar.";
+        return;
+      }
+      mensajeRegistro.className = "alert alert-secondary mt-3";
+      mensajeRegistro.textContent = "Vista previa validada correctamente. No se creó ninguna cuenta ni se enviaron datos a la API.";
+    });
+
+    formularioRegistro.addEventListener("reset", () => {
+      formularioRegistro.classList.remove("was-validated");
+      confirmarPassword.setCustomValidity("");
+      mensajeRegistro.className = "alert d-none";
+      mensajeRegistro.textContent = "";
+    });
+  </script>
+</body>
+</html>

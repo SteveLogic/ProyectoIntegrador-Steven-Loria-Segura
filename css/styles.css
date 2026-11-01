@@ -147,3 +147,13 @@ a:hover { color: var(--app-accent-hover); }
   .doctor-kpi { min-height: 0; }
   .doctor-slot .btn { width: 100%; }
 }
+
+/* Acceso y registro de pacientes — formularios del segundo avance. */
+.auth-page { min-height: 100vh; background: var(--app-bg); }
+.auth-card { overflow: hidden; }
+.auth-card-header { background: #f6f7f8; color: var(--app-text); border-bottom: 1px solid var(--app-border); }
+.auth-card .form-label { font-weight: 600; font-size: .9rem; }
+@media (max-width: 575.98px) {
+  .auth-page .app-brand { font-size: .85rem; gap: .4rem; }
+  .auth-page .app-brand-mark { width: 30px; height: 30px; }
+}

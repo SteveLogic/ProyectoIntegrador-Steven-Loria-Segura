@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vista previa de cambio de contraseña del Sistema de Citas Médicas">
+  <title>Cambiar contraseña | Sistema de Citas Médicas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body class="auth-page">
+  <header class="app-topbar">
+    <nav class="navbar container py-3 gap-2" aria-label="Navegación de cuenta">
+      <a class="app-brand" href="login.html" id="enlaceMarca">
+        <span class="app-brand-mark" aria-hidden="true">+</span>
+        <span>Sistema de Citas Médicas</span>
+      </a>
+      <a href="login.html" class="btn btn-sm btn-outline-app" id="volverBarra">Volver</a>
+    </nav>
+  </header>
+
+  <main class="container py-4 py-md-5" id="contenidoPrincipal">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+        <section class="card app-card auth-card" aria-labelledby="tituloCambio">
+          <div class="card-header auth-card-header px-4 py-4">
+            <p class="eyebrow mb-1">Seguridad de la cuenta</p>
+            <h1 id="tituloCambio" class="h3 mb-2">Cambiar contraseña</h1>
+            <p class="text-muted-app mb-0">Revisa los campos que se utilizarán para actualizar tu contraseña.</p>
+          </div>
+          <div class="card-body p-4 p-md-5">
+            <div class="alert alert-secondary small mb-4" role="note">
+              <strong>Prototipo académico:</strong> esta pantalla solo valida la información en tu navegador.
+              <strong>No verifica la contraseña actual, no envía datos a la API y no cambia contraseñas en MongoDB.</strong>
+              Para las pruebas, utiliza únicamente contraseñas ficticias.
+            </div>
+            <form id="cambioPasswordForm" novalidate autocomplete="off">
+              <div class="mb-3">
+                <label for="passwordActual" class="form-label">Contraseña actual <span aria-hidden="true">*</span></label>
+                <input type="password" class="form-control" id="passwordActual" name="passwordActual"
+                       autocomplete="off" required minlength="1" maxlength="128"
+                       aria-describedby="ayudaActual">
+                <div id="ayudaActual" class="form-text">Utiliza una contraseña ficticia para esta demostración.</div>
+                <div class="invalid-feedback">Ingresa una contraseña actual de ejemplo.</div>
+              </div>
+              <div class="mb-3">
+                <label for="passwordNueva" class="form-label">Nueva contraseña <span aria-hidden="true">*</span></label>
+                <input type="password" class="form-control" id="passwordNueva" name="passwordNueva"
+                       autocomplete="new-password" required minlength="8" maxlength="128"
+                       pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}"
+                       aria-describedby="ayudaNueva">
+                <div id="ayudaNueva" class="form-text">Mínimo 8 caracteres, una mayúscula, una minúscula y un número.</div>
+                <div class="invalid-feedback" id="errorNueva">La nueva contraseña debe cumplir los requisitos indicados y ser diferente de la actual.</div>
+              </div>
+              <div class="mb-3">
+                <label for="passwordConfirmacion" class="form-label">Confirmar nueva contraseña <span aria-hidden="true">*</span></label>
+                <input type="password" class="form-control" id="passwordConfirmacion" name="passwordConfirmacion"
+                       autocomplete="new-password" required maxlength="128">
+                <div class="invalid-feedback">Confirma la nueva contraseña; ambos valores deben coincidir.</div>
+              </div>
+              <p class="small text-muted-app">Los tres campos marcados con * son obligatorios. El formulario es únicamente una maqueta.</p>
+              <div class="alert d-none mt-3" id="mensajeCambio" role="status" aria-live="polite"></div>
+              <div class="d-grid d-sm-flex justify-content-sm-end gap-2 mt-4">
+                <a href="login.html" class="btn btn-outline-app" id="cancelarCambio">Cancelar</a>
+                <button class="btn btn-app-primary" type="submit">Validar vista previa</button>
+              </div>
+            </form>
+          </div>
+        </section>
+        <footer class="app-footer text-center mt-4">Sistema de Citas Médicas · Proyecto Integrador 1 · Maqueta del segundo avance</footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    "use strict";
+    // Navegación de regreso solo para la demostración: no equivale a autorización de servidor.
+    const rutasPorRol = {
+      paciente: "paciente.html#miPerfil",
+      doctor: "doctor.html#perfil",
+      administrador: "administrador.html#resumen"
+    };
+    const rolActual = sessionStorage.getItem("rolUsuario");
+    const regreso = sessionStorage.getItem("usuarioAutenticado") === "true"
+      ? (rutasPorRol[rolActual] || "login.html") : "login.html";
+    for (const id of ["enlaceMarca", "volverBarra", "cancelarCambio"]) {
+      document.getElementById(id).setAttribute("href", regreso);
+    }
+
+    const form = document.getElementById("cambioPasswordForm");
+    const actual = document.getElementById("passwordActual");
+    const nueva = document.getElementById("passwordNueva");
+    const confirmacion = document.getElementById("passwordConfirmacion");
+    const mensaje = document.getElementById("mensajeCambio");
+
+    function validarContrasenas() {
+      nueva.setCustomValidity(
+        actual.value && nueva.value && nueva.value === actual.value
+          ? "La contraseña nueva debe ser distinta de la actual." : ""
+      );
+      confirmacion.setCustomValidity(
+        confirmacion.value && confirmacion.value !== nueva.value
+          ? "Las contraseñas no coinciden." : ""
+      );
+    }
+
+    for (const input of [actual, nueva, confirmacion]) {
+      input.addEventListener("input", () => {
+        validarContrasenas();
+        mensaje.className = "alert d-none";
+        mensaje.textContent = "";
+      });
+    }
+
+    form.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      validarContrasenas();
+      form.classList.add("was-validated");
+      if (!form.checkValidity()) {
+        mensaje.className = "alert alert-warning mt-3";
+        mensaje.textContent = "Revisa los campos marcados antes de continuar.";
+        return;
+      }
+      // No se utiliza fetch, localStorage, sessionStorage, ni se imprimen contraseñas.
+      form.reset();
+      form.classList.remove("was-validated");
+      nueva.setCustomValidity("");
+      confirmacion.setCustomValidity("");
+      mensaje.className = "alert alert-secondary mt-3";
+      mensaje.textContent = "Vista previa validada correctamente. No se cambió la contraseña y no se enviaron datos a la API.";
+    });
+  </script>
+</body>
+</html>

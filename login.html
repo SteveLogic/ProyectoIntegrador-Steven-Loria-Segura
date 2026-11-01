@@ -16,31 +16,33 @@
             integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
             crossorigin="anonymous"
         />
+        <link href="css/styles.css" rel="stylesheet" />
     </head>
 
-    <body class="bg-transparent">
+    <body class="auth-page">
 
         <!-- Navbar -->
-        <nav class="navbar navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand fw-semibold" href="#">
+        <header class="app-topbar">
+            <nav class="navbar container py-3" aria-label="Navegación de acceso">
+                <a class="app-brand" href="login.html">
+                    <span class="app-brand-mark" aria-hidden="true">+</span>
                     Sistema de Citas Médicas
                 </a>
-            </div>
-        </nav>
+            </nav>
+        </header>
 
         <!-- Contenido principal -->
          
         <main class="container">
             <div class="row justify-content-center py-5">
-                <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
                     <!-- Card -->
-                    <div class="card shadow border-0">
+                    <div class="card app-card auth-card">
 
                         <!-- Header -->
-                        <div class="card-header bg-primary text-white text-center py-3">
-                            <h4 class="mb-0">Inicio de sesión</h4>
+                        <div class="card-header auth-card-header text-center py-3">
+                            <h1 class="h4 mb-0">Inicio de sesión</h1>
                         </div>
 
                         <!-- Body -->
@@ -114,10 +116,6 @@
                                         name="rol"
                                         required
                                     >
-                                    <div class="invalid-feedback">
-                                        Seleccione un tipo de usuario.
-                                    </div>
-
                                         <option value="" selected disabled>
                                             Seleccione una opción
                                         </option>
@@ -134,13 +132,14 @@
                                             Administrador
                                         </option>
                                     </select>
+                                    <div class="invalid-feedback">Seleccione un tipo de usuario.</div>
                                 </div>
 
                                           <!-- Botón principal -->  
                                 <div id="mensajeLogin" class="alert d-none" role="alert"></div>      
 
                                 <div class="d-grid mb-3">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-app-primary">
                                         Iniciar sesión
                                     </button>
                                 </div>
@@ -158,6 +157,12 @@
                                         ¿Olvidó su contraseña?
                                     </a>
                                 </div>
+                            </form>
+                            <hr class="my-4" />
+                            <p class="text-center text-muted-app mb-0 small">
+                                ¿Aún no tienes una cuenta?
+                                <a href="registro-paciente.html" class="fw-semibold">Regístrate como paciente</a>
+                            </p>
                         <!-- Footer -->
 
 
@@ -165,6 +170,7 @@
 
                 </div>
             </div>
+        </div>
         </main>
 
         <!-- Bootstrap JavaScript -->
