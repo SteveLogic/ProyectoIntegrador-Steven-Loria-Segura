@@ -207,3 +207,12 @@ a:hover { color: var(--app-accent-hover); }
 .report-scroll { -webkit-overflow-scrolling: touch; }
 #reportes .report-panel .app-table td, #reportes .report-panel .app-table th { padding: .8rem .7rem; }
 @media (prefers-reduced-motion: reduce) { .report-distribution-bar { transition: none; } }
+
+/* KAN-81: gestión administrativa visual de doctores, sin afectar las vistas previas anteriores. */
+#doctores { scroll-margin-top: 90px; }
+#doctores .form-label { font-size: .86rem; font-weight: 600; }
+.doctor-admin-table-wrap { -webkit-overflow-scrolling: touch; }
+#doctores .app-table { min-width: 870px; }
+.doctor-admin-email { display: block; color: var(--app-muted); font-size: .76rem; margin-top: .2rem; }
+#doctores .app-table td:last-child { white-space: nowrap; }
+@media (max-width: 767.98px) { #doctores .app-card-header > .btn { width: 100%; } }

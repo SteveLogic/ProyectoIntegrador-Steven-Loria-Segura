@@ -96,13 +96,63 @@
         </div>
       </section>
       <section class="row g-3 mb-4" aria-label="Vistas administrativas de ejemplo">
-        <div class="col-12 col-xl-7" id="doctores">
+        <div class="col-12 col-xl-7">
           <div class="app-card h-100">
-            <div class="app-card-header d-flex justify-content-between align-items-center gap-2 flex-wrap"><div><h2 class="section-title mb-1">Gestión de doctores</h2><p class="small text-muted-app mb-0">Vista previa de listado y registro</p></div><button class="btn btn-sm btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalDoctor">+ Registrar doctor</button></div>
-            <div class="table-responsive"><table class="table app-table"><caption class="visually-hidden">Listado de doctores; pendiente de integración con la API</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Estado</th></tr></thead><tbody><tr><td colspan="3"><div class="empty-state"><strong>Sin datos cargados</strong><p class="small mb-0 mt-1">Aquí se mostrará la información desde <code>GET /api/doctores</code>.</p></div></td></tr></tbody></table></div>
+            <div class="app-card-header"><h2 class="section-title mb-1">Perfiles médicos</h2><p class="small text-muted-app mb-0">Acceso rápido a gestión de doctores</p></div>
+            <div class="app-card-body">
+              <div class="row g-2 mb-3">
+                <div class="col-6"><div class="report-kpi"><p class="kpi-label mb-2">Doctores activos de ejemplo</p><p class="kpi-value mb-0" id="resumenDoctoresActivos">2</p></div></div>
+                <div class="col-6"><div class="report-kpi"><p class="kpi-label mb-2">Doctores inactivos de ejemplo</p><p class="kpi-value mb-0" id="resumenDoctoresInactivos">1</p></div></div>
+              </div>
+              <p class="small text-muted-app">Consulta los perfiles, filtra por especialidad o estado y prueba los formularios de administración.</p>
+              <a class="btn btn-outline-app" href="#doctores">Abrir gestión de doctores</a>
+            </div>
           </div>
         </div>
         <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Vista previa del seguimiento</p></div><div class="app-card-body"><div class="empty-state"><strong>Agenda pendiente de cargar</strong><p class="small mb-0 mt-1">Datos provenientes de <code>GET /api/citas</code>.</p></div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
+      </section>
+      <!-- KAN-81: Gestión de doctores, solo maqueta de frontend; no envía datos a API/MongoDB. -->
+      <section id="doctores" class="mb-4" aria-labelledby="gestionDoctoresTitulo">
+        <div class="app-card">
+          <div class="app-card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <p class="eyebrow mb-1">Administración del personal médico</p>
+              <h2 class="section-title mb-1" id="gestionDoctoresTitulo">Gestión de doctores</h2>
+              <p class="small text-muted-app mb-0">Listado, búsqueda y vistas previas de registro, edición y activación.</p>
+            </div>
+            <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalDoctor">+ Registrar doctor</button>
+          </div>
+          <div class="app-card-body pb-2">
+            <div class="alert alert-light border small" role="note"><strong>Vista previa académica:</strong> los doctores y usuarios de esta tabla son ficticios. Crear, editar y activar/desactivar producen únicamente cambios temporales en pantalla; se restablecen al recargar y no afectan la API, MongoDB ni la reserva de citas.</div>
+            <div id="avisoDoctores" class="alert alert-success d-none small" role="status" aria-live="polite"></div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar doctores de ejemplo">
+              <div class="col-12 col-md-5"><label class="form-label" for="buscarDoctor">Buscar por nombre, correo o colegiado</label><input type="search" class="form-control" id="buscarDoctor" placeholder="Ej.: Andrés o COL-2026" autocomplete="off"></div>
+              <div class="col-12 col-sm-6 col-md-3"><label class="form-label" for="filtrarEspecialidadDoctor">Especialidad</label><select id="filtrarEspecialidadDoctor" class="form-select"><option value="todas">Todas las especialidades</option><option value="Pediatría">Pediatría</option><option value="Medicina general">Medicina general</option></select></div>
+              <div class="col-12 col-sm-6 col-md-2"><label class="form-label" for="filtrarEstadoDoctor">Estado</label><select class="form-select" id="filtrarEstadoDoctor"><option value="todos">Todos</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option></select></div>
+              <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarFiltrosDoctores">Limpiar filtros</button></div>
+            </div>
+            <p class="small text-muted-app mt-3 mb-2" aria-live="polite" id="contadorDoctores">3 de 3 doctores de ejemplo</p>
+          </div>
+          <div class="table-responsive doctor-admin-table-wrap">
+            <table class="table app-table mb-0" id="tablaDoctores">
+              <caption class="visually-hidden">Listado ficticio de doctores, con datos profesionales y controles visuales de edición y estado</caption>
+              <thead><tr><th scope="col">Doctor / usuario</th><th scope="col">Especialidad</th><th scope="col">Colegiado</th><th scope="col">Teléfono</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+              <tbody>
+                <tr data-usuario="demo-andres" data-nombre="Dr. Andrés Vega" data-email="andres.vega@example.com" data-especialidad="Pediatría" data-colegiado="COL-2026-015" data-telefono="8888-0101" data-activo="true">
+                  <td><strong>Dr. Andrés Vega</strong><span class="doctor-admin-email">andres.vega@example.com</span></td><td>Pediatría</td><td>COL-2026-015</td><td>8888-0101</td><td><span class="badge-estado badge-estado-activa">Activo</span></td><td><div class="d-flex gap-2 flex-nowrap"><button type="button" class="btn btn-sm btn-outline-app editar-doctor" data-bs-toggle="modal" data-bs-target="#modalEditarDoctor">Editar</button><button type="button" class="btn btn-sm btn-outline-app estado-doctor" data-bs-toggle="modal" data-bs-target="#modalEstadoDoctor">Desactivar</button></div></td>
+                </tr>
+                <tr data-usuario="demo-elena" data-nombre="Dra. Elena Rojas" data-email="elena.rojas@example.com" data-especialidad="Medicina general" data-colegiado="COL-2026-027" data-telefono="8888-0102" data-activo="true">
+                  <td><strong>Dra. Elena Rojas</strong><span class="doctor-admin-email">elena.rojas@example.com</span></td><td>Medicina general</td><td>COL-2026-027</td><td>8888-0102</td><td><span class="badge-estado badge-estado-activa">Activo</span></td><td><div class="d-flex gap-2 flex-nowrap"><button type="button" class="btn btn-sm btn-outline-app editar-doctor" data-bs-toggle="modal" data-bs-target="#modalEditarDoctor">Editar</button><button type="button" class="btn btn-sm btn-outline-app estado-doctor" data-bs-toggle="modal" data-bs-target="#modalEstadoDoctor">Desactivar</button></div></td>
+                </tr>
+                <tr data-usuario="demo-daniel" data-nombre="Dr. Daniel Soto" data-email="daniel.soto@example.com" data-especialidad="Pediatría" data-colegiado="COL-2026-061" data-telefono="8888-0103" data-activo="false">
+                  <td><strong>Dr. Daniel Soto</strong><span class="doctor-admin-email">daniel.soto@example.com</span></td><td>Pediatría</td><td>COL-2026-061</td><td>8888-0103</td><td><span class="badge-estado badge-estado-inactiva">Inactivo</span></td><td><div class="d-flex gap-2 flex-nowrap"><button type="button" class="btn btn-sm btn-outline-app editar-doctor" data-bs-toggle="modal" data-bs-target="#modalEditarDoctor">Editar</button><button type="button" class="btn btn-sm btn-outline-app estado-doctor" data-bs-toggle="modal" data-bs-target="#modalEstadoDoctor">Activar</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="sinResultadosDoctores" class="empty-state m-3 d-none" role="status">No existen doctores de ejemplo que coincidan con los filtros.</div>
+          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <strong>La reactivación no está implementada en la API actual.</strong></p></div>
+        </div>
       </section>
       <!-- Gestión de usuarios: maqueta visual alineada con API/models/Usuario.js.
            Los datos de ejemplo NO provienen de MongoDB. -->
@@ -398,15 +448,46 @@
       </form>
     </div></div>
   </div>
-  <!-- Modal: registro de doctor (solo maqueta). Los name coinciden con el modelo Doctor. -->
+  <!-- Modales KAN-81: los campos de formulario coinciden con los del modelo Mongoose Doctor. -->
   <div class="modal fade" id="modalDoctor" tabindex="-1" aria-labelledby="modalDoctorTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" novalidate><div class="modal-body"><p class="small text-muted-app">Formulario preparado para <code>POST /api/doctores</code>. Los selectores se poblarán con la API.</p><div class="row g-3">
-        <div class="col-12 col-md-6"><label for="doctorUsuario" class="form-label">Usuario con rol doctor</label><select name="usuario" id="doctorUsuario" class="form-select" required><option value="">Seleccione un usuario</option></select></div>
-        <div class="col-12 col-md-6"><label for="doctorEspecialidad" class="form-label">Especialidad médica</label><select name="especialidad" id="doctorEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
-        <div class="col-12 col-md-6"><label for="doctorColegiado" class="form-label">Número de colegiado</label><input class="form-control" type="text" name="numeroColegiado" id="doctorColegiado" maxlength="80" required placeholder="Ej.: COL-2026-001"></div>
-        <div class="col-12 col-md-6"><label for="doctorTelefono" class="form-label">Teléfono</label><input class="form-control" type="tel" name="telefono" id="doctorTelefono" placeholder="Ej.: 8888-0000"></div>
-      </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Vista previa del registro</button></div></form>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico (demostración)</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form id="formCrearDoctor" novalidate>
+        <div class="modal-body"><p class="text-muted-app small">Formulario diseñado para <code>POST /api/doctores</code>. Los usuarios y especialidades son opciones ficticias: en la integración real se enviarán sus IDs de MongoDB. <strong>No se guardarán datos reales.</strong></p>
+          <div id="crearDoctorError" class="alert alert-warning d-none" role="alert"></div>
+          <div class="row g-3">
+            <div class="col-12 col-md-6"><label for="doctorUsuario" class="form-label">Usuario con rol doctor *</label><select id="doctorUsuario" name="usuario" class="form-select" required><option value="">Selecciona un usuario</option><option value="demo-andres" data-email="andres.vega@example.com">Dr. Andrés Vega (perfil existente)</option><option value="demo-elena" data-email="elena.rojas@example.com">Dra. Elena Rojas (perfil existente)</option><option value="demo-daniel" data-email="daniel.soto@example.com">Dr. Daniel Soto (perfil existente)</option><option value="demo-laura" data-email="laura.mora@example.com">Dra. Laura Mora (sin perfil)</option></select></div>
+            <div class="col-12 col-md-6"><label for="doctorEspecialidad" class="form-label">Especialidad médica *</label><select id="doctorEspecialidad" name="especialidad" class="form-select" required><option value="">Selecciona una especialidad activa</option><option value="Pediatría">Pediatría</option><option value="Medicina general">Medicina general</option></select></div>
+            <div class="col-12 col-md-6"><label for="doctorColegiado" class="form-label">Número de colegiado *</label><input id="doctorColegiado" name="numeroColegiado" type="text" class="form-control" required maxlength="80" placeholder="Ej.: COL-2026-075"></div>
+            <div class="col-12 col-md-6"><label for="doctorTelefono" class="form-label">Teléfono (opcional)</label><input id="doctorTelefono" name="telefono" type="tel" class="form-control" maxlength="30" placeholder="Ej.: 8888-0000"></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar registro (vista previa)</button></div>
+      </form>
+    </div></div>
+  </div>
+  <div class="modal fade" id="modalEditarDoctor" tabindex="-1" aria-labelledby="modalEditarDoctorTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarDoctorTitulo">Editar perfil médico (demostración)</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form id="formEditarDoctor" novalidate>
+        <div class="modal-body"><p class="small text-muted-app">Vista previa de <code>PUT /api/doctores/:id</code>. El nombre y correo corresponden a <code>Usuario</code> y no se editan desde este formulario. No se guarda en MongoDB.</p>
+          <div id="editarDoctorError" class="alert alert-warning d-none" role="alert"></div>
+          <div class="row g-3">
+            <div class="col-12"><label for="editarDoctorUsuario" class="form-label">Usuario (solo lectura)</label><input id="editarDoctorUsuario" class="form-control" type="text" readonly></div>
+            <div class="col-12 col-md-6"><label for="editarDoctorEspecialidad" class="form-label">Especialidad *</label><select id="editarDoctorEspecialidad" name="especialidad" class="form-select" required><option value="Pediatría">Pediatría</option><option value="Medicina general">Medicina general</option></select></div>
+            <div class="col-12 col-md-6"><label for="editarDoctorColegiado" class="form-label">Número de colegiado *</label><input id="editarDoctorColegiado" name="numeroColegiado" type="text" class="form-control" maxlength="80" required></div>
+            <div class="col-12"><label for="editarDoctorTelefono" class="form-label">Teléfono</label><input id="editarDoctorTelefono" name="telefono" type="tel" class="form-control" maxlength="30"></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar cambios (vista previa)</button></div>
+      </form>
+    </div></div>
+  </div>
+  <div class="modal fade" id="modalEstadoDoctor" tabindex="-1" aria-labelledby="modalEstadoDoctorTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEstadoDoctorTitulo">Cambiar estado (demostración)</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body"><p id="confirmacionEstadoDoctor" class="mb-2"></p><p class="small text-muted-app mb-0">Solo cambia el estado de esta tabla temporalmente. La API actual permite <code>DELETE /api/doctores/:id</code> para desactivar, pero no tiene endpoint de reactivación; no se modifica disponibilidad de citas.</p></div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button id="confirmarEstadoDoctor" type="button" class="btn btn-app-primary">Confirmar vista previa</button></div>
     </div></div>
   </div>
   <!-- Modal: nueva cita (solo maqueta). Los name coinciden con el modelo Cita. -->
@@ -728,6 +809,159 @@
       document.getElementById('mensajePrototipo').textContent = aviso;
       window.alert(aviso);
     });
+    // KAN-81: administración visual de doctores con registros ficticios.
+    // Todas las operaciones se limitan al DOM y se reinician al recargar.
+    const tablaDoctores = document.querySelector('#tablaDoctores tbody');
+    const buscarDoctor = document.getElementById('buscarDoctor');
+    const filtrarEspecialidadDoctor = document.getElementById('filtrarEspecialidadDoctor');
+    const filtrarEstadoDoctor = document.getElementById('filtrarEstadoDoctor');
+    const avisoDoctores = document.getElementById('avisoDoctores');
+    let doctorSeleccionado = null;
+    const filasDoctor = () => [...tablaDoctores.querySelectorAll('tr[data-usuario]')];
+    const campoDoctor = id => document.getElementById(id);
+    function anunciarDoctores(mensaje) {
+      avisoDoctores.textContent = mensaje + ' Los datos se restablecen al recargar; no se actualizó MongoDB.';
+      avisoDoctores.classList.remove('d-none');
+      document.getElementById('mensajePrototipo').textContent = avisoDoctores.textContent;
+    }
+    function actualizarEstadoDoctorFila(fila) {
+      const activo = fila.dataset.activo === 'true';
+      const insignia = fila.querySelector('.badge-estado');
+      insignia.className = 'badge-estado ' + (activo ? 'badge-estado-activa' : 'badge-estado-inactiva');
+      insignia.textContent = activo ? 'Activo' : 'Inactivo';
+      fila.querySelector('.estado-doctor').textContent = activo ? 'Desactivar' : 'Activar';
+    }
+    function actualizarDoctores() {
+      const termino = normalizarBusqueda(buscarDoctor.value);
+      const especialidad = filtrarEspecialidadDoctor.value;
+      const estado = filtrarEstadoDoctor.value;
+      const filas = filasDoctor();
+      let visibles = 0;
+      let activos = 0;
+      filas.forEach(fila => {
+        if (fila.dataset.activo === 'true') activos++;
+        const coincide = normalizarBusqueda([fila.dataset.nombre, fila.dataset.email, fila.dataset.colegiado, fila.dataset.especialidad].join(' ')).includes(termino)
+          && (especialidad === 'todas' || fila.dataset.especialidad === especialidad)
+          && (estado === 'todos' || (fila.dataset.activo === 'true' ? 'activo' : 'inactivo') === estado);
+        fila.classList.toggle('d-none', !coincide);
+        if (coincide) visibles++;
+      });
+      campoDoctor('contadorDoctores').textContent = `${visibles} de ${filas.length} doctores de ejemplo`;
+      campoDoctor('sinResultadosDoctores').classList.toggle('d-none', visibles !== 0);
+      campoDoctor('resumenDoctoresActivos').textContent = String(activos);
+      campoDoctor('resumenDoctoresInactivos').textContent = String(filas.length - activos);
+    }
+    [buscarDoctor, filtrarEspecialidadDoctor, filtrarEstadoDoctor].forEach(control => {
+      control.addEventListener('input', actualizarDoctores);
+      control.addEventListener('change', actualizarDoctores);
+    });
+    campoDoctor('limpiarFiltrosDoctores').addEventListener('click', () => {
+      buscarDoctor.value = '';
+      filtrarEspecialidadDoctor.value = 'todas';
+      filtrarEstadoDoctor.value = 'todos';
+      actualizarDoctores();
+    });
+    function errorDoctor(id, mensaje) {
+      const alerta = campoDoctor(id);
+      alerta.textContent = mensaje;
+      alerta.classList.toggle('d-none', !mensaje);
+    }
+    campoDoctor('modalDoctor').addEventListener('show.bs.modal', () => {
+      campoDoctor('formCrearDoctor').reset();
+      errorDoctor('crearDoctorError', '');
+    });
+    function crearFilaDoctor(registro) {
+      const fila = document.createElement('tr');
+      Object.entries(registro).forEach(([clave, valor]) => { fila.dataset[clave] = String(valor); });
+      const nombre = document.createElement('td');
+      const fuerte = document.createElement('strong'); fuerte.textContent = registro.nombre;
+      const email = document.createElement('span'); email.className = 'doctor-admin-email'; email.textContent = registro.email;
+      nombre.append(fuerte, email);
+      const especialidad = document.createElement('td'); especialidad.textContent = registro.especialidad;
+      const colegiado = document.createElement('td'); colegiado.textContent = registro.colegiado;
+      const telefono = document.createElement('td'); telefono.textContent = registro.telefono || '—';
+      const estado = document.createElement('td');
+      const insignia = document.createElement('span'); insignia.className = 'badge-estado'; estado.append(insignia);
+      const acciones = document.createElement('td');
+      const contenedor = document.createElement('div'); contenedor.className = 'd-flex gap-2 flex-nowrap';
+      const editar = document.createElement('button'); editar.type = 'button'; editar.className = 'btn btn-sm btn-outline-app editar-doctor';
+      editar.textContent = 'Editar'; editar.dataset.bsToggle = 'modal'; editar.dataset.bsTarget = '#modalEditarDoctor';
+      const cambiar = document.createElement('button'); cambiar.type = 'button'; cambiar.className = 'btn btn-sm btn-outline-app estado-doctor';
+      cambiar.dataset.bsToggle = 'modal'; cambiar.dataset.bsTarget = '#modalEstadoDoctor';
+      contenedor.append(editar, cambiar); acciones.append(contenedor);
+      fila.append(nombre, especialidad, colegiado, telefono, estado, acciones);
+      actualizarEstadoDoctorFila(fila);
+      return fila;
+    }
+    campoDoctor('formCrearDoctor').addEventListener('submit', evento => {
+      evento.preventDefault();
+      const form = evento.currentTarget;
+      errorDoctor('crearDoctorError', '');
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const usuario = campoDoctor('doctorUsuario');
+      const nombre = usuario.selectedOptions[0].textContent.replace(/\s*\(.*\)$/, '').trim();
+      const colegiado = campoDoctor('doctorColegiado').value.trim();
+      if (!colegiado) { errorDoctor('crearDoctorError', 'El número de colegiado es obligatorio.'); return; }
+      if (filasDoctor().some(fila => fila.dataset.usuario === usuario.value)) {
+        errorDoctor('crearDoctorError', 'Este usuario ya tiene un perfil médico de ejemplo.'); return;
+      }
+      if (filasDoctor().some(fila => normalizarBusqueda(fila.dataset.colegiado) === normalizarBusqueda(colegiado))) {
+        errorDoctor('crearDoctorError', 'Este número de colegiado ya está registrado en los ejemplos.'); return;
+      }
+      const fila = crearFilaDoctor({usuario:usuario.value,nombre,email:usuario.selectedOptions[0].dataset.email || '',especialidad:campoDoctor('doctorEspecialidad').value,colegiado,telefono:campoDoctor('doctorTelefono').value.trim(),activo:'true'});
+      tablaDoctores.append(fila);
+      actualizarDoctores();
+      bootstrap.Modal.getOrCreateInstance(campoDoctor('modalDoctor')).hide();
+      anunciarDoctores(`Vista previa registrada para ${nombre}.`);
+    });
+    campoDoctor('modalEditarDoctor').addEventListener('show.bs.modal', evento => {
+      doctorSeleccionado = evento.relatedTarget?.closest('tr[data-usuario]') || null;
+      if (!doctorSeleccionado) return;
+      errorDoctor('editarDoctorError', '');
+      campoDoctor('editarDoctorUsuario').value = `${doctorSeleccionado.dataset.nombre} · ${doctorSeleccionado.dataset.email}`;
+      campoDoctor('editarDoctorEspecialidad').value = doctorSeleccionado.dataset.especialidad;
+      campoDoctor('editarDoctorColegiado').value = doctorSeleccionado.dataset.colegiado;
+      campoDoctor('editarDoctorTelefono').value = doctorSeleccionado.dataset.telefono;
+    });
+    campoDoctor('formEditarDoctor').addEventListener('submit', evento => {
+      evento.preventDefault();
+      const form = evento.currentTarget;
+      errorDoctor('editarDoctorError', '');
+      if (!doctorSeleccionado) return;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const colegiado = campoDoctor('editarDoctorColegiado').value.trim();
+      if (!colegiado) { errorDoctor('editarDoctorError', 'El número de colegiado es obligatorio.'); return; }
+      if (filasDoctor().some(fila => fila !== doctorSeleccionado && normalizarBusqueda(fila.dataset.colegiado) === normalizarBusqueda(colegiado))) {
+        errorDoctor('editarDoctorError', 'Otro doctor de ejemplo utiliza ese número de colegiado.'); return;
+      }
+      doctorSeleccionado.dataset.especialidad = campoDoctor('editarDoctorEspecialidad').value;
+      doctorSeleccionado.dataset.colegiado = colegiado;
+      doctorSeleccionado.dataset.telefono = campoDoctor('editarDoctorTelefono').value.trim();
+      doctorSeleccionado.cells[1].textContent = doctorSeleccionado.dataset.especialidad;
+      doctorSeleccionado.cells[2].textContent = colegiado;
+      doctorSeleccionado.cells[3].textContent = doctorSeleccionado.dataset.telefono || '—';
+      const nombre = doctorSeleccionado.dataset.nombre;
+      actualizarDoctores();
+      bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEditarDoctor')).hide();
+      anunciarDoctores(`Vista previa actualizada para ${nombre}.`);
+    });
+    campoDoctor('modalEstadoDoctor').addEventListener('show.bs.modal', evento => {
+      doctorSeleccionado = evento.relatedTarget?.closest('tr[data-usuario]') || null;
+      if (!doctorSeleccionado) return;
+      const desactivar = doctorSeleccionado.dataset.activo === 'true';
+      campoDoctor('confirmacionEstadoDoctor').textContent = `¿Quieres ${desactivar ? 'desactivar' : 'activar'} visualmente a ${doctorSeleccionado.dataset.nombre}?`;
+      campoDoctor('confirmarEstadoDoctor').textContent = `${desactivar ? 'Desactivar' : 'Activar'} (vista previa)`;
+    });
+    campoDoctor('confirmarEstadoDoctor').addEventListener('click', () => {
+      if (!doctorSeleccionado) return;
+      doctorSeleccionado.dataset.activo = doctorSeleccionado.dataset.activo === 'true' ? 'false' : 'true';
+      actualizarEstadoDoctorFila(doctorSeleccionado);
+      actualizarDoctores();
+      const mensaje = `${doctorSeleccionado.dataset.nombre}: estado visual ${doctorSeleccionado.dataset.activo === 'true' ? 'activo' : 'inactivo'}.`;
+      bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEstadoDoctor')).hide();
+      anunciarDoctores(mensaje);
+    });
+    actualizarDoctores();
     // Corrección de accesibilidad probada: no dejar el foco en un modal que se oculta.
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('hide.bs.modal', () => {
