@@ -42,6 +42,7 @@
         <a class="nav-link" href="#buscarDoctores">Buscar doctores</a>
         <a class="nav-link" href="#reservarCita">Reservar cita</a>
         <a class="nav-link" href="#misCitas">Mis citas</a>
+        <a class="nav-link" href="#notificaciones">Notificaciones</a>
         <a class="nav-link" href="#miPerfil">Mi perfil</a>
       </nav>
     </div>
@@ -54,6 +55,7 @@
         <a class="nav-link" href="#buscarDoctores"><span aria-hidden="true">⌕</span> Buscar doctores</a>
         <a class="nav-link" href="#reservarCita"><span aria-hidden="true">＋</span> Reservar cita</a>
         <a class="nav-link" href="#misCitas"><span aria-hidden="true">▤</span> Mis citas</a>
+        <a class="nav-link" href="#notificaciones"><span aria-hidden="true">✉</span> Notificaciones</a>
         <a class="nav-link" href="#miPerfil"><span aria-hidden="true">◯</span> Mi perfil</a>
       </nav>
       <hr class="my-4">
@@ -145,6 +147,88 @@
           </div>
           <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas de demostración que coincidan con tu búsqueda.</p>
           <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Referencia técnica: <code>GET /api/citas</code> y <code>PUT /api/citas/:id</code> / <code>DELETE /api/citas/:id</code>. La integración definitiva deberá filtrar las citas en el servidor por el usuario autenticado, no solamente en el navegador.</p></div>
+        </div>
+      </section>
+      <!-- KAN-141: maqueta de notificaciones; no existe todavía un modelo Notificación en la API. -->
+      <section id="notificaciones" class="mb-4" aria-labelledby="notificacionesTitulo">
+        <div class="app-card">
+          <div class="app-card-header d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+              <p class="eyebrow mb-1">Avisos y seguimiento</p>
+              <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h2 class="section-title mb-0" id="notificacionesTitulo">Notificaciones</h2>
+                <span class="badge-soft" id="insigniaNotificaciones">2 sin leer</span>
+              </div>
+              <p class="small text-muted-app mb-0">Consulta avisos relacionados con tus citas de demostración.</p>
+            </div>
+            <button type="button" class="btn btn-outline-app btn-sm" id="marcarTodasNotificaciones">Marcar todas como leídas</button>
+          </div>
+          <div class="app-card-body">
+            <div class="alert alert-light border small mb-3" role="note"><strong>Vista previa académica:</strong> todos los avisos, fechas y profesionales son ficticios. Los cambios de lectura se simulan solo en esta página; se restablecen al recargar. No se envían correos ni se consulta una API de notificaciones.</div>
+            <div class="row g-3 align-items-end">
+              <div class="col-12 col-md-5"><label class="form-label" for="filtroTipoNotificacion">Tipo de notificación</label><select class="form-select" id="filtroTipoNotificacion"><option value="">Todos los tipos</option><option value="recordatorio">Recordatorios</option><option value="actualizacion">Actualizaciones</option><option value="cancelacion">Cancelaciones</option></select></div>
+              <div class="col-12 col-md-5"><label class="form-label" for="filtroLecturaNotificacion">Estado de lectura</label><select class="form-select" id="filtroLecturaNotificacion"><option value="">Todas</option><option value="false">Sin leer</option><option value="true">Leídas</option></select></div>
+              <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarNotificaciones">Limpiar</button></div>
+            </div>
+            <p class="small text-muted-app my-3" id="contadorNotificaciones" role="status" aria-live="polite">4 de 4 notificaciones de ejemplo</p>
+            <div class="patient-notification-list" id="listaNotificaciones" aria-label="Avisos de ejemplo del paciente">
+              <article class="patient-notification" data-tipo="recordatorio" data-leida="false" data-busqueda="recordatorio de cita próxima recordatorio tienes una cita pendiente con el dr. andrés vega (pediatría) para el 04/11/2026 a las 09:30.">
+                <div class="patient-notification-icon" aria-hidden="true">▤</div>
+                <div class="patient-notification-content">
+                  <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    <h3 class="h6 fw-semibold mb-0">Recordatorio de cita próxima</h3>
+                    <span class="badge-soft">Recordatorio</span>
+                    <span class="patient-notification-status" data-estado-notificacion>Sin leer</span>
+                  </div>
+                  <p class="small mb-2">Tienes una cita pendiente con el Dr. Andrés Vega (Pediatría) para el 04/11/2026 a las 09:30.</p>
+                  <time class="small text-muted-app" datetime="2026-11-01T08:30">01/11/2026 · 08:30</time>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-app patient-notification-action">Marcar como leída</button>
+              </article>
+              <article class="patient-notification" data-tipo="actualizacion" data-leida="false" data-busqueda="cita confirmada actualización la cita de demostración con la dra. elena rojas (medicina general) para el 05/11/2026 a las 14:00 aparece como confirmada.">
+                <div class="patient-notification-icon" aria-hidden="true">✓</div>
+                <div class="patient-notification-content">
+                  <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    <h3 class="h6 fw-semibold mb-0">Cita confirmada</h3>
+                    <span class="badge-soft">Actualización</span>
+                    <span class="patient-notification-status" data-estado-notificacion>Sin leer</span>
+                  </div>
+                  <p class="small mb-2">La cita de demostración con la Dra. Elena Rojas (Medicina general) para el 05/11/2026 a las 14:00 aparece como confirmada.</p>
+                  <time class="small text-muted-app" datetime="2026-10-31T11:20">31/10/2026 · 11:20</time>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-app patient-notification-action">Marcar como leída</button>
+              </article>
+              <article class="patient-notification" data-tipo="cancelacion" data-leida="true" data-busqueda="cita cancelada cancelación la cita ilustrativa con el dr. andrés vega programada para el 23/10/2026 a las 11:00 figura como cancelada.">
+                <div class="patient-notification-icon" aria-hidden="true">×</div>
+                <div class="patient-notification-content">
+                  <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    <h3 class="h6 fw-semibold mb-0">Cita cancelada</h3>
+                    <span class="badge-soft">Cancelación</span>
+                    <span class="patient-notification-status" data-estado-notificacion>Leída</span>
+                  </div>
+                  <p class="small mb-2">La cita ilustrativa con el Dr. Andrés Vega programada para el 23/10/2026 a las 11:00 figura como cancelada.</p>
+                  <time class="small text-muted-app" datetime="2026-10-23T12:10">23/10/2026 · 12:10</time>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-app patient-notification-action" disabled>Ya leída</button>
+              </article>
+              <article class="patient-notification" data-tipo="actualizacion" data-leida="true" data-busqueda="consulta completada actualización la cita de ejemplo con la dra. elena rojas del 25/10/2026 a las 08:00 figura como completada.">
+                <div class="patient-notification-icon" aria-hidden="true">✓</div>
+                <div class="patient-notification-content">
+                  <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    <h3 class="h6 fw-semibold mb-0">Consulta completada</h3>
+                    <span class="badge-soft">Actualización</span>
+                    <span class="patient-notification-status" data-estado-notificacion>Leída</span>
+                  </div>
+                  <p class="small mb-2">La cita de ejemplo con la Dra. Elena Rojas del 25/10/2026 a las 08:00 figura como completada.</p>
+                  <time class="small text-muted-app" datetime="2026-10-25T09:20">25/10/2026 · 09:20</time>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-app patient-notification-action" disabled>Ya leída</button>
+              </article>
+            </div>
+            <div class="patient-empty mt-3" id="sinNotificaciones" role="status" hidden>No hay notificaciones que coincidan con los filtros seleccionados.</div>
+            <p class="small mt-3 mb-0 patient-notification-feedback" id="mensajeNotificaciones" role="status" aria-live="polite" hidden></p>
+            <p class="small text-muted-app mt-3 mb-0">Pendiente para una versión futura: implementar entidad de notificaciones y su API. Esta maqueta no persiste cambios de lectura.</p>
+          </div>
         </div>
       </section>
       <section id="miPerfil" class="mb-4" aria-labelledby="miPerfilTitulo">
@@ -326,6 +410,61 @@
       estadoCitasPaciente.value = '';
       filtrarCitas();
     });
+
+
+    // KAN-141: filtros y lectura visual de notificaciones ficticias (sin localStorage ni API).
+    const notificacionesPaciente = [...document.querySelectorAll('#listaNotificaciones .patient-notification')];
+    const filtroTipoNotificacion = document.getElementById('filtroTipoNotificacion');
+    const filtroLecturaNotificacion = document.getElementById('filtroLecturaNotificacion');
+    const mensajeNotificaciones = document.getElementById('mensajeNotificaciones');
+    function actualizarNotificaciones() {
+      let visibles = 0;
+      let sinLeer = 0;
+      notificacionesPaciente.forEach(entrada => {
+        const leida = entrada.dataset.leida === 'true';
+        if (!leida) sinLeer++;
+        const coincideTipo = !filtroTipoNotificacion.value || entrada.dataset.tipo === filtroTipoNotificacion.value;
+        const coincideLectura = !filtroLecturaNotificacion.value || entrada.dataset.leida === filtroLecturaNotificacion.value;
+        const mostrar = coincideTipo && coincideLectura;
+        entrada.hidden = !mostrar;
+        if (mostrar) visibles++;
+      });
+      document.getElementById('contadorNotificaciones').textContent = `${visibles} de ${notificacionesPaciente.length} notificaciones de ejemplo`;
+      document.getElementById('sinNotificaciones').hidden = visibles !== 0;
+      document.getElementById('insigniaNotificaciones').textContent = `${sinLeer} sin leer`;
+      document.getElementById('marcarTodasNotificaciones').disabled = sinLeer === 0;
+    }
+    function marcarNotificacionLeida(entrada) {
+      if (entrada.dataset.leida === 'true') return;
+      entrada.dataset.leida = 'true';
+      entrada.classList.add('is-read');
+      entrada.querySelector('[data-estado-notificacion]').textContent = 'Leída';
+      const boton = entrada.querySelector('.patient-notification-action');
+      boton.textContent = 'Ya leída';
+      boton.disabled = true;
+    }
+    notificacionesPaciente.forEach(entrada => {
+      entrada.querySelector('.patient-notification-action').addEventListener('click', () => {
+        marcarNotificacionLeida(entrada);
+        mensajeNotificaciones.hidden = false;
+        mensajeNotificaciones.textContent = 'Notificación marcada como leída en esta vista previa. No se guardaron datos.';
+        actualizarNotificaciones();
+      });
+    });
+    filtroTipoNotificacion.addEventListener('change', actualizarNotificaciones);
+    filtroLecturaNotificacion.addEventListener('change', actualizarNotificaciones);
+    document.getElementById('limpiarNotificaciones').addEventListener('click', () => {
+      filtroTipoNotificacion.value = '';
+      filtroLecturaNotificacion.value = '';
+      actualizarNotificaciones();
+    });
+    document.getElementById('marcarTodasNotificaciones').addEventListener('click', () => {
+      notificacionesPaciente.forEach(marcarNotificacionLeida);
+      mensajeNotificaciones.hidden = false;
+      mensajeNotificaciones.textContent = 'Todas las notificaciones se marcaron como leídas en esta vista previa. No se guardaron datos.';
+      actualizarNotificaciones();
+    });
+    actualizarNotificaciones();
 
     document.getElementById('modalReprogramarPaciente').addEventListener('show.bs.modal', event => {
       const boton = event.relatedTarget;

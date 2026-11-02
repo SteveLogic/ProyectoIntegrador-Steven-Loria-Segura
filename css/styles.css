@@ -157,3 +157,39 @@ a:hover { color: var(--app-accent-hover); }
   .auth-page .app-brand { font-size: .85rem; gap: .4rem; }
   .auth-page .app-brand-mark { width: 30px; height: 30px; }
 }
+
+/* KAN-130: mantener visibles los botones del modal de atención cuando se muestran datos de la cita. */
+#modalRegistroAtencion #formRegistroAtencion {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+#modalRegistroAtencion #formRegistroAtencion > .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+#modalRegistroAtencion #formRegistroAtencion > .modal-footer {
+  flex: 0 0 auto;
+}
+
+
+/* KAN-141: notificaciones ficticias del paciente (Bootstrap 5.3 + estilos del proyecto). */
+.patient-notification-list { border: 1px solid var(--app-border); border-radius: 12px; overflow: hidden; }
+.patient-notification { display: flex; align-items: flex-start; gap: .9rem; padding: 1.15rem; background: #fbfcfd; border-bottom: 1px solid var(--app-border); }
+.patient-notification:last-child { border-bottom: 0; }
+.patient-notification[hidden] { display: none !important; }
+.patient-notification.is-read, .patient-notification[data-leida="true"] { background: #fff; }
+.patient-notification-icon { display: grid; place-items: center; width: 39px; height: 39px; flex: 0 0 39px; border: 1px solid #e1e5e9; border-radius: 10px; background: #eef0f3; color: #414b57; font-weight: 750; }
+.patient-notification-content { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.patient-notification-status { display: inline-flex; align-items: center; border: 1px solid #e2e6eb; border-radius: 999px; padding: .28rem .58rem; background: #fff; color: #495563; font-size: .72rem; font-weight: 700; }
+.patient-notification[data-leida="false"] .patient-notification-status { background: #edf1ef; border-color: #d7e1db; color: #37554a; }
+.patient-notification-action { flex: 0 0 auto; align-self: center; }
+.patient-notification-feedback { color: #37554a; }
+@media (max-width: 767.98px) {
+  #notificaciones .app-card-header > .btn { width: 100%; }
+  .patient-notification { flex-wrap: wrap; gap: .7rem; padding: 1rem; }
+  .patient-notification-icon { width: 34px; height: 34px; flex-basis: 34px; }
+  .patient-notification-action { width: 100%; margin-top: .15rem; }
+}

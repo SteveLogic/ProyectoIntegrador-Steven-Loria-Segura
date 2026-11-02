@@ -90,7 +90,10 @@
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Citas de ejemplo para probar filtros, estados y visualización de detalles.</p></div>
-            <a href="#disponibilidad" class="btn btn-sm btn-app-primary btn-mobile-wide">Consultar horarios</a>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <button type="button" class="btn btn-sm btn-outline-app btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalEstadoCitaDoctor">Actualizar estado (vista previa)</button>
+              <a href="#disponibilidad" class="btn btn-sm btn-app-primary btn-mobile-wide">Consultar horarios</a>
+            </div>
           </div>
           <div class="app-card-body pb-3">
             <div class="row g-3 align-items-end">
@@ -150,7 +153,10 @@
 
       <section id="consultas" class="mb-4" aria-labelledby="consultasTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Atención médica</p><h2 class="section-title mb-1" id="consultasTitulo">Consultas</h2><p class="small text-muted-app mb-0">Vista previa de selección de citas; todavía no contiene un expediente médico funcional.</p></div>
+          <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div><p class="eyebrow mb-1">Atención médica</p><h2 class="section-title mb-1" id="consultasTitulo">Consultas</h2><p class="small text-muted-app mb-0">Selección de citas y formulario de registro de atención, solo para demostración.</p></div>
+            <button type="button" class="btn btn-sm btn-app-primary btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalRegistroAtencion">+ Registrar atención (vista previa)</button>
+          </div>
           <div class="app-card-body">
             <div class="row align-items-end g-3">
               <div class="col-12 col-md-7"><label for="consultaEjemplo" class="form-label">Selecciona una cita de ejemplo</label><select id="consultaEjemplo" class="form-select"><option value="">Selecciona una cita</option><option value="María López · 04/11/2026 · 09:30">María López — 04/11/2026 · 09:30</option><option value="Mateo Solís · 04/11/2026 · 10:30">Mateo Solís — 04/11/2026 · 10:30</option><option value="Valeria Rojas · 05/11/2026 · 14:00">Valeria Rojas — 05/11/2026 · 14:00</option></select></div>
@@ -182,6 +188,119 @@
       <div class="modal-body"><p class="small text-muted-app">Información ficticia; no se consulta ningún expediente médico.</p><dl class="row g-2 doctor-detail-list mb-0"><dt class="col-5">Paciente</dt><dd class="col-7" id="detallePaciente"></dd><dt class="col-5">Especialidad</dt><dd class="col-7" id="detalleEspecialidad"></dd><dt class="col-5">Fecha</dt><dd class="col-7" id="detalleFecha"></dd><dt class="col-5">Hora</dt><dd class="col-7" id="detalleHora"></dd><dt class="col-5">Estado</dt><dd class="col-7" id="detalleEstado"></dd></dl></div>
       <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cerrar</button></div>
     </div></div>
+  </div>
+
+  <!-- KAN-124: la cita y el estado nuevo son solo una propuesta visual, no una operación sobre la API. -->
+  <div class="modal fade" id="modalEstadoCitaDoctor" tabindex="-1" aria-labelledby="estadoCitaDoctorTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="estadoCitaDoctorTitulo">Actualizar estado de cita</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="formEstadoCitaDoctor">
+        <div class="modal-body">
+          <div class="alert alert-light border small" role="note">
+            <strong>Vista previa académica:</strong> puedes seleccionar un nuevo estado, pero no se actualiza la agenda ni se envían datos a MongoDB.
+          </div>
+          <div class="mb-3">
+            <label for="citaSeleccionadaEstado" class="form-label">Cita médica *</label>
+            <select id="citaSeleccionadaEstado" class="form-select" required>
+              <option value="">Selecciona una cita de ejemplo</option>
+            </select>
+          </div>
+          <div id="datosCitaEstado" class="border rounded-3 p-3 mb-3" hidden>
+            <h3 class="h6 mb-3">Información de la cita seleccionada</h3>
+            <dl class="row g-2 doctor-detail-list small mb-0">
+              <dt class="col-5">Paciente</dt><dd class="col-7" id="estadoCitaPaciente"></dd>
+              <dt class="col-5">Especialidad</dt><dd class="col-7" id="estadoCitaEspecialidad"></dd>
+              <dt class="col-5">Fecha</dt><dd class="col-7" id="estadoCitaFecha"></dd>
+              <dt class="col-5">Hora</dt><dd class="col-7" id="estadoCitaHora"></dd>
+              <dt class="col-5">Estado actual</dt><dd class="col-7" id="estadoCitaActual"></dd>
+            </dl>
+          </div>
+          <div class="mb-3">
+            <label for="estadoNuevoCita" class="form-label">Nuevo estado *</label>
+            <select class="form-select" id="estadoNuevoCita" name="estado" required>
+              <option value="">Selecciona el nuevo estado</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="completada">Completada</option>
+            </select>
+            <div class="form-text">Estados definidos en el modelo de Mongoose <code>Cita.estado</code>.</div>
+          </div>
+          <div class="small text-muted-app mb-3" id="estadoPropuestoVista" role="status" aria-live="polite" hidden>
+            Estado propuesto: <span id="estadoPropuestoBadge" class="badge-cita"></span>
+          </div>
+          <div class="alert alert-light border mb-0" id="mensajeEstadoCitaDoctor" role="status" aria-live="polite" hidden></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-app-primary">Validar vista previa</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- KAN-130: interfaz ilustrativa de registro de atención, sin expedientes ni persistencia. -->
+  <div class="modal fade" id="modalRegistroAtencion" tabindex="-1" aria-labelledby="modalRegistroAtencionTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modalRegistroAtencionTitulo">Registrar atención médica</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <form id="formRegistroAtencion">
+          <div class="modal-body">
+            <div class="alert alert-light border small" role="note">
+              <strong>Vista previa académica:</strong> utiliza únicamente datos inventados. Este formulario no crea expedientes, no guarda información clínica y no envía datos a la API ni a MongoDB.
+            </div>
+            <div class="mb-3">
+              <label for="atencionCita" class="form-label">Cita asociada *</label>
+              <select id="atencionCita" name="cita" class="form-select" required>
+                <option value="">Selecciona una cita de ejemplo</option>
+              </select>
+              <div class="form-text">Se muestran citas ilustrativas no canceladas. La asociación real requerirá el ID de la cita en la API.</div>
+            </div>
+            <div id="atencionDatosCita" class="border rounded-3 p-3 mb-3" hidden>
+              <h3 class="h6 mb-3">Datos de la atención seleccionada</h3>
+              <dl class="row g-2 small doctor-detail-list mb-0">
+                <dt class="col-5">Paciente</dt><dd class="col-7" id="atencionPaciente"></dd>
+                <dt class="col-5">Especialidad</dt><dd class="col-7" id="atencionEspecialidad"></dd>
+                <dt class="col-5">Fecha</dt><dd class="col-7" id="atencionFecha"></dd>
+                <dt class="col-5">Hora</dt><dd class="col-7" id="atencionHora"></dd>
+                <dt class="col-5">Estado de cita</dt><dd class="col-7" id="atencionEstado"></dd>
+              </dl>
+            </div>
+            <div class="mb-3">
+              <label for="atencionMotivo" class="form-label">Motivo de consulta *</label>
+              <textarea id="atencionMotivo" name="motivo" class="form-control" rows="2" maxlength="500" required placeholder="Ej.: Consulta preventiva (datos ficticios)"></textarea>
+              <div class="form-text">Máximo 500 caracteres, como el atributo <code>Cita.motivo</code> del modelo actual.</div>
+            </div>
+            <div class="mb-3">
+              <label for="atencionObservaciones" class="form-label">Observaciones de la atención *</label>
+              <textarea id="atencionObservaciones" name="observaciones" class="form-control" rows="3" maxlength="1000" required placeholder="Describe una observación inventada para esta maqueta"></textarea>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <label for="atencionDiagnostico" class="form-label">Diagnóstico (demostración) *</label>
+                <textarea id="atencionDiagnostico" name="diagnostico" class="form-control" rows="3" maxlength="500" required placeholder="Texto de ejemplo, no datos médicos reales"></textarea>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="atencionIndicaciones" class="form-label">Indicaciones o plan de seguimiento (opcional)</label>
+                <textarea id="atencionIndicaciones" name="indicaciones" class="form-control" rows="3" maxlength="500" placeholder="Texto de ejemplo, no prescripciones reales"></textarea>
+              </div>
+            </div>
+            <p class="small text-muted-app mb-3">Los campos de observaciones, diagnóstico e indicaciones son propuestas de diseño para un futuro modelo de atención; todavía no existen en los modelos actuales de la API.</p>
+            <div class="alert alert-light border mb-0" id="mensajeRegistroAtencion" role="status" aria-live="polite" hidden></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-app-primary">Validar vista previa</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <div class="modal fade" id="modalHorarioDoctor" tabindex="-1" aria-labelledby="modalHorarioDoctorTitulo" aria-hidden="true">
@@ -281,6 +400,130 @@
       for (const [campo, valor] of Object.entries({Paciente:'paciente', Especialidad:'especialidad', Fecha:'fecha', Hora:'hora', Estado:'estado'})) {
         document.getElementById('detalle' + campo).textContent = datos[valor];
       }
+    });
+    // KAN-124: propuesta de estado a partir de las filas ilustrativas de la agenda.
+    const modalEstadoCita = document.getElementById('modalEstadoCitaDoctor');
+    const seleccionarCitaEstado = document.getElementById('citaSeleccionadaEstado');
+    const estadoNuevoCita = document.getElementById('estadoNuevoCita');
+    const mensajeEstadoCita = document.getElementById('mensajeEstadoCitaDoctor');
+    const vistaEstadoPropuesto = document.getElementById('estadoPropuestoVista');
+    const badgeEstadoPropuesto = document.getElementById('estadoPropuestoBadge');
+    const nombresEstadoCita = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' };
+    filasAgenda.forEach((fila, indice) => {
+      const datos = fila.querySelector('.ver-detalle').dataset;
+      const opcion = document.createElement('option');
+      opcion.value = String(indice);
+      opcion.textContent = `${datos.paciente} — ${datos.fecha} · ${datos.hora}`;
+      seleccionarCitaEstado.appendChild(opcion);
+    });
+    function citaEstadoActual() {
+      if (seleccionarCitaEstado.value === '') return null;
+      return filasAgenda[Number(seleccionarCitaEstado.value)] || null;
+    }
+    function actualizarInfoCitaEstado() {
+      const fila = citaEstadoActual();
+      document.getElementById('datosCitaEstado').hidden = !fila;
+      mensajeEstadoCita.hidden = true;
+      if (fila) {
+        const datos = fila.querySelector('.ver-detalle').dataset;
+        for (const [destino, origen] of Object.entries({
+          estadoCitaPaciente: 'paciente', estadoCitaEspecialidad: 'especialidad',
+          estadoCitaFecha: 'fecha', estadoCitaHora: 'hora'
+        })) document.getElementById(destino).textContent = datos[origen];
+        document.getElementById('estadoCitaActual').textContent = nombresEstadoCita[fila.dataset.estado];
+      }
+      actualizarVistaEstadoPropuesto();
+    }
+    function actualizarVistaEstadoPropuesto() {
+      const estado = estadoNuevoCita.value;
+      vistaEstadoPropuesto.hidden = !citaEstadoActual() || !estado;
+      if (estado) {
+        badgeEstadoPropuesto.className = `badge-cita badge-cita-${estado}`;
+        badgeEstadoPropuesto.textContent = nombresEstadoCita[estado];
+      }
+      mensajeEstadoCita.hidden = true;
+    }
+    modalEstadoCita.addEventListener('show.bs.modal', () => {
+      document.getElementById('formEstadoCitaDoctor').reset();
+      actualizarInfoCitaEstado();
+    });
+    seleccionarCitaEstado.addEventListener('change', actualizarInfoCitaEstado);
+    estadoNuevoCita.addEventListener('change', actualizarVistaEstadoPropuesto);
+    document.getElementById('formEstadoCitaDoctor').addEventListener('submit', evento => {
+      evento.preventDefault();
+      const fila = citaEstadoActual();
+      if (!fila) return;
+      const estadoAnterior = fila.dataset.estado;
+      const estadoPropuesto = estadoNuevoCita.value;
+      const datos = fila.querySelector('.ver-detalle').dataset;
+      mensajeEstadoCita.hidden = false;
+      mensajeEstadoCita.textContent = estadoPropuesto === estadoAnterior
+        ? `Selecciona un estado diferente de «${nombresEstadoCita[estadoAnterior]}» para mostrar el cambio propuesto.`
+        : `Vista previa validada: la cita de ${datos.paciente} pasaría de «${nombresEstadoCita[estadoAnterior]}» a «${nombresEstadoCita[estadoPropuesto]}». No se modificó la agenda ni se enviaron datos a la API.`;
+    });
+    // KAN-130: formulario ficticio de atención médica, enlazado visualmente a las citas de ejemplo.
+    const modalRegistroAtencion = document.getElementById('modalRegistroAtencion');
+    const formRegistroAtencion = document.getElementById('formRegistroAtencion');
+    const atencionCita = document.getElementById('atencionCita');
+    const atencionDatosCita = document.getElementById('atencionDatosCita');
+    const mensajeRegistroAtencion = document.getElementById('mensajeRegistroAtencion');
+    filasAgenda.forEach((fila, indice) => {
+      if (fila.dataset.estado === 'cancelada') return;
+      const datos = fila.querySelector('.ver-detalle').dataset;
+      const opcion = document.createElement('option');
+      opcion.value = String(indice);
+      opcion.textContent = `${datos.paciente} — ${datos.fecha} · ${datos.hora}`;
+      atencionCita.appendChild(opcion);
+    });
+    function filaAtencionSeleccionada() {
+      if (atencionCita.value === '') return null;
+      const indice = Number(atencionCita.value);
+      if (!Number.isInteger(indice) || indice < 0) return null;
+      const fila = filasAgenda[indice];
+      return fila && fila.dataset.estado !== 'cancelada' ? fila : null;
+    }
+    function mostrarDatosAtencion() {
+      const fila = filaAtencionSeleccionada();
+      atencionDatosCita.hidden = !fila;
+      mensajeRegistroAtencion.hidden = true;
+      if (!fila) return;
+      const datos = fila.querySelector('.ver-detalle').dataset;
+      for (const [id, clave] of Object.entries({
+        atencionPaciente: 'paciente', atencionEspecialidad: 'especialidad',
+        atencionFecha: 'fecha', atencionHora: 'hora', atencionEstado: 'estado'
+      })) document.getElementById(id).textContent = datos[clave];
+    }
+    modalRegistroAtencion.addEventListener('show.bs.modal', () => {
+      formRegistroAtencion.reset();
+      // Si se eligió una cita en la sección Consultas, se reutiliza la selección.
+      const consultaSeleccionada = document.getElementById('consultaEjemplo').value;
+      if (consultaSeleccionada) {
+        const opcion = [...atencionCita.options].find(op => {
+          if (!op.value) return false;
+          const fila = filasAgenda[Number(op.value)];
+          const d = fila.querySelector('.ver-detalle').dataset;
+          return consultaSeleccionada === `${d.paciente} · ${d.fecha} · ${d.hora}`;
+        });
+        if (opcion) atencionCita.value = opcion.value;
+      }
+      mostrarDatosAtencion();
+    });
+    atencionCita.addEventListener('change', mostrarDatosAtencion);
+    formRegistroAtencion.addEventListener('input', () => { mensajeRegistroAtencion.hidden = true; });
+    formRegistroAtencion.addEventListener('submit', evento => {
+      evento.preventDefault();
+      const fila = filaAtencionSeleccionada();
+      if (!fila) return;
+      const datos = fila.querySelector('.ver-detalle').dataset;
+      const motivo = document.getElementById('atencionMotivo').value.trim();
+      const observaciones = document.getElementById('atencionObservaciones').value.trim();
+      const diagnostico = document.getElementById('atencionDiagnostico').value.trim();
+      mensajeRegistroAtencion.hidden = false;
+      if (!motivo || !observaciones || !diagnostico) {
+        mensajeRegistroAtencion.textContent = 'Completa los campos obligatorios con datos ficticios antes de validar la vista previa.';
+        return;
+      }
+      mensajeRegistroAtencion.textContent = `Vista previa validada: se preparó un registro de atención de ejemplo para ${datos.paciente}, asociado a su cita del ${datos.fecha} a las ${datos.hora}. No se guardó ningún expediente ni se enviaron datos a la API.`;
     });
     document.getElementById('modalHorarioDoctor').addEventListener('show.bs.modal', evento => {
       const datos = evento.relatedTarget.dataset;
