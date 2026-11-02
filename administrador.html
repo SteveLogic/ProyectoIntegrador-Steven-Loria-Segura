@@ -39,11 +39,12 @@
     </div>
     <div class="offcanvas-body app-mobile-nav">
       <nav class="nav flex-column" aria-label="Menú móvil">
-        <a class="nav-link active" href="#resumen" data-bs-dismiss="offcanvas">Resumen</a>
-        <a class="nav-link" href="#usuarios" data-bs-dismiss="offcanvas">Usuarios</a>
-        <a class="nav-link" href="#doctores" data-bs-dismiss="offcanvas">Doctores</a>
-        <a class="nav-link" href="#especialidades" data-bs-dismiss="offcanvas">Especialidades</a>
-        <a class="nav-link" href="#citas" data-bs-dismiss="offcanvas">Citas</a>
+        <a class="nav-link active" href="#resumen">Resumen</a>
+        <a class="nav-link" href="#usuarios">Usuarios</a>
+        <a class="nav-link" href="#doctores">Doctores</a>
+        <a class="nav-link" href="#especialidades">Especialidades</a>
+        <a class="nav-link" href="#citas">Citas</a>
+        <a class="nav-link" href="#reportes">Reportes</a>
         <a class="nav-link" href="cambio-contrasena.html">Cambiar contraseña</a>
       </nav>
     </div>
@@ -57,6 +58,7 @@
         <a class="nav-link" href="#doctores"><span aria-hidden="true">✚</span> Doctores</a>
         <a class="nav-link" href="#especialidades"><span aria-hidden="true">◇</span> Especialidades</a>
         <a class="nav-link" href="#citas"><span aria-hidden="true">▤</span> Citas</a>
+        <a class="nav-link" href="#reportes"><span aria-hidden="true">▥</span> Reportes</a>
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
@@ -253,6 +255,90 @@
           </div>
           <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No se encontraron citas con esos filtros.</div>
           <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> y <code>completada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
+        </div>
+      </section>
+      <!-- KAN-147: reportes administrativos en vista previa. Sin modelos/endpoints nuevos. -->
+      <section id="reportes" class="mb-4" aria-labelledby="reportesTitulo">
+        <div class="app-card">
+          <div class="app-card-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+              <p class="eyebrow mb-1">Seguimiento administrativo</p>
+              <h2 id="reportesTitulo" class="section-title mb-1">Reportes de citas</h2>
+              <p class="text-muted-app small mb-0">Consulta de indicadores, estados y citas por especialidad y fechas.</p>
+            </div>
+            <span class="badge-soft">Vista previa académica</span>
+          </div>
+          <div class="app-card-body">
+            <div class="alert alert-light border small mb-4" role="note">
+              <strong>Datos ficticios:</strong> este reporte utiliza las cuatro citas de ejemplo de la sección «Gestión de citas».
+              Los resultados no provienen de MongoDB; no existe todavía una API de reportes ni se exportan datos reales.
+            </div>
+            <form id="filtrosReporte" class="row g-3 align-items-end" aria-label="Filtros de reportes de ejemplo" novalidate>
+              <div class="col-12 col-sm-6 col-xl-3">
+                <label for="reporteEspecialidad" class="form-label">Especialidad</label>
+                <select id="reporteEspecialidad" class="form-select">
+                  <option value="todos">Todas las especialidades</option>
+                  <option value="Medicina general">Medicina general</option>
+                  <option value="Pediatría">Pediatría</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6 col-xl-3">
+                <label for="reporteEstado" class="form-label">Estado de cita</label>
+                <select id="reporteEstado" class="form-select">
+                  <option value="todos">Todos los estados</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+              </div>
+              <div class="col-6 col-sm-6 col-xl-2">
+                <label for="reporteDesde" class="form-label">Desde</label>
+                <input id="reporteDesde" type="date" class="form-control">
+              </div>
+              <div class="col-6 col-sm-6 col-xl-2">
+                <label for="reporteHasta" class="form-label">Hasta</label>
+                <input id="reporteHasta" type="date" class="form-control">
+              </div>
+              <div class="col-12 col-xl-2">
+                <button type="reset" class="btn btn-outline-app w-100">Limpiar filtros</button>
+              </div>
+            </form>
+            <div id="reporteFechasInvalidas" role="alert" class="alert alert-warning mt-3 mb-0 d-none">La fecha «Desde» no puede ser posterior a «Hasta». Corrige las fechas para mostrar resultados.</div>
+            <div class="row g-3 mt-1" aria-label="Indicadores de citas filtradas">
+              <div class="col-6 col-xl-3"><div class="report-kpi h-100"><p class="kpi-label mb-2">Total de citas</p><p class="kpi-value mb-0" id="reporteTotal">4</p></div></div>
+              <div class="col-6 col-xl-3"><div class="report-kpi h-100"><p class="kpi-label mb-2">Por atender</p><p class="kpi-value mb-0" id="reportePorAtender">2</p><p class="report-kpi-note mb-0 mt-2">Pendientes y confirmadas</p></div></div>
+              <div class="col-6 col-xl-3"><div class="report-kpi h-100"><p class="kpi-label mb-2">Completadas</p><p class="kpi-value mb-0" id="reporteCompletadas">1</p></div></div>
+              <div class="col-6 col-xl-3"><div class="report-kpi h-100"><p class="kpi-label mb-2">Canceladas</p><p class="kpi-value mb-0" id="reporteCanceladas">1</p></div></div>
+            </div>
+            <div class="row g-3 mt-1">
+              <div class="col-12 col-lg-4">
+                <div class="report-panel h-100">
+                  <h3 class="h6 fw-bold mb-3">Distribución por estado</h3>
+                  <div id="reporteDistribucion" role="group" aria-label="Cantidad y proporción de citas por estado">
+                    <p class="small text-muted-app mb-0">Se actualizará al aplicar filtros.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-8">
+                <div class="report-panel h-100 p-0 overflow-hidden">
+                  <div class="px-3 pt-3 pb-2">
+                    <h3 class="h6 fw-bold mb-1">Detalle de las citas incluidas</h3>
+                    <p class="text-muted-app small mb-0" id="reporteContador" aria-live="polite">4 de 4 citas de ejemplo</p>
+                  </div>
+                  <div class="table-responsive report-scroll">
+                    <table id="tablaReporte" class="table app-table mb-0">
+                      <caption class="visually-hidden">Resultados filtrados de citas ficticias, sin conexión con MongoDB</caption>
+                      <thead><tr><th scope="col">Paciente</th><th scope="col">Especialidad</th><th scope="col">Doctor</th><th scope="col">Fecha y hora</th><th scope="col">Estado</th></tr></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                  <p id="reporteSinResultados" role="status" class="empty-state m-3 d-none">No hay citas de ejemplo que coincidan con los filtros seleccionados.</p>
+                </div>
+              </div>
+            </div>
+            <p class="small text-muted-app mt-3 mb-0">Mapeo a la API existente: <code>Cita</code> (campos <code>paciente</code>, <code>doctor</code>, <code>especialidad</code>, <code>fecha</code>, <code>hora</code>, <code>estado</code>), a través del futuro consumo de <code>GET /api/citas</code>. El cálculo del reporte se realiza actualmente solo en el navegador.</p>
+          </div>
         </div>
       </section>
       <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Vista académica del segundo avance</footer>
@@ -499,6 +585,130 @@
       actualizarTablaCitas();
       buscarCita.focus();
     });
+
+    // Navegación móvil accesible: cerrar el offcanvas antes de saltar al ancla.
+    // Esto evita el problema de enlaces internos que no navegaban en móvil.
+    const menuAdminMovil = document.getElementById('menuMovil');
+    const enlacesAdmin = document.querySelectorAll('.app-sidebar a[href^="#"], #menuMovil a[href^="#"]');
+    function destacarEnlaceAdmin(hash) {
+      enlacesAdmin.forEach(enlace => {
+        const activo = enlace.getAttribute('href') === hash;
+        enlace.classList.toggle('active', activo);
+        if (activo) enlace.setAttribute('aria-current', 'location');
+        else enlace.removeAttribute('aria-current');
+      });
+    }
+    menuAdminMovil.querySelectorAll('a[href^="#"]').forEach(enlace => {
+      enlace.addEventListener('click', evento => {
+        const hash = enlace.getAttribute('href');
+        const destino = document.getElementById(hash.slice(1));
+        if (!destino) return;
+        evento.preventDefault();
+        const navegar = () => {
+          if (window.location.hash !== hash) history.pushState(null, '', hash);
+          destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          destacarEnlaceAdmin(hash);
+        };
+        if (menuAdminMovil.classList.contains('show')) {
+          menuAdminMovil.addEventListener('hidden.bs.offcanvas', navegar, {once:true});
+          bootstrap.Offcanvas.getOrCreateInstance(menuAdminMovil).hide();
+        } else navegar();
+      });
+    });
+    document.querySelectorAll('.app-sidebar a[href^="#"]').forEach(enlace => {
+      enlace.addEventListener('click', () => destacarEnlaceAdmin(enlace.getAttribute('href')));
+    });
+    window.addEventListener('hashchange', () => destacarEnlaceAdmin(location.hash || '#resumen'));
+    destacarEnlaceAdmin(location.hash || '#resumen');
+
+    // KAN-147: un único conjunto de datos de ejemplo para citas y reportes.
+    // No se inventan endpoints, no se consulta API ni se guardan cambios.
+    const citasParaReporte = filasCitas.map(fila => ({
+      paciente: fila.dataset.paciente,
+      doctor: fila.dataset.doctor,
+      especialidad: fila.dataset.especialidad,
+      fecha: fila.dataset.fecha,
+      hora: fila.dataset.hora,
+      estado: fila.dataset.estado
+    }));
+    const especialidadReporte = document.getElementById('reporteEspecialidad');
+    const estadoReporte = document.getElementById('reporteEstado');
+    const desdeReporte = document.getElementById('reporteDesde');
+    const hastaReporte = document.getElementById('reporteHasta');
+    const tablaReporte = document.querySelector('#tablaReporte tbody');
+    const nombresEstados = {pendiente:'Pendiente', confirmada:'Confirmada', completada:'Completada', cancelada:'Cancelada'};
+    const ordenEstados = ['pendiente', 'confirmada', 'completada', 'cancelada'];
+    const fechaLegibleReporte = fecha => `${fecha.slice(8,10)}/${fecha.slice(5,7)}/${fecha.slice(0,4)}`;
+
+    function actualizarReporte() {
+      const fechaInvalida = Boolean(desdeReporte.value && hastaReporte.value && desdeReporte.value > hastaReporte.value);
+      document.getElementById('reporteFechasInvalidas').classList.toggle('d-none', !fechaInvalida);
+      desdeReporte.setCustomValidity(fechaInvalida ? 'La fecha inicial supera la final' : '');
+      hastaReporte.setCustomValidity(fechaInvalida ? 'La fecha final es anterior a la inicial' : '');
+      const filtradas = fechaInvalida ? [] : citasParaReporte.filter(cita =>
+        (especialidadReporte.value === 'todos' || cita.especialidad === especialidadReporte.value) &&
+        (estadoReporte.value === 'todos' || cita.estado === estadoReporte.value) &&
+        (!desdeReporte.value || cita.fecha >= desdeReporte.value) &&
+        (!hastaReporte.value || cita.fecha <= hastaReporte.value)
+      );
+      const cantidades = Object.fromEntries(ordenEstados.map(estado => [estado, filtradas.filter(cita => cita.estado === estado).length]));
+      document.getElementById('reporteTotal').textContent = String(filtradas.length);
+      document.getElementById('reportePorAtender').textContent = String(cantidades.pendiente + cantidades.confirmada);
+      document.getElementById('reporteCompletadas').textContent = String(cantidades.completada);
+      document.getElementById('reporteCanceladas').textContent = String(cantidades.cancelada);
+      document.getElementById('reporteContador').textContent = `${filtradas.length} de ${citasParaReporte.length} citas de ejemplo`;
+
+      const distribucion = document.getElementById('reporteDistribucion');
+      distribucion.replaceChildren();
+      ordenEstados.forEach(estado => {
+        const fila = document.createElement('div');
+        fila.className = 'report-distribution-row mb-3';
+        const encabezado = document.createElement('div');
+        encabezado.className = 'd-flex justify-content-between gap-2 small mb-1';
+        const titulo = document.createElement('span');
+        titulo.textContent = nombresEstados[estado];
+        const cantidad = document.createElement('strong');
+        cantidad.textContent = String(cantidades[estado]);
+        encabezado.append(titulo, cantidad);
+        const pista = document.createElement('div');
+        pista.className = 'report-distribution-track';
+        const barra = document.createElement('div');
+        barra.className = 'report-distribution-bar';
+        barra.style.width = `${filtradas.length ? (cantidades[estado] / filtradas.length) * 100 : 0}%`;
+        pista.append(barra);
+        fila.append(encabezado, pista);
+        distribucion.append(fila);
+      });
+
+      tablaReporte.replaceChildren();
+      filtradas.forEach(cita => {
+        const fila = document.createElement('tr');
+        [cita.paciente, cita.especialidad, cita.doctor, `${fechaLegibleReporte(cita.fecha)} · ${cita.hora}`].forEach(valor => {
+          const td = document.createElement('td');
+          td.textContent = valor;
+          fila.append(td);
+        });
+        const tdEstado = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `badge-cita badge-cita-${cita.estado}`;
+        badge.textContent = nombresEstados[cita.estado];
+        tdEstado.append(badge);
+        fila.append(tdEstado);
+        tablaReporte.append(fila);
+      });
+      document.getElementById('reporteSinResultados').classList.toggle('d-none', filtradas.length !== 0 || fechaInvalida);
+    }
+    document.getElementById('filtrosReporte').addEventListener('input', actualizarReporte);
+    document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
+    document.getElementById('filtrosReporte').addEventListener('reset', () => {
+      // Restablecer visualmente sin temporizadores y sin datos persistentes.
+      especialidadReporte.value = 'todos';
+      estadoReporte.value = 'todos';
+      desdeReporte.value = '';
+      hastaReporte.value = '';
+      actualizarReporte();
+    });
+    actualizarReporte();
     // Los modales reciben la fila seleccionada sin acceder a datos privados ni a la API.
     document.getElementById('modalReprogramarCita').addEventListener('show.bs.modal', event => {
       const fila = event.relatedTarget?.closest('tr[data-estado]');

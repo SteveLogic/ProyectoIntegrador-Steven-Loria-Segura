@@ -193,3 +193,17 @@ a:hover { color: var(--app-accent-hover); }
   .patient-notification-icon { width: 34px; height: 34px; flex-basis: 34px; }
   .patient-notification-action { width: 100%; margin-top: .15rem; }
 }
+
+
+/* KAN-147: reportes administrativos de muestra, sin integración con API. */
+#reportes { scroll-margin-top: 90px; }
+#reportes .form-label { font-size: .86rem; font-weight: 600; }
+.report-kpi { padding: 1.05rem 1.1rem; border: 1px solid var(--app-border); background: #fafbfc; border-radius: 12px; }
+.report-kpi-note { font-size: .73rem; color: var(--app-muted); }
+.report-panel { border: 1px solid var(--app-border); border-radius: 12px; background: #fff; padding: 1.05rem; }
+.report-distribution-track { background: #eceff2; border-radius: 99px; height: 7px; overflow: hidden; }
+.report-distribution-bar { background: #626f7d; height: 100%; border-radius: inherit; transition: width .18s ease; }
+#reportes .app-table { min-width: 640px; }
+.report-scroll { -webkit-overflow-scrolling: touch; }
+#reportes .report-panel .app-table td, #reportes .report-panel .app-table th { padding: .8rem .7rem; }
+@media (prefers-reduced-motion: reduce) { .report-distribution-bar { transition: none; } }
