@@ -131,6 +131,20 @@ Respuesta esperada:
 
 **Nota:** MongoDB mantiene los datos localmente; clonar el repositorio no copia los usuarios, citas y especialidades existentes en otra computadora. Para probar Citas, primero se deben crear los registros relacionados.
 
+### Paso 6. Cuentas de demostración (entorno académico local)
+
+Para presentar las vistas correspondientes a cada rol se han definido las siguientes **cuentas ficticias de prueba**. Estas credenciales fueron proporcionadas para la demostración; su funcionamiento debe verificarse en la base de datos local antes de exponer el proyecto.
+
+| Rol | Correo electrónico | Contraseña de demostración |
+|---|---|---|
+| Doctor | `doctor.demo20261023@citas.com` | Entregar al evaluador por canal privado |
+| Paciente | `paciente.demo20261023@citas.com` | Entregar al evaluador por canal privado |
+| Administrador | `admin.demo2026@citas.com` | Entregar al evaluador por canal privado |
+
+**Procedimiento:** iniciar MongoDB y el servidor de la API (`npm start` dentro de `API/`), abrir `login.html` con Live Server e iniciar sesión indicando correo, contraseña y rol.
+
+**Alcance y seguridad:** las cuentas pertenecen a una base de datos de demostración y **no se crean automáticamente** al clonar el repositorio. Las contraseñas de inicio de sesión se entregarán al profesor por un canal privado y no se publican en GitHub. No utilizar estas cuentas en producción. El flujo actual de recuperación de contraseña es exclusivamente académico y requiere medidas de seguridad adicionales antes de un despliegue público.
+
 ## 4. Endpoints disponibles
 
 **URL base:** `http://localhost:3000`.
