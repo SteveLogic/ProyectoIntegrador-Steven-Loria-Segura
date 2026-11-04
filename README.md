@@ -1,8 +1,10 @@
 # Sistema de Citas Médicas — Proyecto Integrador 1
 
-Aplicación web académica para la gestión de usuarios, perfiles médicos, especialidades y citas. Incluye interfaces en HTML, Bootstrap y JavaScript y una API REST desarrollada con Node.js, Express, Mongoose y MongoDB.
+Aplicación web académica para la gestión de usuarios, doctores, especialidades y citas médicas. Frontend con HTML5, Bootstrap 5, CSS3 y JavaScript; backend con Node.js, Express, Mongoose y MongoDB.
 
-**Estado del proyecto (28 de octubre de 2026):** prototipo académico en desarrollo. La API REST dispone de endpoints para Usuarios, Autenticación, Especialidades, Citas y Doctores, incluida la reasignación de la especialidad profesional de un doctor. Se realizaron pruebas manuales con Thunder Client de las operaciones principales y sus respuestas de error. La colección de pruebas se volvió a exportar localmente con las solicitudes nuevas; **esta versión y los cambios del backend están pendientes de publicar en GitHub**. Siguen pendientes las interfaces completas de gestión y reserva y los controles necesarios para un despliegue seguro.
+**Actualizado para el Segundo Avance — 3 de noviembre de 2026.** El alcance de esta entrega es **maquetación y diseño responsive de frontend**. Las 19 subtareas de diseño de interfaz del tablero Jira (KAN) están finalizadas. Varias pantallas usan **datos ficticios y validaciones de vista previa**: no crean, cambian ni eliminan registros reales. La autenticación y algunos formularios de recuperación sí realizan llamadas a la API académica; el resto no debe presentarse como integración completa con MongoDB.
+
+**Repositorio:** https://github.com/SteveLogic/ProyectoIntegrador-Steven-Loria-Segura
 
 ## 1. Tecnologías utilizadas
 
@@ -17,31 +19,23 @@ Aplicación web académica para la gestión de usuarios, perfiles médicos, espe
 ```text
 Proyecto Integrador/
 ├── API/
-│   ├── config/
-│   │   └── database.js
-│   ├── controllers/
-│   │   ├── usuarioController.js
-│   │   ├── especialidadController.js
-│   │   ├── citaController.js
-│   │   └── doctorController.js
-│   ├── models/
-│   │   ├── Usuario.js
-│   │   ├── Especialidad.js
-│   │   ├── Cita.js
-│   │   └── Doctor.js
-│   ├── routes/
-│   │   ├── usuarioRoutes.js
-│   │   ├── especialidadRoutes.js
-│   │   ├── citaRoutes.js
-│   │   ├── doctorRoutes.js
-│   │   └── authRoutes.js
+│   ├── config/database.js
+│   ├── controllers/              # Usuarios, doctores, citas y especialidades
+│   ├── models/                   # Usuario, Doctor, Cita, Especialidad
+│   ├── routes/                   # Endpoints REST y autenticación
 │   ├── .env.example
 │   ├── package.json
 │   ├── package-lock.json
 │   └── server.js
+├── css/
+│   └── styles.css                # Estilos personalizados para Bootstrap
+├── img/
+│   └── evidencias/               # Capturas de escritorio y móvil
 ├── login.html
+├── registro-paciente.html
 ├── olvidecontrasena.html
 ├── restablecercontrasena.html
+├── cambio-contrasena.html
 ├── paciente.html
 ├── doctor.html
 ├── administrador.html
@@ -50,12 +44,10 @@ Proyecto Integrador/
 └── README.md
 ```
 
-- **`routes/`:** define los endpoints HTTP y dirige las peticiones a las funciones correspondientes.
-- **`controllers/`:** procesa las solicitudes, aplica reglas y validaciones y devuelve respuestas JSON.
-- **`models/`:** define los esquemas de Mongoose y permite consultar o modificar MongoDB.
-- **`config/database.js`:** establece la conexión a MongoDB antes de que el servidor comience a escuchar solicitudes.
-
-`node_modules/` y `.env` se crean o mantienen **localmente** y no deben subirse al repositorio. El archivo `ThunderClientSistemaCitasMedicas.json` se volvió a exportar en el entorno local para incorporar las pruebas de asignación de especialidades; falta incorporar esa nueva versión mediante un commit y publicarla en GitHub.
+- `API/routes/` registra los endpoints; `API/controllers/` contiene la lógica; `API/models/` define esquemas de Mongoose.
+- `css/styles.css` complementa y personaliza Bootstrap.
+- `img/evidencias/` conserva capturas originales de pruebas manuales del frontend; los archivos son **evidencias visuales**, no imágenes usadas por la aplicación.
+- **No incluir** `node_modules/`, `API/.env` ni el directorio `.git/` en un ZIP de entrega. El archivo `API/.env.example` sí se incluye.
 
 ## 3. Instalación y ejecución local
 
@@ -394,32 +386,69 @@ Las siguientes operaciones se comprobaron en **Thunder Client** contra la API lo
 **Colección exportable:** se volvió a exportar localmente `ThunderClientSistemaCitasMedicas.json`, que incluye las nuevas solicitudes de `07 - Doctores` y la creación de la especialidad alternativa. **Esta actualización todavía está pendiente de commit/push.** La colección utiliza variables como `{{baseUrl}}`, `{{perfilDoctorId}}` y `{{especialidadAlternativaId}}`; deben configurarse en el entorno de Thunder Client para que las solicitudes se puedan ejecutar en otra instalación. Los IDs son específicos de la base local. Antes de publicar, comprobar que el JSON y cualquier entorno exportado no contengan contraseñas reales, tokens ni información sensible. Las pruebas manuales no sustituyen una suite automatizada.
 
 
-## 7. Frontend actual
+## 7. Vistas principales y alcance funcional del frontend
 
-El repositorio contiene estas páginas:
+| Archivo | Vistas / componentes representativos | Conexión actual |
+|---|---|---|
+| `login.html` | Inicio de sesión y selección de rol | Solicita `POST /api/auth/login` (API académica) |
+| `registro-paciente.html` | Formulario de registro y validación de contraseña | Validación visual, sin POST real |
+| `olvidecontrasena.html` | Buscar correo registrado | Solicita `POST /api/auth/verificar-correo` |
+| `restablecercontrasena.html` | Formulario de nueva contraseña | Solicita `PUT /api/auth/restablecer-password` (flujo académico no seguro para producción) |
+| `cambio-contrasena.html` | Cambio de contraseña para sesión iniciada | Vista previa, no cambia datos de API |
+| `paciente.html` | Resumen, directorio por especialidad, reserva, Mis citas, notificaciones y perfil | Datos ficticios y validaciones de maqueta |
+| `doctor.html` | Resumen, agenda, disponibilidad, pacientes, consultas, atención y perfil | Datos ficticios y validaciones de maqueta |
+| `administrador.html` | Panel, usuarios, doctores, especialidades, citas y reportes | Datos ficticios, filtros, modales y validaciones de maqueta |
 
-| Archivo | Funcionalidad actual |
-|---|---|
-| `login.html` | Formulario de inicio de sesión con validaciones; envía POST a `/api/auth/login` y redirige según el rol. |
-| `olvidecontrasena.html` | Comprueba el correo mediante `/api/auth/verificar-correo`. |
-| `restablecercontrasena.html` | Envía una nueva contraseña a `/api/auth/restablecer-password`. |
-| `paciente.html` | Página inicial para el rol paciente. |
-| `doctor.html` | Página inicial para el rol doctor. |
-| `administrador.html` | Página inicial para el rol administrador. |
+**Cómo abrir las interfaces:** abrir el proyecto con VS Code y Live Server (ej. `http://127.0.0.1:5500/login.html`). Para funciones que consultan la API, iniciar MongoDB y `npm start` en `API/` (servidor local `http://localhost:3000`). Bootstrap se carga desde CDN, por lo que conviene disponer de conexión a Internet durante la demostración.
 
-El frontend utiliza `sessionStorage` para conservar datos básicos durante la navegación y comprobar el rol en las páginas. Este control del lado del navegador **no sustituye autorización en el servidor**. Los formularios completos de administración de usuarios, especialidades y citas todavía no están integrados con sus respectivas APIs.
+## 8. Matriz de correspondencia: vista, Jira y API REST
 
-Para probar las páginas, se puede utilizar un servidor local de archivos (por ejemplo Live Server en VS Code), manteniendo la API ejecutándose en `http://localhost:3000`. Las URLs del API están escritas directamente en los archivos HTML y deberán configurarse para otros entornos.
+Las tareas que se indican corresponden a **diseño de interfaz** y **no** significan que todas las funcionalidades tengan integración persistente. Los nombres usados en el atributo HTML `name` para los formularios principales coinciden con los campos del modelo; algunos IDs DOM incorporan prefijos para evitar colisiones entre formularios de la misma página.
 
-## 8. Limitaciones y próximos pasos
+| Tarea Jira | Vista o sección | Modelo / entidad de API | Endpoint o alcance previsto |
+|---|---|---|---|
+| [KAN-38](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-38) | `login.html` | `Usuario` | `POST /api/auth/login` (integrado en entorno académico) |
+| [KAN-45](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-45) | `olvidecontrasena.html` | `Usuario` | `POST /api/auth/verificar-correo` (integrado) |
+| [KAN-52](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-52) | `cambio-contrasena.html` y `restablecercontrasena.html` | `Usuario.password` | Maqueta de cambio; recuperación académica `PUT /api/auth/restablecer-password` |
+| [KAN-62](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-62) | `administrador.html#usuarios` | `Usuario` (`nombre`, `email`, `password`, `rol`) | CRUD `GET/POST/PUT/DELETE /api/usuarios`; interfaz simulada |
+| [KAN-69](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-69) | `registro-paciente.html` | `Usuario` (`nombre`, `email`, `password`, `rol`) | Preparado para `POST /api/usuarios`; maqueta |
+| [KAN-75](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-75) | `paciente.html#miPerfil` | `Usuario` | `GET/PUT /api/usuarios/:id`; maqueta |
+| [KAN-81](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-81) | `administrador.html#doctores` | `Doctor` (`usuario`, `especialidad`, `numeroColegiado`, `telefono`, `activo`) | `GET/POST/PUT/DELETE /api/doctores`; maqueta; DELETE desactiva lógicamente |
+| [KAN-88](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-88) | `administrador.html#especialidades` | `Especialidad` (`nombre`, `descripcion`, `activo`) | `GET/POST/PUT/DELETE /api/especialidades`; maqueta |
+| [KAN-94](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-94) | `paciente.html#buscarDoctores` | `Doctor`, `Especialidad`, `Usuario` | Directorio y selección visual; futuro `GET /api/doctores` y `GET /api/especialidades` |
+| [KAN-99](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-99) | `doctor.html#disponibilidad` | Disponibilidad (modelo aún no definido) | Horarios ficticios; no existe endpoint de disponibilidad en la API actual |
+| [KAN-106](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-106) | `paciente.html#reservarCita` | `Cita` (`paciente`, `doctor`, `especialidad`, `fecha`, `hora`, `motivo`) | Preparado para `POST /api/citas`; validación de vista previa |
+| [KAN-113](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-113) | `administrador.html#citas` | `Cita` | `GET/POST/PUT/DELETE /api/citas`; maquetas de registro/reprogramación/cancelación |
+| [KAN-119](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-119) | `paciente.html#misCitas` | `Cita` | Futuro `GET /api/citas` filtrado en backend por usuario autenticado; datos ficticios |
+| [KAN-124](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-124) | `doctor.html#agenda` (modal de estado) | `Cita.estado` | Vista previa; el backend actual no expone un endpoint dedicado para actualizar `estado` |
+| [KAN-130](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-130) | `doctor.html#consultas` | `Cita`; futura `AtencionMedica` | Formulario ficticio de atención; diagnóstico/observaciones no existen aún en los modelos |
+| [KAN-136](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-136) | `doctor.html#agenda` | `Cita`, `Usuario` | Futuro listado de agenda filtrado por doctor; maqueta |
+| [KAN-141](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-141) | `paciente.html#notificaciones` | Notificación (modelo aún no definido); referencia a `Cita` | Avisos ficticios y estados de lectura en pantalla |
+| [KAN-147](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-147) | `administrador.html#reportes` | `Cita` | Reportes calculados sobre datos ficticios; sin endpoint específico |
+| [KAN-153](https://ucenfotec-team-zo0hagdo.atlassian.net/browse/KAN-153) | `administrador.html#resumen` | `Usuario`, `Doctor`, `Especialidad`, `Cita` | Panel visual e indicadores de demostración |
 
-- Implementar autenticación/autorización real en la API y restringir acceso a datos y operaciones por rol.
-- Sustituir la recuperación de contraseña actual por un proceso seguro con tokens temporales y verificación de identidad.
-- Añadir validaciones completas de fechas, agenda, disponibilidad y concurrencia en las reservas.
-- Construir e integrar las interfaces de administración de Usuarios, Especialidades y Citas.
-- Integrar los perfiles de **Doctores** y su asignación de especialidad con las interfaces correspondientes y la gestión de citas; comprobar en el futuro que las citas utilicen una especialidad realmente asociada al doctor. Continuar los módulos de Pacientes, Agenda, Disponibilidad, Historial Médico, Notificaciones y Reportes.
-- Definir si un doctor puede tener varias especialidades y si debe bloquearse la reasignación cuando el perfil está inactivo.
-- Revisar la nueva exportación de Thunder Client para excluir credenciales sensibles y publicar el JSON, el README y el código actualizado en GitHub.
-- Verificar desde el navegador los flujos completos del frontend contra la API; las pruebas de Thunder Client no comprueban por sí solas la integración visual.
+## 9. Evidencias visuales de escritorio y móvil
 
-**Este proyecto es académico y todavía no es apropiado para almacenar datos médicos reales ni para exponerse públicamente en producción.**
+Las siguientes capturas fueron aportadas durante las pruebas manuales del frontend en Chrome y Chrome DevTools. Los datos de pacientes, doctores y horarios visibles son de demostración. Los screenshots de móvil muestran un ancho de **375 px**.
+
+| Funcionalidad | Escritorio | Móvil |
+|---|---|---|
+| Reportes administrativos | [Ver captura](img/evidencias/reportes-escritorio.png) | [Ver captura](img/evidencias/reportes-movil.png) |
+| Gestión de doctores | [Ver captura](img/evidencias/doctores-escritorio.png) | [Ver captura](img/evidencias/doctores-movil.png) |
+| Mis citas (paciente) | [Ver captura](img/evidencias/mis-citas-escritorio.png) | [Ver captura](img/evidencias/mis-citas-movil.png) |
+| Directorio por especialidad | [Ver captura](img/evidencias/buscar-doctores-escritorio.png) | [Ver captura](img/evidencias/buscar-doctores-movil.png) |
+| Reserva de citas | [Ver captura](img/evidencias/reserva-escritorio.png) | [Ver captura](img/evidencias/reserva-movil.png) |
+| Gestión de citas (admin) | [Ver captura](img/evidencias/gestion-citas-escritorio.png) | [Ver captura](img/evidencias/reprogramacion-movil.png) |
+| Cancelación de cita | [Ver captura](img/evidencias/cancelacion-escritorio.png) | [Ver captura](img/evidencias/cancelacion-movil.png) |
+
+Las capturas representan los estados y pruebas visibles del sistema; no sustituyen pruebas de integración con MongoDB. En las capturas de móvil puede verse Chrome DevTools para evidenciar el tamaño del dispositivo. Algunas pantallas de autenticación y perfiles no cuentan con pareja de capturas en este paquete: si el docente espera evidencia **de cada pantalla**, añadirlas manualmente.
+
+## 10. Limitaciones, seguridad y próximos pasos
+
+- El segundo avance comprende maquetación de frontend: las vistas de reserva, reportes, doctores, notificaciones y acciones de citas incluyen **datos ficticios** y no ejecutan operaciones reales contra MongoDB.
+- La API de usuarios sí implementa una eliminación física (`DELETE /api/usuarios/:id`); la API de doctores desactiva lógicamente un perfil y la de citas cancela lógicamente. No confundir comportamientos con las acciones demostrativas del frontend.
+- `AtencionMedica`, Notificaciones y Disponibilidad aún no tienen modelos/endpoints específicos en la API actual; las pantallas correspondientes preparan la interfaz para un avance posterior.
+- En la API actual falta seguridad de producción: autorización por roles y tokens/sesiones seguras, recuperación de contraseña con verificación real, validación integral de disponibilidad y reglas transaccionales.
+- La aplicación no debe utilizarse con información médica real ni publicarse como servicio de producción. El acceso por `sessionStorage` sirve solo para la demostración.
+- La hoja de estilos propia `css/styles.css` complementa el sistema responsive de Bootstrap 5 y usa una paleta neutra coherente.
+- La revisión final antes de entregar debe comprobar enlaces, formularios, navegador móvil, limpieza de archivos, y `git status` sin cambios pendientes tras `git push`.
