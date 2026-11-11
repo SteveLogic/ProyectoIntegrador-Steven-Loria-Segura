@@ -32,7 +32,7 @@
         </header>
 
         <!-- Contenido principal -->
-         
+
         <main class="container">
             <div class="row justify-content-center py-5">
                 <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
@@ -75,7 +75,7 @@
                                     <div class="invalid-feedback">
                                         Ingrese un correo electrónico válido.
                                     </div>
-                                    
+
 
                                 </div>
 
@@ -134,13 +134,25 @@
                                     </select>
                                     <div class="invalid-feedback">Seleccione un tipo de usuario.</div>
                                 </div>
+                                <div id="mensajeLogin" class="alert d-none" role="alert"></div>
 
-                                          <!-- Botón principal -->  
-                                <div id="mensajeLogin" class="alert d-none" role="alert"></div>      
-
+                                          <!-- Botón principal -->
                                 <div class="d-grid mb-3">
-                                    <button type="submit" class="btn btn-app-primary">
-                                        Iniciar sesión
+                                    <button
+                                        type="submit"
+                                        id="btnLogin"
+                                        class="btn btn-app-primary"
+                                    >
+                                        <span
+                                            id="spinnerLogin"
+                                            class="spinner-border spinner-border-sm d-none me-2"
+                                            role="status"
+                                            aria-hidden="true"
+                                        ></span>
+
+                                        <span id="textoBotonLogin">
+                                            Iniciar sesión
+                                        </span>
                                     </button>
                                 </div>
 
@@ -182,6 +194,22 @@
         <script>
             const formulario = document.getElementById("loginForm");
             const mensajeLogin = document.getElementById("mensajeLogin");
+            const botonLogin = document.getElementById("btnLogin");
+            const spinnerLogin = document.getElementById("spinnerLogin");
+            const textoBotonLogin = document.getElementById("textoBotonLogin");
+
+            function mostrarSpinner() {
+                botonLogin.disabled = true;
+                spinnerLogin.classList.remove("d-none");
+                textoBotonLogin.textContent = "Iniciando sesión...";
+
+            }
+            function ocultarSpinner() {
+                botonLogin.disabled = false;
+                spinnerLogin.classList.add("d-none");
+                textoBotonLogin.textContent = "Iniciar sesión";
+            }
+
 
             formulario.addEventListener("submit", async function (event) {
 
@@ -205,6 +233,10 @@
                 const email = document.getElementById("email").value.trim();
                 const password = document.getElementById("password").value;
                 const rol = document.getElementById("rol").value;
+
+
+                // Mostrar spinner durante la autenticación
+                mostrarSpinner();
 
                 try {
 
@@ -264,6 +296,12 @@
                         "No se pudo conectar con el servidor. Intente nuevamente.";
 
                     console.error("Error al iniciar sesión:", error);
+
+                } finally {
+
+                    // Ocultar spinner después de la autenticación
+                    ocultarSpinner();
+
                 }
             });
 
@@ -280,7 +318,7 @@
                 mensajeLogin.textContent = "";
             });
         </script>
-                
-                
+
+
     </body>
 </html>
