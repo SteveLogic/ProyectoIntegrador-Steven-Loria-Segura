@@ -123,7 +123,12 @@
             <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalDoctor">+ Registrar doctor</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border small" role="note"><strong>Vista previa académica:</strong> los doctores y usuarios de esta tabla son ficticios. Crear, editar y activar/desactivar producen únicamente cambios temporales en pantalla; se restablecen al recargar y no afectan la API, MongoDB ni la reserva de citas.</div>
+            <div class="alert alert-light border small" role="note">
+              <strong>Datos obtenidos de MongoDB:</strong>
+              Esta tabla muestra los perfiles médicos registrados en la base de datos.
+              Las funciones de registrar, editar y cambiar estados continúan siendo
+              demostraciones visuales y no guardan modificaciones en MongoDB.
+            </div>
             <div id="avisoDoctores" class="alert alert-success d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar doctores de ejemplo">
               <div class="col-12 col-md-5"><label class="form-label" for="buscarDoctor">Buscar por nombre, correo o colegiado</label><input type="search" class="form-control" id="buscarDoctor" placeholder="Ej.: Andrés o COL-2026" autocomplete="off"></div>
@@ -150,7 +155,7 @@
               </tbody>
             </table>
           </div>
-          <div id="sinResultadosDoctores" class="empty-state m-3 d-none" role="status">No existen doctores de ejemplo que coincidan con los filtros.</div>
+          <div id="sinResultadosDoctores" class="empty-state m-3 d-none" role="status"> No se encontraron doctores registrados que coincidan con los filtros seleccionados. </div>
           <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <strong>La reactivación no está implementada en la API actual.</strong></p></div>
         </div>
       </section>
@@ -451,9 +456,9 @@
   <!-- Modales KAN-81: los campos de formulario coinciden con los del modelo Mongoose Doctor. -->
   <div class="modal fade" id="modalDoctor" tabindex="-1" aria-labelledby="modalDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico (demostración)</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formCrearDoctor" novalidate>
-        <div class="modal-body"><p class="text-muted-app small">Formulario diseñado para <code>POST /api/doctores</code>. Los usuarios y especialidades son opciones ficticias: en la integración real se enviarán sus IDs de MongoDB. <strong>No se guardarán datos reales.</strong></p>
+        <div class="modal-body"><p class="text-muted-app small">Formulario diseñado para <code>POST /api/doctores</code>. Registre un perfil médico seleccionando un usuario con rol doctory una especialidad activa. La información se guardará en MongoDB. </p>
           <div id="crearDoctorError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12 col-md-6"><label for="doctorUsuario" class="form-label">Usuario con rol doctor *</label><select id="doctorUsuario" name="usuario" class="form-select" required><option value="">Selecciona un usuario</option><option value="demo-andres" data-email="andres.vega@example.com">Dr. Andrés Vega (perfil existente)</option><option value="demo-elena" data-email="elena.rojas@example.com">Dra. Elena Rojas (perfil existente)</option><option value="demo-daniel" data-email="daniel.soto@example.com">Dr. Daniel Soto (perfil existente)</option><option value="demo-laura" data-email="laura.mora@example.com">Dra. Laura Mora (sin perfil)</option></select></div>
@@ -462,7 +467,7 @@
             <div class="col-12 col-md-6"><label for="doctorTelefono" class="form-label">Teléfono (opcional)</label><input id="doctorTelefono" name="telefono" type="tel" class="form-control" maxlength="30" placeholder="Ej.: 8888-0000"></div>
           </div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar registro (vista previa)</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Registrar doctor</button></div>
       </form>
     </div></div>
   </div>
@@ -846,7 +851,7 @@
         fila.classList.toggle('d-none', !coincide);
         if (coincide) visibles++;
       });
-      campoDoctor('contadorDoctores').textContent = `${visibles} de ${filas.length} doctores de ejemplo`;
+      campoDoctor('contadorDoctores').textContent = `${visibles} de ${filas.length} doctores registrados`;
       campoDoctor('sinResultadosDoctores').classList.toggle('d-none', visibles !== 0);
       campoDoctor('resumenDoctoresActivos').textContent = String(activos);
       campoDoctor('resumenDoctoresInactivos').textContent = String(filas.length - activos);
@@ -866,10 +871,108 @@
       alerta.textContent = mensaje;
       alerta.classList.toggle('d-none', !mensaje);
     }
-    campoDoctor('modalDoctor').addEventListener('show.bs.modal', () => {
-      campoDoctor('formCrearDoctor').reset();
-      errorDoctor('crearDoctorError', '');
-    });
+    campoDoctor('modalDoctor').addEventListener('show.bs.modal', async () => {
+    campoDoctor('formCrearDoctor').reset();
+    errorDoctor('crearDoctorError', '');
+
+    const selectUsuarios = campoDoctor('doctorUsuario');
+    const selectEspecialidades = campoDoctor('doctorEspecialidad');
+
+    selectUsuarios.replaceChildren(
+        new Option('Cargando usuarios...', '')
+    );
+
+    selectEspecialidades.replaceChildren(
+        new Option('Cargando especialidades...', '')
+    );
+
+    selectUsuarios.disabled = true;
+    selectEspecialidades.disabled = true;
+
+    try {
+        const [respuestaUsuarios, respuestaDoctores, respuestaEspecialidades] =
+            await Promise.all([
+                fetch('http://localhost:3000/api/usuarios'),
+                fetch('http://localhost:3000/api/doctores'),
+                fetch('http://localhost:3000/api/especialidades')
+            ]);
+
+        if (!respuestaUsuarios.ok ||
+            !respuestaDoctores.ok ||
+            !respuestaEspecialidades.ok) {
+            throw new Error('No se pudieron consultar los datos');
+        }
+
+        const [usuarios, doctores, especialidades] = await Promise.all([
+            respuestaUsuarios.json(),
+            respuestaDoctores.json(),
+            respuestaEspecialidades.json()
+        ]);
+
+        if (![usuarios, doctores, especialidades].every(Array.isArray)) {
+            throw new Error('Formato de respuesta incorrecto');
+        }
+
+        // Identificar usuarios que ya tienen un perfil médico
+        const usuariosConPerfil = new Set(
+            doctores.map(doctor => doctor.usuario?._id || doctor.usuario)
+        );
+
+        // Solo mostrar usuarios doctor que todavía no tengan perfil
+        const usuariosDisponibles = usuarios.filter(usuario =>
+            usuario.rol === 'doctor' &&
+            !usuariosConPerfil.has(usuario._id)
+        );
+
+        // Solo mostrar especialidades activas
+        const especialidadesActivas = especialidades.filter(
+            especialidad => especialidad.activo === true
+        );
+
+        selectUsuarios.replaceChildren(
+            new Option('Seleccione un usuario', '')
+        );
+
+        usuariosDisponibles.forEach(usuario => {
+            const opcion = new Option(
+                `${usuario.nombre} (${usuario.email})`,
+                usuario._id
+            );
+
+            opcion.dataset.email = usuario.email;
+            selectUsuarios.add(opcion);
+        });
+
+        selectEspecialidades.replaceChildren(
+            new Option('Seleccione una especialidad', '')
+        );
+
+        especialidadesActivas.forEach(especialidad => {
+            selectEspecialidades.add(
+                new Option(especialidad.nombre, especialidad._id)
+            );
+        });
+
+        if (!usuariosDisponibles.length || !especialidadesActivas.length) {
+            errorDoctor(
+                'crearDoctorError',
+                'No hay usuarios sin perfil o especialidades activas disponibles.'
+            );
+        }
+
+    } catch (error) {
+        console.error('Error cargando formulario:', error);
+
+        errorDoctor(
+            'crearDoctorError',
+            'No fue posible cargar los datos desde la API.'
+        );
+
+    } finally {
+        selectUsuarios.disabled = false;
+        selectEspecialidades.disabled = false;
+    }
+});
     function crearFilaDoctor(registro) {
       const fila = document.createElement('tr');
       Object.entries(registro).forEach(([clave, valor]) => { fila.dataset[clave] = String(valor); });
@@ -893,27 +996,84 @@
       actualizarEstadoDoctorFila(fila);
       return fila;
     }
-    campoDoctor('formCrearDoctor').addEventListener('submit', evento => {
-      evento.preventDefault();
-      const form = evento.currentTarget;
-      errorDoctor('crearDoctorError', '');
-      if (!form.checkValidity()) { form.reportValidity(); return; }
-      const usuario = campoDoctor('doctorUsuario');
-      const nombre = usuario.selectedOptions[0].textContent.replace(/\s*\(.*\)$/, '').trim();
-      const colegiado = campoDoctor('doctorColegiado').value.trim();
-      if (!colegiado) { errorDoctor('crearDoctorError', 'El número de colegiado es obligatorio.'); return; }
-      if (filasDoctor().some(fila => fila.dataset.usuario === usuario.value)) {
-        errorDoctor('crearDoctorError', 'Este usuario ya tiene un perfil médico de ejemplo.'); return;
-      }
-      if (filasDoctor().some(fila => normalizarBusqueda(fila.dataset.colegiado) === normalizarBusqueda(colegiado))) {
-        errorDoctor('crearDoctorError', 'Este número de colegiado ya está registrado en los ejemplos.'); return;
-      }
-      const fila = crearFilaDoctor({usuario:usuario.value,nombre,email:usuario.selectedOptions[0].dataset.email || '',especialidad:campoDoctor('doctorEspecialidad').value,colegiado,telefono:campoDoctor('doctorTelefono').value.trim(),activo:'true'});
-      tablaDoctores.append(fila);
-      actualizarDoctores();
-      bootstrap.Modal.getOrCreateInstance(campoDoctor('modalDoctor')).hide();
-      anunciarDoctores(`Vista previa registrada para ${nombre}.`);
-    });
+    campoDoctor('formCrearDoctor').addEventListener('submit', async evento => {
+    evento.preventDefault();
+
+    const formulario = evento.currentTarget;
+    errorDoctor('crearDoctorError', '');
+
+    // Validar campos obligatorios
+    if (!formulario.checkValidity()) {
+        formulario.reportValidity();
+        return;
+    }
+
+    // Obtener los datos del formulario
+    const usuario = campoDoctor('doctorUsuario').value;
+    const especialidad = campoDoctor('doctorEspecialidad').value;
+    const numeroColegiado = campoDoctor('doctorColegiado').value.trim();
+    const telefono = campoDoctor('doctorTelefono').value.trim();
+
+    const botonGuardar = formulario.querySelector('button[type="submit"]');
+    const textoOriginal = botonGuardar.textContent;
+
+    // Evitar envíos duplicados
+    botonGuardar.disabled = true;
+    botonGuardar.textContent = 'Guardando doctor...';
+
+    try {
+        // Enviar los datos a nuestra API REST
+        const respuesta = await fetch(
+            'http://localhost:3000/api/doctores',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usuario,
+                    especialidad,
+                    numeroColegiado,
+                    telefono
+                })
+            }
+        );
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje || datos.error ||
+                `Error al registrar el doctor (${respuesta.status})`
+            );
+        }
+
+        // Cerrar el formulario
+        bootstrap.Modal.getOrCreateInstance(
+            campoDoctor('modalDoctor')
+        ).hide();
+
+        // Actualizar la tabla con los registros de MongoDB
+        await cargarDoctoresDesdeAPI();
+
+        const aviso = campoDoctor('avisoDoctores');
+        aviso.className = 'alert alert-success small';
+        aviso.textContent =
+            'Perfil médico registrado correctamente en MongoDB.';
+
+    } catch (error) {
+        console.error('Error al registrar doctor:', error);
+
+        errorDoctor(
+            'crearDoctorError',
+            error.message || 'No fue posible registrar el doctor.'
+        );
+
+    } finally {
+        botonGuardar.disabled = false;
+        botonGuardar.textContent = textoOriginal;
+    }
+});
     campoDoctor('modalEditarDoctor').addEventListener('show.bs.modal', evento => {
       doctorSeleccionado = evento.relatedTarget?.closest('tr[data-usuario]') || null;
       if (!doctorSeleccionado) return;
@@ -961,7 +1121,97 @@
       bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEstadoDoctor')).hide();
       anunciarDoctores(mensaje);
     });
-    actualizarDoctores();
+    // Consultar los doctores registrados en MongoDB
+    async function cargarDoctoresDesdeAPI() {
+        const aviso = document.getElementById("avisoDoctores");
+
+        aviso.className = "alert alert-info small";
+        aviso.textContent = "Cargando doctores desde la API...";
+
+        try {
+            const respuesta = await fetch(
+                "http://localhost:3000/api/doctores"
+            );
+
+            if (!respuesta.ok) {
+                throw new Error(`Error HTTP: ${respuesta.status}`);
+            }
+
+            const doctores = await respuesta.json();
+
+            if (!Array.isArray(doctores)) {
+                throw new Error("La API no devolvió una lista de doctores");
+            }
+
+            // Sustituir las filas ficticias por registros reales
+            tablaDoctores.replaceChildren();
+
+            doctores.forEach(doctor => {
+                const registro = {
+                    usuario: doctor.usuario?._id || doctor._id,
+                    nombre: doctor.usuario?.nombre || "Sin nombre",
+                    email: doctor.usuario?.email || "",
+                    especialidad: doctor.especialidad?.nombre || "Sin especialidad",
+                    colegiado: doctor.numeroColegiado || "",
+                    telefono: doctor.telefono || "",
+                    activo: doctor.activo === true
+                };
+
+                const fila = crearFilaDoctor(registro);
+
+                fila.dataset.perfilId = doctor._id;
+
+                // De momento solo permitimos consultar datos reales.
+                // La edición se integrará posteriormente.
+                fila.lastElementChild.textContent = "Solo consulta";
+
+                tablaDoctores.append(fila);
+            });
+
+            // Actualizar las especialidades disponibles en el filtro
+            filtrarEspecialidadDoctor.replaceChildren(
+                new Option("Todas las especialidades", "todas")
+            );
+
+            const especialidades = [
+                ...new Set(
+                    doctores
+                        .map(doctor => doctor.especialidad?.nombre)
+                        .filter(Boolean)
+                )
+            ].sort((a, b) => a.localeCompare(b, "es"));
+
+            especialidades.forEach(nombre => {
+                filtrarEspecialidadDoctor.add(
+                    new Option(nombre, nombre)
+                );
+            });
+
+            buscarDoctor.value = "";
+            filtrarEstadoDoctor.value = "todos";
+
+            actualizarDoctores();
+
+            aviso.className = "alert alert-info small";
+            aviso.textContent =
+                `${doctores.length} perfil(es) cargado(s) desde MongoDB. ` +
+                "La consulta y el registro están integrados con la API.";
+
+        } catch (error) {
+            console.error("Error al consultar doctores:", error);
+
+            tablaDoctores.replaceChildren();
+            actualizarDoctores();
+
+            aviso.className = "alert alert-danger small";
+            aviso.textContent =
+                "No se pudieron cargar los doctores. " +
+                "Comprueba que la API y MongoDB estén funcionando.";
+        }
+    }
+
+    // Ejecutar la consulta al abrir el panel administrativo
+    cargarDoctoresDesdeAPI();
     // Corrección de accesibilidad probada: no dejar el foco en un modal que se oculta.
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('hide.bs.modal', () => {
