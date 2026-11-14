@@ -62,7 +62,7 @@
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Doctores está integrado con la API; otros módulos continúan en proceso de integración.</p>
+      <p class="small px-3 text-muted-app">Integración académica progresiva: doctores y especialidades conectados a la API; otros módulos siguen como prototipos.</p>
     </aside>
     <main class="app-main" id="resumen">
       <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -75,14 +75,14 @@
       </div>
       <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
         <span aria-hidden="true">ⓘ</span>
-        <div><strong>Estado de integración:</strong> el módulo de Doctores consulta, registra y edita perfiles reales. Los demás módulos administrativos todavía incluyen vistas de demostración.</div>
+        <div><strong>Integración en progreso:</strong> doctores y especialidades utilizan la API y MongoDB; las vistas de usuarios, citas y reportes todavía contienen datos de demostración.</div>
       </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
         <div class="row g-3">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
         </div>
       </section>
@@ -212,31 +212,39 @@
           </div>
         </div>
       </section>
-      <!-- Especialidades: prototipo, sin integración con MongoDB. -->
+      <!-- KAN-9: Gestión real de especialidades. GET, POST y PUT consultan MongoDB.
+           Desactivación NO habilitada en UI: el backend no permite reactivar. -->
       <section id="especialidades" aria-labelledby="especialidadesTitulo" class="mb-4">
         <div class="app-card">
           <div class="app-card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div><p class="eyebrow mb-1">Catálogo médico</p><h2 class="section-title mb-1" id="especialidadesTitulo">Gestión de especialidades médicas</h2><p class="small text-muted-app mb-0">Consulta, búsqueda y mantenimiento visual del catálogo de especialidades.</p></div>
+            <div>
+              <p class="eyebrow mb-1">Catálogo médico</p>
+              <h2 class="section-title mb-1" id="especialidadesTitulo">Gestión de especialidades médicas</h2>
+              <p class="small text-muted-app mb-0">Consulta, búsqueda, registro y edición de especialidades conectadas con MongoDB.</p>
+            </div>
             <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEspecialidad">+ Registrar especialidad</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note"><strong>Datos ilustrativos.</strong> Los registros de esta tabla son ficticios. Los formularios no crean, editan ni desactivan especialidades en MongoDB.</div>
-            <div class="row g-3 align-items-end" role="search" aria-label="Buscar especialidades de ejemplo">
+            <div class="alert alert-light border mb-3" role="note">
+              <strong>Datos de MongoDB:</strong> las especialidades se consultan, registran y editan mediante la API. Se muestran también las inactivas. La desactivación no está habilitada desde el panel porque actualmente no existe reactivación en la API.
+            </div>
+            <div id="avisoEspecialidades" class="alert alert-info small d-none" role="status" aria-live="polite"></div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar especialidades registradas">
               <div class="col-12 col-md-7"><label class="form-label" for="buscarEspecialidad">Buscar especialidad por nombre o descripción</label><input class="form-control" id="buscarEspecialidad" type="search" placeholder="Ej.: Pediatría" autocomplete="off"></div>
               <div class="col-12 col-md-3"><label class="form-label" for="filtrarEstadoEspecialidad">Estado</label><select id="filtrarEstadoEspecialidad" class="form-select"><option value="todos">Todos los estados</option><option value="activo">Activa</option><option value="inactivo">Inactiva</option></select></div>
               <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarFiltrosEspecialidad">Limpiar</button></div>
             </div>
-            <p class="small text-muted-app mt-3 mb-2" id="contadorEspecialidades" aria-live="polite">3 especialidades de ejemplo</p>
+            <p class="small text-muted-app mt-3 mb-2" id="contadorEspecialidades" aria-live="polite">Cargando especialidades...</p>
           </div>
           <div class="table-responsive">
-            <table class="table app-table mb-0" id="tablaEspecialidades"><caption class="visually-hidden">Especialidades ficticias para las pruebas de interfaz</caption><thead><tr><th scope="col">Especialidad</th><th scope="col">Descripción</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
-              <tr data-nombre="Medicina general" data-descripcion="Atención médica primaria y preventiva" data-activo="true"><td class="fw-semibold">Medicina general</td><td>Atención médica primaria y preventiva</td><td><span class="badge-estado badge-estado-activa">Activa</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
-              <tr data-nombre="Pediatría" data-descripcion="Atención médica para niñas y niños" data-activo="true"><td class="fw-semibold">Pediatría</td><td>Atención médica para niñas y niños</td><td><span class="badge-estado badge-estado-activa">Activa</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
-              <tr data-nombre="Dermatología" data-descripcion="Cuidado y evaluación de la piel" data-activo="false"><td class="fw-semibold">Dermatología</td><td>Cuidado y evaluación de la piel</td><td><span class="badge-estado badge-estado-inactiva">Inactiva</span></td><td><button type="button" class="btn btn-sm btn-outline-app editar-especialidad" data-bs-toggle="modal" data-bs-target="#modalEditarEspecialidad">Editar</button></td></tr>
-            </tbody></table>
+            <table class="table app-table mb-0" id="tablaEspecialidades">
+              <caption class="visually-hidden">Especialidades médicas reales consultadas desde MongoDB</caption>
+              <thead><tr><th scope="col">Especialidad</th><th scope="col">Descripción</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
-          <div id="sinResultadosEspecialidades" role="status" class="empty-state m-3 d-none">No se encontraron especialidades con esos filtros.</div>
-          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Correspondencia con API: <code>GET /api/especialidades</code>, <code>POST /api/especialidades</code>, <code>PUT /api/especialidades/:id</code> y <code>DELETE /api/especialidades/:id</code>. La desactivación es lógica y <strong>no hay reactivación implementada</strong> en la API actual.</p></div>
+          <div id="sinResultadosEspecialidades" role="status" class="empty-state m-3 d-none">No se encontraron especialidades que coincidan con los filtros.</div>
+          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">API conectada: <code>GET /api/especialidades</code>, <code>POST /api/especialidades</code> y <code>PUT /api/especialidades/:id</code>. El endpoint <code>DELETE /api/especialidades/:id</code> desactiva lógicamente, pero no se ofrece todavía en esta interfaz y no existe endpoint de reactivación.</p></div>
         </div>
       </section>
       <!-- Gestión de citas: maqueta visual; fechas, datos y estados ficticios. -->
@@ -390,24 +398,38 @@
       <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Vista académica del segundo avance</footer>
     </main>
   </div>
-  <!-- Modales de especialidades: solo diseño visual. -->
+  <!-- KAN-9: Formularios de especialidades conectados con la API. -->
   <div class="modal fade" id="modalCrearEspecialidad" tabindex="-1" aria-labelledby="modalCrearEspecialidadTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearEspecialidadTitulo">Registrar especialidad médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" action="#" method="post"><div class="modal-body"><p class="small text-muted-app">Vista previa de <code>POST /api/especialidades</code>. No se guardan datos.</p>
-        <div class="row g-3"><div class="col-12"><label for="especialidadNombre" class="form-label">Nombre de la especialidad</label><input type="text" class="form-control" id="especialidadNombre" name="nombre" required maxlength="120" placeholder="Ej.: Cardiología"></div>
-        <div class="col-12"><label for="especialidadDescripcion" class="form-label">Descripción</label><textarea id="especialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500" placeholder="Descripción breve de la especialidad"></textarea></div></div>
-      </div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div></form>
+      <form id="formCrearEspecialidad" novalidate>
+        <div class="modal-body">
+          <p class="small text-muted-app">Los datos se registrarán en MongoDB mediante <code>POST /api/especialidades</code>.</p>
+          <div id="errorCrearEspecialidad" class="alert alert-warning d-none" role="alert" aria-live="polite"></div>
+          <div class="row g-3">
+            <div class="col-12"><label for="especialidadNombre" class="form-label">Nombre de la especialidad *</label><input type="text" class="form-control" id="especialidadNombre" name="nombre" required minlength="3" maxlength="80" placeholder="Ej.: Neurología"></div>
+            <div class="col-12"><label for="especialidadDescripcion" class="form-label">Descripción</label><textarea id="especialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500" placeholder="Descripción breve de la especialidad"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Registrar especialidad</button></div>
+      </form>
     </div></div>
   </div>
   <div class="modal fade" id="modalEditarEspecialidad" tabindex="-1" aria-labelledby="modalEditarEspecialidadTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarEspecialidadTitulo">Editar especialidad de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" action="#" method="post"><div class="modal-body"><p class="small text-muted-app">Vista previa de <code>PUT /api/especialidades/:id</code>. No se guardan cambios.</p>
-        <div class="row g-3"><div class="col-12"><label for="editarEspecialidadNombre" class="form-label">Nombre de la especialidad</label><input type="text" class="form-control" name="nombre" id="editarEspecialidadNombre" required maxlength="120"></div>
-        <div class="col-12"><label for="editarEspecialidadDescripcion" class="form-label">Descripción</label><textarea id="editarEspecialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500"></textarea></div>
-        <div class="col-12"><label for="editarEspecialidadEstado" class="form-label">Estado (solo lectura)</label><input id="editarEspecialidadEstado" type="text" class="form-control" disabled><div class="form-text">La API actual permite desactivar una especialidad mediante DELETE; no tiene un endpoint para reactivarla. El prototipo no cambia el estado.</div></div></div>
-      </div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div></form>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarEspecialidadTitulo">Editar especialidad médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form id="formEditarEspecialidad" novalidate>
+        <div class="modal-body">
+          <p class="small text-muted-app">Las modificaciones se guardan mediante <code>PUT /api/especialidades/:id</code>. El estado no puede modificarse desde este formulario.</p>
+          <div id="errorEditarEspecialidad" class="alert alert-warning d-none" role="alert" aria-live="polite"></div>
+          <div class="row g-3">
+            <div class="col-12"><label for="editarEspecialidadNombre" class="form-label">Nombre de la especialidad *</label><input type="text" class="form-control" name="nombre" id="editarEspecialidadNombre" required minlength="3" maxlength="80"></div>
+            <div class="col-12"><label for="editarEspecialidadDescripcion" class="form-label">Descripción</label><textarea id="editarEspecialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500"></textarea></div>
+            <div class="col-12"><label for="editarEspecialidadEstado" class="form-label">Estado (solo lectura)</label><input id="editarEspecialidadEstado" type="text" class="form-control" disabled><div class="form-text">La API permite desactivar pero no reactivar una especialidad. El estado es solo informativo aquí.</div></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Guardar cambios</button></div>
+      </form>
     </div></div>
   </div>
   <!-- Modales de Usuarios (solo demostración; no persisten cambios). -->
@@ -600,22 +622,64 @@
       const etiqueta = {paciente:'Paciente', doctor:'Doctor', administrador:'Administrador'};
       document.getElementById('editarUsuarioRol').value = etiqueta[fila.dataset.rol] || fila.dataset.rol;
     });
-    // Búsqueda y estado de especialidades: datos de demostración, sin API.
+    // KAN-9: listado, registro, edición y búsqueda con datos reales de MongoDB.
+    const API_ESPECIALIDADES = 'http://localhost:3000/api/especialidades';
+    const tablaEspecialidades = document.querySelector('#tablaEspecialidades tbody');
     const buscarEspecialidad = document.getElementById('buscarEspecialidad');
     const filtrarEstadoEspecialidad = document.getElementById('filtrarEstadoEspecialidad');
-    const filasEspecialidades = [...document.querySelectorAll('#tablaEspecialidades tbody tr[data-activo]')];
+    const avisoEspecialidades = document.getElementById('avisoEspecialidades');
+    let idEspecialidadEditando = null;
+
+    function avisoModuloEspecialidades(mensaje, tipo = 'info') {
+      avisoEspecialidades.className = `alert alert-${tipo} small`;
+      avisoEspecialidades.textContent = mensaje;
+    }
+    function errorFormularioEspecialidad(id, mensaje) {
+      const aviso = document.getElementById(id);
+      aviso.textContent = mensaje;
+      aviso.classList.toggle('d-none', !mensaje);
+    }
+    function crearFilaEspecialidad(especialidad) {
+      const fila = document.createElement('tr');
+      fila.dataset.id = especialidad._id;
+      fila.dataset.nombre = especialidad.nombre;
+      fila.dataset.descripcion = especialidad.descripcion || '';
+      fila.dataset.activo = String(especialidad.activo === true);
+
+      const nombre = document.createElement('td');
+      nombre.className = 'fw-semibold';
+      nombre.textContent = especialidad.nombre;
+      const descripcion = document.createElement('td');
+      descripcion.textContent = especialidad.descripcion || '—';
+      const estado = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = 'badge-estado ' + (especialidad.activo ? 'badge-estado-activa' : 'badge-estado-inactiva');
+      badge.textContent = especialidad.activo ? 'Activa' : 'Inactiva';
+      estado.append(badge);
+      const acciones = document.createElement('td');
+      const editar = document.createElement('button');
+      editar.type = 'button';
+      editar.className = 'btn btn-sm btn-outline-app editar-especialidad';
+      editar.textContent = 'Editar';
+      editar.dataset.bsToggle = 'modal';
+      editar.dataset.bsTarget = '#modalEditarEspecialidad';
+      acciones.append(editar);
+      fila.append(nombre, descripcion, estado, acciones);
+      return fila;
+    }
     function actualizarTablaEspecialidades() {
       const termino = normalizarBusqueda(buscarEspecialidad.value);
       const estado = filtrarEstadoEspecialidad.value;
+      const filas = [...tablaEspecialidades.querySelectorAll('tr[data-id]')];
       let visibles = 0;
-      filasEspecialidades.forEach(fila => {
-        const coincideTexto = normalizarBusqueda(fila.dataset.nombre + ' ' + fila.dataset.descripcion).includes(termino);
+      filas.forEach(fila => {
+        const coincideTexto = normalizarBusqueda(`${fila.dataset.nombre} ${fila.dataset.descripcion}`).includes(termino);
         const coincideEstado = estado === 'todos' || (estado === 'activo' ? fila.dataset.activo === 'true' : fila.dataset.activo === 'false');
         const mostrar = coincideTexto && coincideEstado;
         fila.classList.toggle('d-none', !mostrar);
         if (mostrar) visibles++;
       });
-      document.getElementById('contadorEspecialidades').textContent = `${visibles} de ${filasEspecialidades.length} especialidades de ejemplo`;
+      document.getElementById('contadorEspecialidades').textContent = `${visibles} de ${filas.length} especialidades registradas`;
       document.getElementById('sinResultadosEspecialidades').classList.toggle('d-none', visibles !== 0);
     }
     buscarEspecialidad.addEventListener('input', actualizarTablaEspecialidades);
@@ -626,13 +690,130 @@
       actualizarTablaEspecialidades();
       buscarEspecialidad.focus();
     });
-    document.getElementById('modalEditarEspecialidad').addEventListener('show.bs.modal', event => {
-      const fila = event.relatedTarget?.closest('tr[data-activo]');
+
+    async function cargarEspecialidadesDesdeAPI() {
+      avisoModuloEspecialidades('Cargando especialidades desde la API...');
+      try {
+        const respuesta = await fetch(API_ESPECIALIDADES);
+        if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
+        const especialidades = await respuesta.json();
+        if (!Array.isArray(especialidades)) throw new Error('La API no devolvió una lista válida.');
+        if (!especialidades.every(e => e && typeof e._id === 'string' && typeof e.nombre === 'string')) {
+          throw new Error('La API devolvió registros con formato incorrecto.');
+        }
+        tablaEspecialidades.replaceChildren(...especialidades.map(crearFilaEspecialidad));
+        buscarEspecialidad.value = '';
+        filtrarEstadoEspecialidad.value = 'todos';
+        actualizarTablaEspecialidades();
+        document.getElementById('resumenTotalEspecialidades').textContent = String(especialidades.length);
+        avisoModuloEspecialidades(`${especialidades.length} especialidad(es) cargada(s) desde MongoDB. Consulta, registro y edición disponibles.`);
+        return true;
+      } catch (error) {
+        console.error('Error al cargar especialidades:', error);
+        // No sustituir los datos anteriores por registros ficticios cuando falla la consulta.
+        avisoModuloEspecialidades('No fue posible cargar las especialidades. Comprueba que MongoDB y la API estén en ejecución.', 'danger');
+        return false;
+      }
+    }
+
+    async function enviarEspecialidadAPI(metodo, url, cuerpo) {
+      const respuesta = await fetch(url, {
+        method: metodo,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cuerpo)
+      });
+      const datos = await respuesta.json().catch(() => ({}));
+      if (!respuesta.ok) {
+        throw new Error(datos.mensaje || `No se pudo guardar la especialidad (HTTP ${respuesta.status}).`);
+      }
+      return datos;
+    }
+    function datosFormularioEspecialidad(nombreId, descripcionId, errorId) {
+      const nombre = document.getElementById(nombreId).value.trim();
+      const descripcion = document.getElementById(descripcionId).value.trim();
+      if (nombre.length < 3 || nombre.length > 80) {
+        errorFormularioEspecialidad(errorId, 'El nombre debe tener entre 3 y 80 caracteres.');
+        return null;
+      }
+      if (descripcion.length > 500) {
+        errorFormularioEspecialidad(errorId, 'La descripción no puede superar los 500 caracteres.');
+        return null;
+      }
+      return { nombre, descripcion };
+    }
+
+    const formCrearEspecialidad = document.getElementById('formCrearEspecialidad');
+    document.getElementById('modalCrearEspecialidad').addEventListener('show.bs.modal', () => {
+      formCrearEspecialidad.reset();
+      errorFormularioEspecialidad('errorCrearEspecialidad', '');
+    });
+    formCrearEspecialidad.addEventListener('submit', async evento => {
+      evento.preventDefault();
+      errorFormularioEspecialidad('errorCrearEspecialidad', '');
+      if (!formCrearEspecialidad.checkValidity()) { formCrearEspecialidad.reportValidity(); return; }
+      const cuerpo = datosFormularioEspecialidad('especialidadNombre', 'especialidadDescripcion', 'errorCrearEspecialidad');
+      if (!cuerpo) return;
+      const boton = formCrearEspecialidad.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      boton.textContent = 'Registrando...';
+      try {
+        await enviarEspecialidadAPI('POST', API_ESPECIALIDADES, cuerpo);
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCrearEspecialidad')).hide();
+        const actualizado = await cargarEspecialidadesDesdeAPI();
+        avisoModuloEspecialidades(actualizado
+          ? `La especialidad «${cuerpo.nombre}» se registró correctamente en MongoDB.`
+          : 'La especialidad se registró, pero no se pudo actualizar la tabla. Recarga cuando la API esté disponible.', actualizado ? 'success' : 'warning');
+      } catch (error) {
+        console.error('Error al registrar especialidad:', error);
+        errorFormularioEspecialidad('errorCrearEspecialidad', error.message || 'No se pudo registrar la especialidad.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Registrar especialidad';
+      }
+    });
+
+    const formEditarEspecialidad = document.getElementById('formEditarEspecialidad');
+    document.getElementById('modalEditarEspecialidad').addEventListener('show.bs.modal', evento => {
+      const fila = evento.relatedTarget?.closest('tr[data-id]');
+      idEspecialidadEditando = fila?.dataset.id || null;
+      errorFormularioEspecialidad('errorEditarEspecialidad', '');
       if (!fila) return;
       document.getElementById('editarEspecialidadNombre').value = fila.dataset.nombre;
       document.getElementById('editarEspecialidadDescripcion').value = fila.dataset.descripcion;
       document.getElementById('editarEspecialidadEstado').value = fila.dataset.activo === 'true' ? 'Activa' : 'Inactiva';
     });
+    document.getElementById('modalEditarEspecialidad').addEventListener('hidden.bs.modal', () => {
+      idEspecialidadEditando = null;
+    });
+    formEditarEspecialidad.addEventListener('submit', async evento => {
+      evento.preventDefault();
+      errorFormularioEspecialidad('errorEditarEspecialidad', '');
+      if (!idEspecialidadEditando) {
+        errorFormularioEspecialidad('errorEditarEspecialidad', 'Selecciona una especialidad válida.');
+        return;
+      }
+      if (!formEditarEspecialidad.checkValidity()) { formEditarEspecialidad.reportValidity(); return; }
+      const cuerpo = datosFormularioEspecialidad('editarEspecialidadNombre', 'editarEspecialidadDescripcion', 'errorEditarEspecialidad');
+      if (!cuerpo) return;
+      const boton = formEditarEspecialidad.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+      try {
+        await enviarEspecialidadAPI('PUT', `${API_ESPECIALIDADES}/${encodeURIComponent(idEspecialidadEditando)}`, cuerpo);
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarEspecialidad')).hide();
+        const actualizado = await cargarEspecialidadesDesdeAPI();
+        avisoModuloEspecialidades(actualizado
+          ? `La especialidad «${cuerpo.nombre}» se actualizó correctamente en MongoDB.`
+          : 'La especialidad se actualizó, pero no se pudo recargar la tabla. Intenta actualizar la página.', actualizado ? 'success' : 'warning');
+      } catch (error) {
+        console.error('Error al editar especialidad:', error);
+        errorFormularioEspecialidad('errorEditarEspecialidad', error.message || 'No se pudo editar la especialidad.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Guardar cambios';
+      }
+    });
+    cargarEspecialidadesDesdeAPI();
     // Filtros de la tabla de citas: se trabaja exclusivamente con datos ilustrativos.
     const buscarCita = document.getElementById('buscarCita');
     const filtrarEstadoCita = document.getElementById('filtrarEstadoCita');
