@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Panel de paciente del Sistema de Citas Médicas: especialidades, doctores y citas de ejemplo.">
+  <meta name="description" content="Panel del paciente: consulta de doctores, reserva y seguimiento de citas mediante API.">
   <title>Panel del paciente | Sistema de Citas Médicas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
@@ -59,7 +59,7 @@
         <a class="nav-link" href="#miPerfil"><span aria-hidden="true">◯</span> Mi perfil</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Segundo avance · Maqueta de la interfaz del paciente, con datos de demostración.</p>
+      <p class="small px-3 text-muted-app">Proyecto Integrador 1 · Reserva y consulta conectadas a MongoDB.</p>
     </aside>
     <main class="app-main" id="paciente-main">
       <section id="inicio" aria-labelledby="inicioTitulo" class="mb-4">
@@ -73,11 +73,11 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#reservarCita">+ Solicitar cita</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3" role="status"><strong>Prototipo visual:</strong> los profesionales, horarios y citas que aparecen son ejemplos ficticios. No se consulta disponibilidad real ni se crean, modifican o cancelan citas en MongoDB.</div>
+        <div class="alert alert-light border mt-3" role="note"><strong>Integración académica local:</strong> doctores, especialidades y citas se consultan desde MongoDB. Las operaciones se guardan mediante la API. Los horarios sugeridos no representan una agenda disponible; la API verifica conflictos al reservar. <strong>No usar con datos médicos reales:</strong> falta autorización de acceso en el servidor.</div>
         <div class="row g-3" aria-label="Resumen ilustrativo">
-          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value">2</div><div class="kpi-label">Solo datos de ejemplo</div></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value">2</div><div class="kpi-label">Catálogo ilustrativo</div></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">◯</span><div><div class="kpi-label">Profesionales de ejemplo</div><div class="kpi-value">3</div><div class="kpi-label">No representan disponibilidad real</div></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value" id="resumenProximasCitas">—</div><div class="kpi-label">Pendientes o confirmadas</div></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value" id="resumenEspecialidades">—</div><div class="kpi-label">Especialidades activas</div></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">◯</span><div><div class="kpi-label">Profesionales activos</div><div class="kpi-value" id="resumenDoctores">—</div><div class="kpi-label">Perfiles registrados</div></div></div></div>
         </div>
       </section>
       <section id="buscarDoctores" class="mb-4" aria-labelledby="buscarTitulo">
@@ -85,68 +85,56 @@
           <div class="app-card-header">
             <p class="eyebrow mb-1">Directorio médico</p>
             <h2 class="section-title mb-1" id="buscarTitulo">Buscar doctores por especialidad</h2>
-            <p class="small text-muted-app mb-0">Filtra profesionales de ejemplo por especialidad o nombre y continúa con la reserva.</p>
+            <p class="small text-muted-app mb-0">Busca doctores activos registrados en MongoDB y selecciónalos para reservar.</p>
           </div>
           <div class="app-card-body">
             <div class="row g-3 align-items-end mb-3">
-              <div class="col-12 col-md-5"><label class="form-label" for="filtroEspecialidad">Especialidad médica</label><select class="form-select" id="filtroEspecialidad"><option value="">Todas las especialidades activas</option><option value="pediatria">Pediatría</option><option value="medicina-general">Medicina general</option></select></div>
+              <div class="col-12 col-md-5"><label class="form-label" for="filtroEspecialidad">Especialidad médica</label><select class="form-select" id="filtroEspecialidad"><option value="">Todas las especialidades activas</option></select></div>
               <div class="col-12 col-md-5"><label class="form-label" for="filtroDoctor">Buscar por nombre</label><input class="form-control" id="filtroDoctor" type="search" placeholder="Ej.: andres o elena" autocomplete="off"></div>
               <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarDoctores">Limpiar</button></div>
             </div>
-            <p class="small text-muted-app mb-3" id="contadorDoctores" role="status" aria-live="polite">3 profesionales de ejemplo</p>
+            <p class="small text-muted-app mb-3" id="contadorDoctores" role="status" aria-live="polite">Cargando profesionales...</p>
             <div class="row g-3" id="directorioDoctores">
-              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Andrés Vega" data-especialidad="pediatria">
-                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">AV</div><div><h3 class="h6 fw-bold mb-1">Dr. Andrés Vega</h3><span class="badge-soft">Pediatría</span></div></div><p class="small text-muted-app mb-3">Atención pediátrica y seguimiento infantil. Profesional ficticio.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="andres" data-especialidad="pediatria" aria-label="Seleccionar al Dr. Andrés Vega">Seleccionar para cita</button></article>
-              </div>
-              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Elena Rojas" data-especialidad="medicina-general">
-                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">ER</div><div><h3 class="h6 fw-bold mb-1">Dra. Elena Rojas</h3><span class="badge-soft">Medicina general</span></div></div><p class="small text-muted-app mb-3">Consulta primaria y prevención. Profesional ficticia.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="elena" data-especialidad="medicina-general" aria-label="Seleccionar a la Dra. Elena Rojas">Seleccionar para cita</button></article>
-              </div>
-              <div class="col-12 col-md-6 col-xl-4 patient-doctor-card-wrap" data-nombre="Daniel Soto" data-especialidad="medicina-general">
-                <article class="app-card app-card-body patient-doctor-card"><div class="d-flex align-items-center gap-3 mb-3"><div class="doctor-avatar" aria-hidden="true">DS</div><div><h3 class="h6 fw-bold mb-1">Dr. Daniel Soto</h3><span class="badge-soft">Medicina general</span></div></div><p class="small text-muted-app mb-3">Orientación y control de salud general. Profesional ficticio.</p><button type="button" class="btn btn-outline-app w-100 elegir-doctor" data-doctor="daniel" data-especialidad="medicina-general" aria-label="Seleccionar al Dr. Daniel Soto">Seleccionar para cita</button></article>
-              </div>
             </div>
-            <div class="patient-empty mt-3" id="sinDoctores" role="status" hidden>No encontramos profesionales de ejemplo que coincidan con esos filtros. Intenta otra búsqueda.</div>
+            <div class="patient-empty mt-3" id="sinDoctores" role="status" hidden>No se encontraron doctores activos que coincidan con esos filtros. Intenta otra búsqueda.</div>
           </div>
         </div>
       </section>
       <section id="reservarCita" class="mb-4" aria-labelledby="reservarTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Solicitud de atención</p><h2 class="section-title mb-1" id="reservarTitulo">Reservar cita médica</h2><p class="small text-muted-app mb-0">Vista previa de <code>POST /api/citas</code>: los horarios son ilustrativos y aún no se consulta la agenda real.</p></div>
+          <div class="app-card-header"><p class="eyebrow mb-1">Solicitud de atención</p><h2 class="section-title mb-1" id="reservarTitulo">Reservar cita médica</h2><p class="small text-muted-app mb-0">Reserva real mediante <code>POST /api/citas</code>. La API comprueba conflictos en el horario seleccionado; todavía no existe un módulo de disponibilidad semanal.</p></div>
           <form class="app-card-body" id="formReserva">
             <div class="row g-3">
-              <div class="col-12 col-md-6"><label class="form-label" for="reservaEspecialidad">Especialidad <span aria-hidden="true">*</span></label><select class="form-select" id="reservaEspecialidad" name="especialidad" required><option value="">Selecciona una especialidad</option><option value="pediatria">Pediatría</option><option value="medicina-general">Medicina general</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaEspecialidad">Especialidad <span aria-hidden="true">*</span></label><select class="form-select" id="reservaEspecialidad" name="especialidad" required><option value="">Selecciona una especialidad</option></select></div>
               <div class="col-12 col-md-6"><label class="form-label" for="reservaDoctor">Doctor <span aria-hidden="true">*</span></label><select class="form-select" id="reservaDoctor" name="doctor" required disabled><option value="">Selecciona primero una especialidad</option></select></div>
-              <div class="col-12 col-md-6"><label class="form-label" for="reservaFecha">Fecha <span aria-hidden="true">*</span></label><input type="date" class="form-control" id="reservaFecha" name="fecha" required><div class="form-text">Fecha ilustrativa; no se consulta disponibilidad real.</div></div>
-              <div class="col-12 col-md-6"><label class="form-label" for="reservaHora">Hora <span aria-hidden="true">*</span></label><input type="time" class="form-control" id="reservaHora" name="hora" required><div class="form-text">Puedes utilizar uno de los horarios de ejemplo.</div></div>
-              <div class="col-12"><span class="form-label d-block">Horarios sugeridos (demostración)</span><div class="patient-times" role="group" aria-label="Horarios de ejemplo"><button class="patient-time" type="button" data-hora="09:00" aria-pressed="false">09:00</button><button class="patient-time" type="button" data-hora="10:30" aria-pressed="false">10:30</button><button class="patient-time" type="button" data-hora="14:00" aria-pressed="false">14:00</button><button class="patient-time" type="button" data-hora="16:00" aria-pressed="false">16:00</button></div></div>
-              <div class="col-12"><label class="form-label" for="reservaMotivo">Motivo de consulta (opcional)</label><textarea class="form-control" id="reservaMotivo" name="motivo" maxlength="500" rows="3" placeholder="Escribe un breve motivo de tu consulta"></textarea><div class="form-text">Máximo 500 caracteres. No ingreses información médica real en esta maqueta.</div></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaFecha">Fecha <span aria-hidden="true">*</span></label><input type="date" class="form-control" id="reservaFecha" name="fecha" required><div class="form-text">Selecciona una fecha futura. La API valida la fecha y comprueba conflictos.</div></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaHora">Hora <span aria-hidden="true">*</span></label><input type="time" class="form-control" id="reservaHora" name="hora" required><div class="form-text">La disponibilidad se confirma cuando la API acepta la reserva.</div></div>
+              <div class="col-12"><span class="form-label d-block">Horas sugeridas (no garantizadas)</span><div class="patient-times" role="group" aria-label="Horarios sugeridos"><button class="patient-time" type="button" data-hora="09:00" aria-pressed="false">09:00</button><button class="patient-time" type="button" data-hora="10:30" aria-pressed="false">10:30</button><button class="patient-time" type="button" data-hora="14:00" aria-pressed="false">14:00</button><button class="patient-time" type="button" data-hora="16:00" aria-pressed="false">16:00</button></div></div>
+              <div class="col-12"><label class="form-label" for="reservaMotivo">Motivo de consulta (opcional)</label><textarea class="form-control" id="reservaMotivo" name="motivo" maxlength="500" rows="3" placeholder="Escribe un breve motivo de tu consulta"></textarea><div class="form-text">Máximo 500 caracteres. Usa solamente motivos ficticios durante las pruebas.</div></div>
             </div>
-            <div class="d-flex gap-2 justify-content-end flex-wrap mt-4 patient-booking-actions"><button type="reset" class="btn btn-outline-app">Limpiar formulario</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div>
+            <div class="d-flex gap-2 justify-content-end flex-wrap mt-4 patient-booking-actions"><button type="reset" class="btn btn-outline-app">Limpiar formulario</button><button type="submit" class="btn btn-app-primary">Reservar cita</button></div>
             <div class="alert alert-secondary mt-3 mb-0" id="mensajeReserva" role="status" aria-live="polite" hidden></div>
           </form>
         </div>
       </section>
       <section id="misCitas" class="mb-4" aria-labelledby="misCitasTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Seguimiento de consultas</p><h2 class="section-title mb-1" id="misCitasTitulo">Mis citas</h2><p class="small text-muted-app mb-0">Ejemplo de próximas citas e historial. No son citas reales de tu cuenta.</p></div>
+          <div class="app-card-header"><p class="eyebrow mb-1">Seguimiento de consultas</p><h2 class="section-title mb-1" id="misCitasTitulo">Mis citas</h2><p class="small text-muted-app mb-0">Consulta tus citas registradas mediante la API. Filtros por doctor, especialidad y estado.</p></div>
           <div class="app-card-body">
             <div class="row g-3 align-items-end">
               <div class="col-12 col-md-6"><label for="buscarCitasPaciente" class="form-label">Buscar doctor o especialidad</label><input class="form-control" id="buscarCitasPaciente" type="search" placeholder="Ej.: pediatria, elena"></div>
               <div class="col-12 col-md-4"><label for="estadoCitasPaciente" class="form-label">Estado</label><select class="form-select" id="estadoCitasPaciente"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option></select></div>
               <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarCitasPaciente">Limpiar</button></div>
             </div>
-            <p class="small text-muted-app my-3" id="contadorCitasPaciente" role="status" aria-live="polite">4 citas de ejemplo</p>
+            <p class="small text-muted-app my-3" id="contadorCitasPaciente" role="status" aria-live="polite">Cargando citas...</p>
           </div>
+          <div class="alert alert-secondary mx-3 mt-2 mb-0" id="mensajeCitasPaciente" role="status" aria-live="polite" hidden></div>
           <div class="table-responsive">
-            <table class="table app-table patient-table"><caption class="visually-hidden">Tabla de citas de ejemplo del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasCitasPaciente">
-              <tr data-busqueda="andres vega pediatria" data-estado="pendiente"><td>Dr. Andrés Vega</td><td>Pediatría</td><td>04/11/2026</td><td>09:30</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td><td class="patient-appointment-actions"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarPaciente" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-11-04" data-hora="09:30">Reprogramar</button> <button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarPaciente" data-doctor="Dr. Andrés Vega" data-fecha="2026-11-04" data-hora="09:30">Cancelar</button></td></tr>
-              <tr data-busqueda="elena rojas medicina general" data-estado="confirmada"><td>Dra. Elena Rojas</td><td>Medicina general</td><td>05/11/2026</td><td>14:00</td><td><span class="badge-cita badge-cita-confirmada">Confirmada</span></td><td class="patient-appointment-actions"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarPaciente" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-11-05" data-hora="14:00">Reprogramar</button> <button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarPaciente" data-doctor="Dra. Elena Rojas" data-fecha="2026-11-05" data-hora="14:00">Cancelar</button></td></tr>
-              <tr data-busqueda="andres vega pediatria" data-estado="cancelada"><td>Dr. Andrés Vega</td><td>Pediatría</td><td>23/10/2026</td><td>11:00</td><td><span class="badge-cita badge-cita-cancelada">Cancelada</span></td><td>Sin acciones</td></tr>
-              <tr data-busqueda="elena rojas medicina general" data-estado="completada"><td>Dra. Elena Rojas</td><td>Medicina general</td><td>25/10/2026</td><td>08:00</td><td><span class="badge-cita badge-cita-completada">Completada</span></td><td>Sin acciones</td></tr>
+            <table class="table app-table patient-table"><caption class="visually-hidden">Tabla de citas del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasCitasPaciente">
             </tbody></table>
           </div>
-          <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas de demostración que coincidan con tu búsqueda.</p>
-          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Referencia técnica: <code>GET /api/citas</code> y <code>PUT /api/citas/:id</code> / <code>DELETE /api/citas/:id</code>. La integración definitiva deberá filtrar las citas en el servidor por el usuario autenticado, no solamente en el navegador.</p></div>
+          <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas registradas que coincidan con tu búsqueda.</p>
+          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. <strong>Solo para entorno académico local:</strong> la API aún no autentica ni restringe las citas por usuario en el servidor; el filtro del navegador no proporciona seguridad.</p></div>
         </div>
       </section>
       <!-- KAN-141: maqueta de notificaciones; no existe todavía un modelo Notificación en la API. -->
@@ -237,18 +225,18 @@
           <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña (vista previa)</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0">Pendiente de consulta a la API. No se inventan datos de la cuenta.</p></div></div></div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Maqueta académica del segundo avance · Sin datos médicos reales</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica con MongoDB · No usar datos médicos reales</footer>
     </main>
   </div>
-  <!-- Reprogramación de ejemplo -->
+  <!-- Reprogramar cita existente mediante API -->
   <div class="modal fade" id="modalReprogramarPaciente" tabindex="-1" aria-labelledby="reprogramarPacienteTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="reprogramarPacienteTitulo">Reprogramar mi cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-vista-previa"><div class="modal-body"><p class="small text-muted-app">Demostración de <code>PUT /api/citas/:id</code>. No se verificará disponibilidad real.</p><div class="mb-3"><label class="form-label" for="reprogramarDoctorPaciente">Doctor (solo lectura)</label><input class="form-control" id="reprogramarDoctorPaciente" readonly></div><div class="row g-3"><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarFechaPaciente">Nueva fecha</label><input class="form-control" type="date" id="reprogramarFechaPaciente" required></div><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarHoraPaciente">Nueva hora</label><input class="form-control" type="time" id="reprogramarHoraPaciente" required></div></div><div class="alert alert-light border small mt-3 mb-0">El backend deberá comprobar horarios ocupados y disponibilidad del doctor antes de guardar.</div></div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Volver</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div></form>
+      <form id="formReprogramarPaciente"><div class="modal-body"><p class="small text-muted-app">Actualizar la cita en MongoDB mediante <code>PUT /api/citas/:id</code>.</p><div class="mb-3"><label class="form-label" for="reprogramarDoctorPaciente">Doctor (solo lectura)</label><input class="form-control" id="reprogramarDoctorPaciente" readonly></div><div class="row g-3"><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarFechaPaciente">Nueva fecha</label><input class="form-control" type="date" id="reprogramarFechaPaciente" required></div><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarHoraPaciente">Nueva hora</label><input class="form-control" type="time" id="reprogramarHoraPaciente" required></div></div><div class="alert alert-light border small mt-3 mb-0">La API comprueba los conflictos de horario antes de guardar. No se consulta una agenda semanal.</div><div class="alert alert-danger mt-3" id="errorReprogramarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Volver</button><button class="btn btn-app-primary" type="submit">Guardar reprogramación</button></div></form>
     </div></div>
   </div>
-  <!-- Cancelación ilustrativa -->
+  <!-- Cancelación lógica mediante API -->
   <div class="modal fade" id="modalCancelarPaciente" tabindex="-1" aria-labelledby="cancelarPacienteTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">Vista previa de <code>DELETE /api/citas/:id</code>. Esta acción no cancela ninguna cita.</p></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" class="btn btn-app-primary confirmar-vista-previa">Validar vista previa</button></div></div></div>
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">La cita cambiará a estado <strong>cancelada</strong> en MongoDB mediante <code>DELETE /api/citas/:id</code>.</p><div class="alert alert-danger mt-3" id="errorCancelarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelacionPaciente" class="btn btn-app-primary">Confirmar cancelación</button></div></div></div>
   </div>
   <!-- Edición de perfil de ejemplo -->
   <div class="modal fade" id="modalPerfilPaciente" tabindex="-1" aria-labelledby="perfilPacienteTitulo" aria-hidden="true">
@@ -310,108 +298,254 @@
       return String(valor ?? '').trim().toLocaleLowerCase('es').normalize('NFD')
         .replace(/n\u0303/g, 'ñ').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
     }
-    const doctoresEjemplo = [
-      { id: 'andres', nombre: 'Dr. Andrés Vega', especialidad: 'pediatria' },
-      { id: 'elena', nombre: 'Dra. Elena Rojas', especialidad: 'medicina-general' },
-      { id: 'daniel', nombre: 'Dr. Daniel Soto', especialidad: 'medicina-general' }
-    ];
+    // Paquete 04A: directorio y citas reales con la API (uso académico local).
+    const API_CITAS = 'http://localhost:3000/api';
+    const pacienteId = sessionStorage.getItem('usuarioId');
+    let doctoresActivos = [];
+    let especialidadesActivas = [];
+    let citasPaciente = [];
+    let citaSeleccionada = null;
+
+    async function peticionCitas(ruta, opciones = {}) {
+      const respuesta = await fetch(`${API_CITAS}${ruta}`, opciones);
+      const datos = await respuesta.json().catch(() => ({}));
+      if (!respuesta.ok) throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
+      return datos;
+    }
+    function fechaLocalHoy() {
+      const ahora = new Date();
+      const anio = ahora.getFullYear();
+      return `${anio}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+    }
+    function fechaFutura(fecha, hora) {
+      return fecha && hora && new Date(`${fecha}T${hora}:00`).getTime() > Date.now();
+    }
+    function mostrarMensaje(elemento, mensaje, tipo = 'info') {
+      elemento.hidden = false;
+      elemento.className = `alert alert-${tipo} mt-3 mb-0`;
+      elemento.textContent = mensaje;
+    }
+    function nodo(etiqueta, clase, texto) {
+      const e = document.createElement(etiqueta);
+      if (clase) e.className = clase;
+      if (texto !== undefined) e.textContent = String(texto);
+      return e;
+    }
     const filtroEspecialidad = document.getElementById('filtroEspecialidad');
     const filtroDoctor = document.getElementById('filtroDoctor');
-    const tarjetasDoctor = [...document.querySelectorAll('.patient-doctor-card-wrap')];
     const contadorDoctores = document.getElementById('contadorDoctores');
     const sinDoctores = document.getElementById('sinDoctores');
-    function filtrarDoctores() {
-      const termino = normalizarTexto(filtroDoctor.value);
-      const especialidad = filtroEspecialidad.value;
-      let visibles = 0;
-      tarjetasDoctor.forEach(tarjeta => {
-        const cumple = (!especialidad || tarjeta.dataset.especialidad === especialidad) &&
-          normalizarTexto(tarjeta.dataset.nombre).includes(termino);
-        tarjeta.hidden = !cumple;
-        if (cumple) visibles++;
+    const directorioDoctores = document.getElementById('directorioDoctores');
+    const reservaEspecialidad = document.getElementById('reservaEspecialidad');
+    const reservaDoctor = document.getElementById('reservaDoctor');
+    const reservaHora = document.getElementById('reservaHora');
+    const reservaFecha = document.getElementById('reservaFecha');
+    const botonesHora = [...document.querySelectorAll('.patient-time')];
+    const mensajeReserva = document.getElementById('mensajeReserva');
+    const formularioReserva = document.getElementById('formReserva');
+    const buscarCitasPaciente = document.getElementById('buscarCitasPaciente');
+    const estadoCitasPaciente = document.getElementById('estadoCitasPaciente');
+    const tablaCitasPaciente = document.getElementById('filasCitasPaciente');
+    const mensajeCitasPaciente = document.getElementById('mensajeCitasPaciente');
+
+    function actualizarDoctoresReserva(doctorId = '') {
+      const especialidadId = reservaEspecialidad.value;
+      reservaDoctor.replaceChildren(new Option(especialidadId ? 'Selecciona un doctor' : 'Selecciona primero una especialidad', ''));
+      doctoresActivos.filter(d => d.especialidad._id === especialidadId).forEach(d => {
+        reservaDoctor.add(new Option(d.usuario.nombre, d.usuario._id));
       });
-      contadorDoctores.textContent = `${visibles} de ${tarjetasDoctor.length} profesionales de ejemplo`;
-      sinDoctores.hidden = visibles !== 0;
+      reservaDoctor.disabled = !especialidadId;
+      if (doctorId && [...reservaDoctor.options].some(o => o.value === doctorId)) reservaDoctor.value = doctorId;
+    }
+    function filtrarDoctores() {
+      directorioDoctores.replaceChildren();
+      const termino = normalizarTexto(filtroDoctor.value);
+      const especialidadId = filtroEspecialidad.value;
+      const disponibles = doctoresActivos.filter(d =>
+        (!especialidadId || d.especialidad._id === especialidadId) &&
+        normalizarTexto(d.usuario.nombre).includes(termino)
+      );
+      disponibles.forEach(d => {
+        const wrap = nodo('div', 'col-12 col-md-6 col-xl-4 patient-doctor-card-wrap');
+        const card = nodo('article', 'app-card app-card-body patient-doctor-card');
+        const cabecera = nodo('div', 'd-flex align-items-center gap-3 mb-3');
+        const iniciales = d.usuario.nombre.trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('').toUpperCase();
+        const avatar = nodo('div', 'doctor-avatar', iniciales);
+        avatar.setAttribute('aria-hidden', 'true');
+        const info = nodo('div');
+        info.append(nodo('h3', 'h6 fw-bold mb-1', d.usuario.nombre), nodo('span', 'badge-soft', d.especialidad.nombre));
+        cabecera.append(avatar, info);
+        const descr = nodo('p', 'small text-muted-app mb-3', `Colegiado: ${d.numeroColegiado || 'No indicado'}`);
+        const boton = nodo('button', 'btn btn-outline-app w-100', 'Seleccionar para cita');
+        boton.type = 'button';
+        boton.addEventListener('click', () => {
+          reservaEspecialidad.value = d.especialidad._id;
+          actualizarDoctoresReserva(d.usuario._id);
+          document.querySelectorAll('.patient-doctor-card').forEach(c => c.classList.remove('is-selected'));
+          card.classList.add('is-selected');
+          document.getElementById('reservarCita').scrollIntoView({ behavior: 'smooth' });
+          reservaFecha.focus({ preventScroll: true });
+        });
+        card.append(cabecera, descr, boton);
+        wrap.append(card);
+        directorioDoctores.append(wrap);
+      });
+      contadorDoctores.textContent = `${disponibles.length} de ${doctoresActivos.length} doctores activos`;
+      sinDoctores.hidden = disponibles.length !== 0;
+    }
+    async function cargarCatalogoMedico() {
+      try {
+        const [doctores, especialidades] = await Promise.all([
+          peticionCitas('/doctores'), peticionCitas('/especialidades')
+        ]);
+        if (!Array.isArray(doctores) || !Array.isArray(especialidades)) throw new Error('La API devolvió datos inesperados.');
+        especialidadesActivas = especialidades.filter(e => e.activo === true && e._id);
+        const idsEspecialidades = new Set(especialidadesActivas.map(e => e._id));
+        doctoresActivos = doctores.filter(d =>
+          d.activo === true && d.usuario?.rol === 'doctor' && d.usuario?._id &&
+          d.especialidad?._id && idsEspecialidades.has(d.especialidad._id)
+        );
+        filtroEspecialidad.replaceChildren(new Option('Todas las especialidades activas', ''));
+        reservaEspecialidad.replaceChildren(new Option('Selecciona una especialidad', ''));
+        especialidadesActivas.forEach(e => {
+          filtroEspecialidad.add(new Option(e.nombre, e._id));
+          reservaEspecialidad.add(new Option(e.nombre, e._id));
+        });
+        document.getElementById('resumenEspecialidades').textContent = String(especialidadesActivas.length);
+        document.getElementById('resumenDoctores').textContent = String(doctoresActivos.length);
+        actualizarDoctoresReserva();
+        filtrarDoctores();
+      } catch (error) {
+        directorioDoctores.replaceChildren();
+        contadorDoctores.textContent = `No fue posible cargar los doctores: ${error.message}`;
+        sinDoctores.hidden = true;
+        mostrarMensaje(mensajeReserva, `Error al cargar el catálogo médico: ${error.message}`, 'danger');
+      }
     }
     filtroEspecialidad.addEventListener('change', filtrarDoctores);
     filtroDoctor.addEventListener('input', filtrarDoctores);
     document.getElementById('limpiarDoctores').addEventListener('click', () => {
-      filtroEspecialidad.value = '';
-      filtroDoctor.value = '';
-      filtrarDoctores();
+      filtroEspecialidad.value = ''; filtroDoctor.value = ''; filtrarDoctores();
     });
-
-    const reservaEspecialidad = document.getElementById('reservaEspecialidad');
-    const reservaDoctor = document.getElementById('reservaDoctor');
-    const reservaHora = document.getElementById('reservaHora');
-    const botonesHora = [...document.querySelectorAll('.patient-time')];
-    function actualizarDoctoresReserva(doctorElegido = '') {
-      const especialidad = reservaEspecialidad.value;
-      reservaDoctor.replaceChildren();
-      const opcionInicial = new Option(especialidad ? 'Selecciona un doctor' : 'Selecciona primero una especialidad', '');
-      reservaDoctor.add(opcionInicial);
-      doctoresEjemplo.filter(d => d.especialidad === especialidad).forEach(d => {
-        reservaDoctor.add(new Option(d.nombre, d.id));
-      });
-      reservaDoctor.disabled = !especialidad;
-      if (doctorElegido) reservaDoctor.value = doctorElegido;
-    }
     reservaEspecialidad.addEventListener('change', () => actualizarDoctoresReserva());
-    document.querySelectorAll('.elegir-doctor').forEach(boton => {
-      boton.addEventListener('click', () => {
-        reservaEspecialidad.value = boton.dataset.especialidad;
-        actualizarDoctoresReserva(boton.dataset.doctor);
-        document.querySelectorAll('.patient-doctor-card').forEach(t => t.classList.remove('is-selected'));
-        boton.closest('.patient-doctor-card').classList.add('is-selected');
-        document.getElementById('reservarCita').scrollIntoView({ behavior: 'smooth' });
-        reservaFecha.focus({ preventScroll: true });
-      });
-    });
-    const reservaFecha = document.getElementById('reservaFecha');
+    reservaFecha.min = fechaLocalHoy();
     botonesHora.forEach(boton => boton.addEventListener('click', () => {
       reservaHora.value = boton.dataset.hora;
       botonesHora.forEach(b => b.setAttribute('aria-pressed', String(b === boton)));
     }));
     reservaHora.addEventListener('input', () => botonesHora.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.hora === reservaHora.value))));
-    document.getElementById('formReserva').addEventListener('reset', () => {
-      document.getElementById('mensajeReserva').hidden = true;
-      document.querySelectorAll('.patient-doctor-card').forEach(t => t.classList.remove('is-selected'));
+    formularioReserva.addEventListener('reset', () => {
+      mensajeReserva.hidden = true;
+      document.querySelectorAll('.patient-doctor-card').forEach(c => c.classList.remove('is-selected'));
       setTimeout(() => {
         actualizarDoctoresReserva();
         botonesHora.forEach(b => b.setAttribute('aria-pressed', 'false'));
       }, 0);
     });
-    document.getElementById('formReserva').addEventListener('submit', event => {
-      event.preventDefault();
-      const mensaje = document.getElementById('mensajeReserva');
-      mensaje.hidden = false;
-      mensaje.textContent = 'Vista previa validada: el formulario contiene los campos requeridos. No se creó ninguna cita. La disponibilidad deberá confirmarse con la API.';
+    formularioReserva.addEventListener('submit', async evento => {
+      evento.preventDefault();
+      if (!formularioReserva.reportValidity()) return;
+      const especialidad = reservaEspecialidad.value;
+      const doctor = reservaDoctor.value;
+      const fecha = reservaFecha.value;
+      const hora = reservaHora.value;
+      if (!pacienteId) return mostrarMensaje(mensajeReserva, 'No se detectó un usuario válido. Inicia sesión nuevamente.', 'danger');
+      if (!doctoresActivos.some(d => d.usuario._id === doctor && d.especialidad._id === especialidad)) {
+        return mostrarMensaje(mensajeReserva, 'Selecciona un doctor de la especialidad indicada.', 'danger');
+      }
+      if (!fechaFutura(fecha, hora)) return mostrarMensaje(mensajeReserva, 'Selecciona una fecha y hora futuras.', 'danger');
+      const boton = formularioReserva.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      boton.textContent = 'Registrando cita...';
+      try {
+        await peticionCitas('/citas', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({paciente: pacienteId, doctor, especialidad, fecha, hora, motivo: document.getElementById('reservaMotivo').value.trim()})
+        });
+        formularioReserva.reset();
+        mostrarMensaje(mensajeReserva, 'Cita registrada correctamente en MongoDB.', 'success');
+        await cargarCitasPaciente();
+      } catch (error) {
+        mostrarMensaje(mensajeReserva, error.message, 'danger');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Reservar cita';
+      }
     });
 
-    const buscarCitasPaciente = document.getElementById('buscarCitasPaciente');
-    const estadoCitasPaciente = document.getElementById('estadoCitasPaciente');
-    const filasCitasPaciente = [...document.querySelectorAll('#filasCitasPaciente tr')];
     function filtrarCitas() {
+      tablaCitasPaciente.replaceChildren();
       const termino = normalizarTexto(buscarCitasPaciente.value);
       const estado = estadoCitasPaciente.value;
-      let visibles = 0;
-      filasCitasPaciente.forEach(fila => {
-        const mostrar = normalizarTexto(fila.dataset.busqueda).includes(termino) && (!estado || fila.dataset.estado === estado);
-        fila.hidden = !mostrar;
-        if (mostrar) visibles++;
+      const lista = citasPaciente.filter(c =>
+        (!estado || c.estado === estado) && normalizarTexto(`${c.doctor?.nombre || ''} ${c.especialidad?.nombre || ''}`).includes(termino)
+      );
+      lista.forEach(cita => {
+        const fila = nodo('tr');
+        const nombreDoctor = cita.doctor?.nombre || 'Doctor no disponible';
+        const especialidad = cita.especialidad?.nombre || 'Sin especialidad';
+        [nombreDoctor, especialidad, cita.fecha.split('-').reverse().join('/'), cita.hora].forEach(valor => fila.append(nodo('td', '', valor)));
+        const celdaEstado = nodo('td');
+        celdaEstado.append(nodo('span', `badge-cita badge-cita-${cita.estado}`, cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)));
+        fila.append(celdaEstado);
+        const acciones = nodo('td', 'patient-appointment-actions');
+        if (cita.estado === 'pendiente' || cita.estado === 'confirmada') {
+          const btnEditar = nodo('button', 'btn btn-sm btn-outline-app me-1', 'Reprogramar');
+          btnEditar.type = 'button';
+          btnEditar.addEventListener('click', () => {
+            citaSeleccionada = cita;
+            document.getElementById('errorReprogramarPaciente').hidden = true;
+            document.getElementById('reprogramarDoctorPaciente').value = nombreDoctor;
+            document.getElementById('reprogramarFechaPaciente').value = cita.fecha;
+            document.getElementById('reprogramarHoraPaciente').value = cita.hora;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarPaciente')).show();
+          });
+          const btnCancelar = nodo('button', 'btn btn-sm btn-outline-app', 'Cancelar');
+          btnCancelar.type = 'button';
+          btnCancelar.addEventListener('click', () => {
+            citaSeleccionada = cita;
+            document.getElementById('errorCancelarPaciente').hidden = true;
+            document.getElementById('resumenCancelacionPaciente').textContent = `${nombreDoctor} · ${cita.fecha} · ${cita.hora}`;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarPaciente')).show();
+          });
+          acciones.append(btnEditar, btnCancelar);
+        } else {
+          acciones.textContent = 'Sin acciones';
+        }
+        fila.append(acciones);
+        tablaCitasPaciente.append(fila);
       });
-      document.getElementById('contadorCitasPaciente').textContent = `${visibles} de ${filasCitasPaciente.length} citas de ejemplo`;
-      document.getElementById('sinCitasPaciente').hidden = visibles !== 0;
+      document.getElementById('contadorCitasPaciente').textContent = `${lista.length} de ${citasPaciente.length} citas registradas`;
+      document.getElementById('sinCitasPaciente').hidden = lista.length !== 0;
+      document.getElementById('resumenProximasCitas').textContent = String(citasPaciente.filter(c =>
+        ['pendiente', 'confirmada'].includes(c.estado) && c.fecha >= fechaLocalHoy()
+      ).length);
+    }
+    async function cargarCitasPaciente() {
+      if (!pacienteId) {
+        mostrarMensaje(mensajeCitasPaciente, 'No existe un usuario de paciente en sesión. Inicia sesión nuevamente.', 'danger');
+        return;
+      }
+      try {
+        const todas = await peticionCitas('/citas');
+        if (!Array.isArray(todas)) throw new Error('La API no devolvió una lista de citas.');
+        // Filtro UI exclusivamente. No constituye autorización de seguridad del servidor.
+        citasPaciente = todas.filter(c => (c.paciente?._id || c.paciente) === pacienteId)
+          .sort((a,b) => `${b.fecha}T${b.hora}`.localeCompare(`${a.fecha}T${a.hora}`));
+        filtrarCitas();
+      } catch (error) {
+        citasPaciente = [];
+        filtrarCitas();
+        mostrarMensaje(mensajeCitasPaciente, `No se pudieron cargar tus citas: ${error.message}`, 'danger');
+      }
     }
     buscarCitasPaciente.addEventListener('input', filtrarCitas);
     estadoCitasPaciente.addEventListener('change', filtrarCitas);
     document.getElementById('limpiarCitasPaciente').addEventListener('click', () => {
-      buscarCitasPaciente.value = '';
-      estadoCitasPaciente.value = '';
-      filtrarCitas();
+      buscarCitasPaciente.value = ''; estadoCitasPaciente.value = ''; filtrarCitas();
     });
-
-
+    cargarCatalogoMedico();
+    cargarCitasPaciente();
     // KAN-141: filtros y lectura visual de notificaciones ficticias (sin localStorage ni API).
     const notificacionesPaciente = [...document.querySelectorAll('#listaNotificaciones .patient-notification')];
     const filtroTipoNotificacion = document.getElementById('filtroTipoNotificacion');
@@ -466,15 +600,52 @@
     });
     actualizarNotificaciones();
 
-    document.getElementById('modalReprogramarPaciente').addEventListener('show.bs.modal', event => {
-      const boton = event.relatedTarget;
-      document.getElementById('reprogramarDoctorPaciente').value = boton.dataset.doctor;
-      document.getElementById('reprogramarFechaPaciente').value = boton.dataset.fecha;
-      document.getElementById('reprogramarHoraPaciente').value = boton.dataset.hora;
+    // Reprogramar o cancelar citas seleccionadas (operaciones reales en MongoDB).
+    document.getElementById('formReprogramarPaciente').addEventListener('submit', async evento => {
+      evento.preventDefault();
+      const form = evento.currentTarget;
+      if (!citaSeleccionada || !form.reportValidity()) return;
+      const fecha = document.getElementById('reprogramarFechaPaciente').value;
+      const hora = document.getElementById('reprogramarHoraPaciente').value;
+      if (!fechaFutura(fecha, hora)) {
+        const error = document.getElementById('errorReprogramarPaciente');
+        error.textContent = 'La reprogramación requiere fecha y hora futuras.';
+        error.hidden = false;
+        return;
+      }
+      const boton = form.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      try {
+        await peticionCitas(`/citas/${encodeURIComponent(citaSeleccionada._id)}`, {
+          method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fecha, hora})
+        });
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarPaciente')).hide();
+        mostrarMensaje(mensajeCitasPaciente, 'Cita reprogramada correctamente en MongoDB.', 'success');
+        await cargarCitasPaciente();
+      } catch (error) {
+        const aviso = document.getElementById('errorReprogramarPaciente');
+        aviso.textContent = `No se pudo reprogramar: ${error.message}`;
+        aviso.hidden = false;
+      } finally {
+        boton.disabled = false;
+      }
     });
-    document.getElementById('modalCancelarPaciente').addEventListener('show.bs.modal', event => {
-      const boton = event.relatedTarget;
-      document.getElementById('resumenCancelacionPaciente').textContent = `${boton.dataset.doctor} · ${boton.dataset.fecha} · ${boton.dataset.hora}`;
+    document.getElementById('confirmarCancelacionPaciente').addEventListener('click', async evento => {
+      if (!citaSeleccionada) return;
+      const boton = evento.currentTarget;
+      boton.disabled = true;
+      try {
+        await peticionCitas(`/citas/${encodeURIComponent(citaSeleccionada._id)}`, {method: 'DELETE'});
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarPaciente')).hide();
+        mostrarMensaje(mensajeCitasPaciente, 'Cita cancelada correctamente en MongoDB.', 'success');
+        await cargarCitasPaciente();
+      } catch (error) {
+        const aviso = document.getElementById('errorCancelarPaciente');
+        aviso.textContent = `No se pudo cancelar: ${error.message}`;
+        aviso.hidden = false;
+      } finally {
+        boton.disabled = false;
+      }
     });
     function avisarPrototipo() {
       document.getElementById('toastPacienteMensaje').textContent = 'Vista previa verificada. No se guardaron ni modificaron datos en MongoDB.';

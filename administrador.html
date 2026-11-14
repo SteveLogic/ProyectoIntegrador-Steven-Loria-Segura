@@ -62,7 +62,7 @@
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Integración académica progresiva: usuarios, doctores y especialidades conectados a la API; citas y reportes siguen como prototipos.</p>
+      <p class="small px-3 text-muted-app">Usuarios, doctores, especialidades y citas conectados a la API en entorno académico local.</p>
     </aside>
     <main class="app-main" id="resumen">
       <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -75,7 +75,7 @@
       </div>
       <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
         <span aria-hidden="true">ⓘ</span>
-        <div><strong>Integración en progreso:</strong> usuarios, doctores y especialidades utilizan la API y MongoDB; las vistas de citas y reportes todavía contienen datos de demostración.</div>
+        <div><strong>Integración en progreso:</strong> usuarios, doctores, especialidades y citas consultan MongoDB. La API aún no implementa autorización de acceso por rol; utilice exclusivamente el entorno local.</div>
       </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
@@ -83,7 +83,7 @@
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3" id="kpiUsuarios">—</div><div class="kpi-label mt-2">Datos de MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3" id="kpiCitas">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
         </div>
       </section>
       <section aria-labelledby="modulosTitulo" class="mb-4">
@@ -95,7 +95,7 @@
           <div class="col-12 col-md-6 col-xl-3"><a class="app-card app-card-body module-card" href="#citas"><div class="kpi-icon mb-3" aria-hidden="true">▤</div><h3 class="h6 fw-bold">Citas</h3><p class="small text-muted-app mb-3">Programación y seguimiento de consultas.</p><span class="badge-soft">Ver sección</span></a></div>
         </div>
       </section>
-      <section class="row g-3 mb-4" aria-label="Vistas administrativas de ejemplo">
+      <section class="row g-3 mb-4" aria-label="Resumen administrativo">
         <div class="col-12 col-xl-7">
           <div class="app-card h-100">
             <div class="app-card-header"><h2 class="section-title mb-1">Perfiles médicos</h2><p class="small text-muted-app mb-0">Acceso rápido a gestión de doctores</p></div>
@@ -109,7 +109,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Vista previa del seguimiento</p></div><div class="app-card-body"><div class="empty-state"><strong>Agenda pendiente de cargar</strong><p class="small mb-0 mt-1">Datos provenientes de <code>GET /api/citas</code>.</p></div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
+        <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Citas próximas desde MongoDB</p></div><div class="app-card-body"><div id="proximasCitasResumen" class="empty-state" aria-live="polite">Cargando citas...</div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
       </section>
       <!-- KAN-8: consulta, registro y edición de perfiles médicos integrados con MongoDB. -->
       <section id="doctores" class="mb-4" aria-labelledby="gestionDoctoresTitulo">
@@ -235,7 +235,7 @@
           <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">API conectada: <code>GET /api/especialidades</code>, <code>POST /api/especialidades</code> y <code>PUT /api/especialidades/:id</code>. El endpoint <code>DELETE /api/especialidades/:id</code> desactiva lógicamente, pero no se ofrece todavía en esta interfaz y no existe endpoint de reactivación.</p></div>
         </div>
       </section>
-      <!-- Gestión de citas: maqueta visual; fechas, datos y estados ficticios. -->
+      <!-- Gestión de citas: integración GET, POST, PUT y DELETE con API REST. -->
       <section id="citas" aria-labelledby="gestionCitasTitulo" class="mb-4">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -247,8 +247,9 @@
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Registrar cita</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note"><strong>Datos ilustrativos.</strong> Los siguientes registros son ficticios. Los botones de esta maqueta no reservan, reprograman ni cancelan citas en MongoDB.</div>
-            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas de ejemplo">
+            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB.</strong> La consulta, el registro, la reprogramación y la cancelación utilizan la API. Solo para pruebas locales: el servidor todavía no controla permisos por usuario.</div>
+            <div id="avisoCitas" class="alert alert-info small" role="status" aria-live="polite">Cargando citas desde la API...</div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas">
               <div class="col-12 col-lg-5">
                 <label for="buscarCita" class="form-label">Buscar paciente, doctor o especialidad</label>
                 <input type="search" id="buscarCita" class="form-control" placeholder="Ej.: Maria, pediatria o doctor" autocomplete="off">
@@ -271,31 +272,16 @@
                 <button type="button" id="limpiarFiltrosCita" class="btn btn-outline-app w-100">Limpiar</button>
               </div>
             </div>
-            <p class="small text-muted-app mt-3 mb-2" id="contadorCitas" aria-live="polite">4 citas de ejemplo</p>
+            <p class="small text-muted-app mt-3 mb-2" id="contadorCitas" aria-live="polite">Cargando citas...</p>
           </div>
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaCitas">
-              <caption class="visually-hidden">Listado de citas ficticias para comprobar el diseño; no son datos de MongoDB</caption>
+              <caption class="visually-hidden">Listado de citas registradas en MongoDB</caption>
               <thead><tr><th scope="col">Paciente</th><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
-              <tbody>
-                <tr data-paciente="María López" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-11-04" data-hora="09:30" data-estado="pendiente">
-                  <td class="fw-semibold">María López</td><td>Dr. Andrés Vega</td><td>Pediatría</td><td>04/11/2026</td><td>09:30</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td>
-                  <td><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarCita">Reprogramar</button><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarCita">Cancelar</button></div></td>
-                </tr>
-                <tr data-paciente="Carlos Méndez" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-11-05" data-hora="14:00" data-estado="confirmada">
-                  <td class="fw-semibold">Carlos Méndez</td><td>Dra. Elena Rojas</td><td>Medicina general</td><td>05/11/2026</td><td>14:00</td><td><span class="badge-cita badge-cita-confirmada">Confirmada</span></td>
-                  <td><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalReprogramarCita">Reprogramar</button><button type="button" class="btn btn-sm btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalCancelarCita">Cancelar</button></div></td>
-                </tr>
-                <tr data-paciente="Lucía Fernández" data-doctor="Dr. Andrés Vega" data-especialidad="Pediatría" data-fecha="2026-10-23" data-hora="11:00" data-estado="cancelada">
-                  <td class="fw-semibold">Lucía Fernández</td><td>Dr. Andrés Vega</td><td>Pediatría</td><td>23/10/2026</td><td>11:00</td><td><span class="badge-cita badge-cita-cancelada">Cancelada</span></td><td><span class="text-muted-app small">Sin acciones</span></td>
-                </tr>
-                <tr data-paciente="José Vargas" data-doctor="Dra. Elena Rojas" data-especialidad="Medicina general" data-fecha="2026-10-25" data-hora="08:00" data-estado="completada">
-                  <td class="fw-semibold">José Vargas</td><td>Dra. Elena Rojas</td><td>Medicina general</td><td>25/10/2026</td><td>08:00</td><td><span class="badge-cita badge-cita-completada">Completada</span></td><td><span class="text-muted-app small">Sin acciones</span></td>
-                </tr>
-              </tbody>
+              <tbody></tbody>
             </table>
           </div>
-          <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No se encontraron citas con esos filtros.</div>
+          <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No hay citas registradas que coincidan con los filtros.</div>
           <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> y <code>completada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
         </div>
       </section>
@@ -308,14 +294,13 @@
               <h2 id="reportesTitulo" class="section-title mb-1">Reportes de citas</h2>
               <p class="text-muted-app small mb-0">Consulta de indicadores, estados y citas por especialidad y fechas.</p>
             </div>
-            <span class="badge-soft">Vista previa académica</span>
+            <span class="badge-soft">Datos de MongoDB</span>
           </div>
           <div class="app-card-body">
             <div class="alert alert-light border small mb-4" role="note">
-              <strong>Datos ficticios:</strong> este reporte utiliza las cuatro citas de ejemplo de la sección «Gestión de citas».
-              Los resultados no provienen de MongoDB; no existe todavía una API de reportes ni se exportan datos reales.
+              <strong>Datos desde MongoDB:</strong> las estadísticas se calculan en el navegador a partir de <code>GET /api/citas</code>. No existe todavía una API de reportes separada, ni exportación de datos. Uso académico local.
             </div>
-            <form id="filtrosReporte" class="row g-3 align-items-end" aria-label="Filtros de reportes de ejemplo" novalidate>
+            <form id="filtrosReporte" class="row g-3 align-items-end" aria-label="Filtros de reportes de citas" novalidate>
               <div class="col-12 col-sm-6 col-xl-3">
                 <label for="reporteEspecialidad" class="form-label">Especialidad</label>
                 <select id="reporteEspecialidad" class="form-select">
@@ -366,24 +351,24 @@
                 <div class="report-panel h-100 p-0 overflow-hidden">
                   <div class="px-3 pt-3 pb-2">
                     <h3 class="h6 fw-bold mb-1">Detalle de las citas incluidas</h3>
-                    <p class="text-muted-app small mb-0" id="reporteContador" aria-live="polite">4 de 4 citas de ejemplo</p>
+                    <p class="text-muted-app small mb-0" id="reporteContador" aria-live="polite">Cargando citas...</p>
                   </div>
                   <div class="table-responsive report-scroll">
                     <table id="tablaReporte" class="table app-table mb-0">
-                      <caption class="visually-hidden">Resultados filtrados de citas ficticias, sin conexión con MongoDB</caption>
+                      <caption class="visually-hidden">Resultados filtrados de citas obtenidas desde MongoDB</caption>
                       <thead><tr><th scope="col">Paciente</th><th scope="col">Especialidad</th><th scope="col">Doctor</th><th scope="col">Fecha y hora</th><th scope="col">Estado</th></tr></thead>
                       <tbody></tbody>
                     </table>
                   </div>
-                  <p id="reporteSinResultados" role="status" class="empty-state m-3 d-none">No hay citas de ejemplo que coincidan con los filtros seleccionados.</p>
+                  <p id="reporteSinResultados" role="status" class="empty-state m-3 d-none">No hay citas registradas que coincidan con los filtros seleccionados.</p>
                 </div>
               </div>
             </div>
-            <p class="small text-muted-app mt-3 mb-0">Mapeo a la API existente: <code>Cita</code> (campos <code>paciente</code>, <code>doctor</code>, <code>especialidad</code>, <code>fecha</code>, <code>hora</code>, <code>estado</code>), a través del futuro consumo de <code>GET /api/citas</code>. El cálculo del reporte se realiza actualmente solo en el navegador.</p>
+            <p class="small text-muted-app mt-3 mb-0">Origen: <code>GET /api/citas</code>. Los indicadores y filtros se calculan en el navegador sobre las citas obtenidas; no hay endpoint independiente de reportes.</p>
           </div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Vista académica del segundo avance</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica en desarrollo</footer>
     </main>
   </div>
   <!-- KAN-9: Formularios de especialidades conectados con la API. -->
@@ -498,46 +483,46 @@
       <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button id="confirmarEstadoDoctor" type="button" class="btn btn-app-primary">Confirmar vista previa</button></div>
     </div></div>
   </div>
-  <!-- Modal: nueva cita (solo maqueta). Los name coinciden con el modelo Cita. -->
+  <!-- Modal de registro real de cita -->
   <div class="modal fade" id="modalNuevaCita" tabindex="-1" aria-labelledby="modalCitaTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalCitaTitulo">Nueva cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" novalidate><div class="modal-body"><p class="small text-muted-app">Formulario preparado para <code>POST /api/citas</code>.</p><div class="row g-3">
+      <form id="formNuevaCita" novalidate><div class="modal-body"><p class="small text-muted-app">Registro de cita en MongoDB mediante <code>POST /api/citas</code>. Selecciona una fecha y hora futuras; la API comprueba conflictos de horario.</p><div id="errorNuevaCita" class="alert alert-warning d-none" role="alert"></div><div class="row g-3">
         <div class="col-12 col-md-6"><label for="citaPaciente" class="form-label">Paciente</label><select name="paciente" id="citaPaciente" class="form-select" required><option value="">Seleccione un paciente</option></select></div>
         <div class="col-12 col-md-6"><label for="citaDoctor" class="form-label">Doctor</label><select name="doctor" id="citaDoctor" class="form-select" required><option value="">Seleccione un doctor</option></select></div>
         <div class="col-12 col-md-6"><label for="citaEspecialidad" class="form-label">Especialidad</label><select name="especialidad" id="citaEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
         <div class="col-6 col-md-3"><label for="citaFecha" class="form-label">Fecha</label><input type="date" class="form-control" name="fecha" id="citaFecha" required></div>
         <div class="col-6 col-md-3"><label for="citaHora" class="form-label">Hora</label><input type="time" class="form-control" name="hora" id="citaHora" required></div>
         <div class="col-12"><label for="citaMotivo" class="form-label">Motivo de consulta</label><textarea name="motivo" id="citaMotivo" class="form-control" maxlength="500" rows="3"></textarea></div>
-      </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Vista previa de la cita</button></div></form>
+      </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Registrar cita</button></div></form>
     </div></div>
   </div>
-  <!-- Modales de reprogramación y cancelación de citas: solo demostración. -->
+  <!-- Modales de reprogramación y cancelación reales mediante la API. -->
   <div class="modal fade" id="modalReprogramarCita" tabindex="-1" aria-labelledby="modalReprogramarCitaTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalReprogramarCitaTitulo">Reprogramar cita de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" action="#" method="post">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalReprogramarCitaTitulo">Reprogramar cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form id="formReprogramarCita">
         <div class="modal-body">
-          <p class="small text-muted-app">Vista previa de <code>PUT /api/citas/:id</code>. No se consulta disponibilidad real ni se guardan cambios.</p>
+          <p class="small text-muted-app">Actualiza la cita mediante <code>PUT /api/citas/:id</code>. La API valida las fechas y rechaza horarios ocupados.</p><div id="errorReprogramarCita" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12 col-sm-6"><label for="reprogramarPaciente" class="form-label">Paciente (solo lectura)</label><input id="reprogramarPaciente" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarDoctor" class="form-label">Doctor (solo lectura)</label><input id="reprogramarDoctor" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarFecha" class="form-label">Nueva fecha</label><input id="reprogramarFecha" type="date" name="fecha" class="form-control" required></div>
             <div class="col-12 col-sm-6"><label for="reprogramarHora" class="form-label">Nueva hora</label><input id="reprogramarHora" type="time" name="hora" class="form-control" required></div>
           </div>
-          <div class="alert alert-light border small mt-3 mb-0" role="note">Este formulario no comprueba horarios disponibles. Para habilitarlo de verdad habrá que consultar el backend y verificar los posibles conflictos.</div>
+          <div class="alert alert-light border small mt-3 mb-0" role="note">La hora solicitada no está garantizada hasta que la API acepte el cambio.</div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Guardar reprogramación</button></div>
       </form>
     </div></div>
   </div>
   <div class="modal fade" id="modalCancelarCita" tabindex="-1" aria-labelledby="modalCancelarCitaTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalCancelarCitaTitulo">Vista previa de cancelación</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalCancelarCitaTitulo">Cancelar cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <div class="modal-body">
         <p class="mb-2">Cita seleccionada: <strong id="cancelarCitaDetalle"></strong></p>
-        <p class="small text-muted-app mb-0">Esta es una demostración de la acción <code>DELETE /api/citas/:id</code>. No se modifica ni elimina ninguna cita.</p>
+        <p class="small text-muted-app mb-0">Esta acción cambia el estado de la cita a Cancelada en MongoDB mediante <code>DELETE /api/citas/:id</code>. No se elimina físicamente.</p><div id="errorCancelarCita" class="alert alert-warning mt-3 d-none" role="alert"></div>
       </div>
-      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="vistaPreviaCancelarCita" class="btn btn-app-primary">Validar vista previa</button></div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelarCita" class="btn btn-app-primary">Confirmar cancelación</button></div>
     </div></div>
   </div>
   <div id="mensajePrototipo" role="status" class="visually-hidden" aria-live="polite"></div>
@@ -959,35 +944,283 @@
       }
     });
     cargarEspecialidadesDesdeAPI();
-    // Filtros de la tabla de citas: se trabaja exclusivamente con datos ilustrativos.
-    const buscarCita = document.getElementById('buscarCita');
-    const filtrarEstadoCita = document.getElementById('filtrarEstadoCita');
-    const filtrarFechaCita = document.getElementById('filtrarFechaCita');
-    const filasCitas = [...document.querySelectorAll('#tablaCitas tbody tr[data-estado]')];
-    function actualizarTablaCitas() {
-      const termino = normalizarBusqueda(buscarCita.value);
-      const estado = filtrarEstadoCita.value;
-      const fecha = filtrarFechaCita.value;
-      let visibles = 0;
-      filasCitas.forEach(fila => {
-        const texto = normalizarBusqueda(fila.dataset.paciente + ' ' + fila.dataset.doctor + ' ' + fila.dataset.especialidad);
-        const mostrar = texto.includes(termino) && (estado === 'todos' || fila.dataset.estado === estado) && (!fecha || fila.dataset.fecha === fecha);
-        fila.classList.toggle('d-none', !mostrar);
-        if (mostrar) visibles++;
-      });
-      document.getElementById('contadorCitas').textContent = `${visibles} de ${filasCitas.length} citas de ejemplo`;
-      document.getElementById('sinResultadosCitas').classList.toggle('d-none', visibles !== 0);
+
+// Paquete 04B: gestión real de citas con API REST (solo desarrollo local).
+const API_CITAS_ADMIN = 'http://localhost:3000/api/citas';
+const API_USUARIOS_CITAS = 'http://localhost:3000/api/usuarios';
+const API_DOCTORES_CITAS = 'http://localhost:3000/api/doctores';
+const API_ESPECIALIDADES_CITAS = 'http://localhost:3000/api/especialidades';
+const tablaCitasAdmin = document.querySelector('#tablaCitas tbody');
+const buscarCita = document.getElementById('buscarCita');
+const filtrarEstadoCita = document.getElementById('filtrarEstadoCita');
+const filtrarFechaCita = document.getElementById('filtrarFechaCita');
+const avisoCitas = document.getElementById('avisoCitas');
+const nombresEstados = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' };
+const ordenEstados = ['pendiente', 'confirmada', 'completada', 'cancelada'];
+let citasAdmin = [];
+let doctorPerfilesCitas = [];
+let idCitaSeleccionada = null;
+let cargaCitasCorrecta = false;
+
+const idRelacion = relacion => typeof relacion === 'object' && relacion !== null ? String(relacion._id || '') : String(relacion || '');
+const nombreRelacion = relacion => typeof relacion === 'object' && relacion !== null ? String(relacion.nombre || 'Sin nombre') : 'Registro no disponible';
+const fechaLegibleReporte = fecha => /^\d{4}-\d{2}-\d{2}$/.test(fecha || '')
+  ? `${fecha.slice(8, 10)}/${fecha.slice(5, 7)}/${fecha.slice(0, 4)}` : '—';
+function hoyEnCostaRica() {
+  const parts = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Costa_Rica', year: 'numeric', month: '2-digit', day: '2-digit'}).formatToParts(new Date());
+  const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${obj.year}-${obj.month}-${obj.day}`;
+}
+function ponerAlertaCita(elemento, mensaje, tipo = 'warning') {
+  elemento.className = `alert alert-${tipo}${elemento.id === 'avisoCitas' ? ' small' : ''}${elemento.id === 'errorCancelarCita' ? ' mt-3' : ''}`;
+  elemento.textContent = mensaje;
+  elemento.classList.toggle('d-none', !mensaje);
+}
+function mostrarAvisoCitas(mensaje, tipo = 'info') { ponerAlertaCita(avisoCitas, mensaje, tipo); }
+function crearBotonAccionCita(texto, accion, cita) {
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'btn btn-sm btn-outline-app';
+  boton.textContent = texto;
+  boton.addEventListener('click', () => {
+    idCitaSeleccionada = cita._id;
+    if (accion === 'reprogramar') {
+      document.getElementById('reprogramarPaciente').value = nombreRelacion(cita.paciente);
+      document.getElementById('reprogramarDoctor').value = nombreRelacion(cita.doctor);
+      document.getElementById('reprogramarFecha').min = hoyEnCostaRica();
+          document.getElementById('reprogramarFecha').value = cita.fecha;
+      document.getElementById('reprogramarHora').value = cita.hora;
+      ponerAlertaCita(document.getElementById('errorReprogramarCita'), '');
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarCita')).show();
+    } else {
+      document.getElementById('cancelarCitaDetalle').textContent = `${nombreRelacion(cita.paciente)} · ${fechaLegibleReporte(cita.fecha)} · ${cita.hora}`;
+      ponerAlertaCita(document.getElementById('errorCancelarCita'), '');
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarCita')).show();
     }
-    buscarCita.addEventListener('input', actualizarTablaCitas);
-    filtrarEstadoCita.addEventListener('change', actualizarTablaCitas);
-    filtrarFechaCita.addEventListener('change', actualizarTablaCitas);
-    document.getElementById('limpiarFiltrosCita').addEventListener('click', () => {
-      buscarCita.value = '';
-      filtrarEstadoCita.value = 'todos';
-      filtrarFechaCita.value = '';
-      actualizarTablaCitas();
-      buscarCita.focus();
+  });
+  return boton;
+}
+function crearFilaCita(cita) {
+  const fila = document.createElement('tr');
+  fila.dataset.id = cita._id;
+  fila.dataset.paciente = nombreRelacion(cita.paciente);
+  fila.dataset.doctor = nombreRelacion(cita.doctor);
+  fila.dataset.especialidad = nombreRelacion(cita.especialidad);
+  fila.dataset.fecha = cita.fecha;
+  fila.dataset.hora = cita.hora;
+  fila.dataset.estado = cita.estado;
+  [fila.dataset.paciente, fila.dataset.doctor, fila.dataset.especialidad, fechaLegibleReporte(cita.fecha), cita.hora].forEach(valor => {
+    const celda = document.createElement('td');
+    celda.textContent = valor;
+    fila.append(celda);
+  });
+  const estado = document.createElement('td');
+  const insignia = document.createElement('span');
+  insignia.className = `badge-cita badge-cita-${cita.estado}`;
+  insignia.textContent = nombresEstados[cita.estado] || cita.estado;
+  estado.append(insignia);
+  fila.append(estado);
+  const acciones = document.createElement('td');
+  if (cita.estado === 'pendiente' || cita.estado === 'confirmada') {
+    const controles = document.createElement('div');
+    controles.className = 'd-flex gap-2 flex-wrap';
+    controles.append(crearBotonAccionCita('Reprogramar', 'reprogramar', cita), crearBotonAccionCita('Cancelar', 'cancelar', cita));
+    acciones.append(controles);
+  } else {
+    acciones.textContent = 'Sin acciones';
+    acciones.className = 'text-muted-app small';
+  }
+  fila.append(acciones);
+  return fila;
+}
+function actualizarTablaCitas() {
+  const termino = normalizarBusqueda(buscarCita.value);
+  const estado = filtrarEstadoCita.value;
+  const fecha = filtrarFechaCita.value;
+  const filas = [...tablaCitasAdmin.querySelectorAll('tr[data-id]')];
+  let visibles = 0;
+  filas.forEach(fila => {
+    const texto = normalizarBusqueda(`${fila.dataset.paciente} ${fila.dataset.doctor} ${fila.dataset.especialidad}`);
+    const mostrar = texto.includes(termino) && (estado === 'todos' || fila.dataset.estado === estado) && (!fecha || fila.dataset.fecha === fecha);
+    fila.classList.toggle('d-none', !mostrar);
+    if (mostrar) visibles++;
+  });
+  document.getElementById('contadorCitas').textContent = `${visibles} de ${filas.length} citas registradas`;
+  document.getElementById('sinResultadosCitas').classList.toggle('d-none', visibles !== 0 || !cargaCitasCorrecta);
+}
+function actualizarProximasCitas() {
+  const resumen = document.getElementById('proximasCitasResumen');
+  const activas = citasAdmin.filter(c => ['pendiente', 'confirmada'].includes(c.estado) && `${c.fecha}T${c.hora}` >= `${hoyEnCostaRica()}T00:00`)
+    .sort((a, b) => `${a.fecha}T${a.hora}`.localeCompare(`${b.fecha}T${b.hora}`)).slice(0, 3);
+  resumen.replaceChildren();
+  if (!activas.length) {
+    resumen.textContent = 'No hay próximas citas pendientes o confirmadas.';
+    return;
+  }
+  const lista = document.createElement('ul');
+  lista.className = 'list-group list-group-flush';
+  activas.forEach(cita => {
+    const item = document.createElement('li');
+    item.className = 'list-group-item px-0 small';
+    item.textContent = `${fechaLegibleReporte(cita.fecha)} ${cita.hora} — ${nombreRelacion(cita.paciente)} / ${nombreRelacion(cita.doctor)}`;
+    lista.append(item);
+  });
+  resumen.append(lista);
+}
+async function pedirJSONCitas(url, opciones = {}) {
+  const respuesta = await fetch(url, opciones);
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
+  return datos;
+}
+async function cargarCitasAdmin() {
+  mostrarAvisoCitas('Consultando citas en MongoDB...');
+  try {
+    const data = await pedirJSONCitas(API_CITAS_ADMIN);
+    if (!Array.isArray(data)) throw new Error('La API no devolvió una lista de citas.');
+    citasAdmin = data;
+    cargaCitasCorrecta = true;
+    tablaCitasAdmin.replaceChildren(...citasAdmin.map(crearFilaCita));
+    document.getElementById('kpiCitas').textContent = String(citasAdmin.length);
+    actualizarTablaCitas();
+    actualizarProximasCitas();
+    actualizarReporte();
+    mostrarAvisoCitas(`${citasAdmin.length} cita(s) cargada(s) desde MongoDB. Alta, reprogramación y cancelación disponibles.`);
+    return true;
+  } catch (error) {
+    console.error('No se pudieron consultar las citas:', error);
+    cargaCitasCorrecta = false;
+    citasAdmin = [];
+    tablaCitasAdmin.replaceChildren();
+    document.getElementById('kpiCitas').textContent = '—';
+    actualizarTablaCitas();
+    document.getElementById('proximasCitasResumen').textContent = 'No se pudieron cargar las citas.';
+    actualizarReporte();
+    mostrarAvisoCitas(`Error al consultar citas: ${error.message}`, 'danger');
+    return false;
+  }
+}
+buscarCita.addEventListener('input', actualizarTablaCitas);
+filtrarEstadoCita.addEventListener('change', actualizarTablaCitas);
+filtrarFechaCita.addEventListener('change', actualizarTablaCitas);
+document.getElementById('limpiarFiltrosCita').addEventListener('click', () => {
+  buscarCita.value = '';
+  filtrarEstadoCita.value = 'todos';
+  filtrarFechaCita.value = '';
+  actualizarTablaCitas();
+});
+
+// Registro desde el panel administrativo: solo pacientes existentes y doctores activos.
+const modalNuevaCita = document.getElementById('modalNuevaCita');
+const formNuevaCita = document.getElementById('formNuevaCita');
+const citaPaciente = document.getElementById('citaPaciente');
+const citaDoctor = document.getElementById('citaDoctor');
+const citaEspecialidad = document.getElementById('citaEspecialidad');
+modalNuevaCita.addEventListener('show.bs.modal', async () => {
+  formNuevaCita.reset();
+  ponerAlertaCita(document.getElementById('errorNuevaCita'), '');
+  citaPaciente.disabled = citaDoctor.disabled = citaEspecialidad.disabled = true;
+  citaPaciente.replaceChildren(new Option('Cargando pacientes...', ''));
+  citaDoctor.replaceChildren(new Option('Selecciona primero una especialidad', ''));
+  citaEspecialidad.replaceChildren(new Option('Cargando especialidades...', ''));
+  document.getElementById('citaFecha').min = hoyEnCostaRica();
+  try {
+    const [usuarios, perfiles, especialidades] = await Promise.all([
+      pedirJSONCitas(API_USUARIOS_CITAS), pedirJSONCitas(API_DOCTORES_CITAS), pedirJSONCitas(API_ESPECIALIDADES_CITAS)
+    ]);
+    if (![usuarios, perfiles, especialidades].every(Array.isArray)) throw new Error('Las listas de la API tienen un formato inesperado.');
+    doctorPerfilesCitas = perfiles.filter(p => p.activo && p.usuario?._id && p.especialidad?.activo === true);
+    citaPaciente.replaceChildren(new Option('Seleccione un paciente', ''));
+    usuarios.filter(u => u.rol === 'paciente').forEach(u => citaPaciente.add(new Option(`${u.nombre} (${u.email})`, u._id)));
+    citaEspecialidad.replaceChildren(new Option('Seleccione una especialidad', ''));
+    const idsConDoctor = new Set(doctorPerfilesCitas.map(p => String(p.especialidad._id)));
+    especialidades.filter(e => e.activo && idsConDoctor.has(String(e._id))).forEach(e => citaEspecialidad.add(new Option(e.nombre, e._id)));
+    citaDoctor.replaceChildren(new Option('Selecciona primero una especialidad', ''));
+    if (citaPaciente.options.length < 2 || citaEspecialidad.options.length < 2) {
+      ponerAlertaCita(document.getElementById('errorNuevaCita'), 'Se necesita al menos un paciente y un doctor activo con especialidad activa.');
+    }
+  } catch (error) {
+    ponerAlertaCita(document.getElementById('errorNuevaCita'), `No se pudieron cargar las opciones: ${error.message}`);
+  } finally {
+    citaPaciente.disabled = false;
+    citaEspecialidad.disabled = false;
+  }
+});
+citaEspecialidad.addEventListener('change', () => {
+  const especialidadId = citaEspecialidad.value;
+  citaDoctor.replaceChildren(new Option(especialidadId ? 'Seleccione un doctor' : 'Selecciona primero una especialidad', ''));
+  doctorPerfilesCitas.filter(p => idRelacion(p.especialidad) === especialidadId).forEach(p => {
+    citaDoctor.add(new Option(nombreRelacion(p.usuario), idRelacion(p.usuario)));
+  });
+  citaDoctor.disabled = !especialidadId;
+});
+formNuevaCita.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!formNuevaCita.reportValidity()) return;
+  const boton = formNuevaCita.querySelector('button[type="submit"]');
+  boton.disabled = true;
+  boton.textContent = 'Registrando...';
+  ponerAlertaCita(document.getElementById('errorNuevaCita'), '');
+  try {
+    await pedirJSONCitas(API_CITAS_ADMIN, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+      paciente: citaPaciente.value, doctor: citaDoctor.value, especialidad: citaEspecialidad.value,
+      fecha: document.getElementById('citaFecha').value, hora: document.getElementById('citaHora').value,
+      motivo: document.getElementById('citaMotivo').value.trim()
+    })});
+    bootstrap.Modal.getOrCreateInstance(modalNuevaCita).hide();
+    const ok = await cargarCitasAdmin();
+    mostrarAvisoCitas(ok ? 'Cita registrada correctamente en MongoDB.' : 'La cita se guardó, pero la tabla no pudo recargarse. Actualiza la página.', ok ? 'success' : 'warning');
+  } catch (error) {
+    ponerAlertaCita(document.getElementById('errorNuevaCita'), error.message);
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Registrar cita';
+  }
+});
+document.getElementById('formReprogramarCita').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!idCitaSeleccionada || !event.currentTarget.reportValidity()) return;
+  const boton = event.currentTarget.querySelector('button[type="submit"]');
+  boton.disabled = true;
+  boton.textContent = 'Guardando...';
+  ponerAlertaCita(document.getElementById('errorReprogramarCita'), '');
+  try {
+    await pedirJSONCitas(`${API_CITAS_ADMIN}/${encodeURIComponent(idCitaSeleccionada)}`, {
+      method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+        fecha: document.getElementById('reprogramarFecha').value,
+        hora: document.getElementById('reprogramarHora').value
+      })
     });
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarCita')).hide();
+    idCitaSeleccionada = null;
+    const ok = await cargarCitasAdmin();
+    mostrarAvisoCitas(ok ? 'Cita reprogramada correctamente en MongoDB.' : 'La cita se modificó, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
+  } catch (error) {
+    ponerAlertaCita(document.getElementById('errorReprogramarCita'), error.message);
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Guardar reprogramación';
+  }
+});
+document.getElementById('confirmarCancelarCita').addEventListener('click', async event => {
+  if (!idCitaSeleccionada) return;
+  const boton = event.currentTarget;
+  boton.disabled = true;
+  boton.textContent = 'Cancelando...';
+  ponerAlertaCita(document.getElementById('errorCancelarCita'), '');
+  try {
+    await pedirJSONCitas(`${API_CITAS_ADMIN}/${encodeURIComponent(idCitaSeleccionada)}`, {method: 'DELETE'});
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarCita')).hide();
+    idCitaSeleccionada = null;
+    const ok = await cargarCitasAdmin();
+    mostrarAvisoCitas(ok ? 'Cita cancelada correctamente en MongoDB.' : 'La cita se canceló, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
+  } catch (error) {
+    ponerAlertaCita(document.getElementById('errorCancelarCita'), error.message);
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Confirmar cancelación';
+  }
+});
 
     // Navegación móvil accesible: cerrar el offcanvas antes de saltar al ancla.
     // Esto evita el problema de enlaces internos que no navegaban en móvil.
@@ -1024,113 +1257,86 @@
     window.addEventListener('hashchange', () => destacarEnlaceAdmin(location.hash || '#resumen'));
     destacarEnlaceAdmin(location.hash || '#resumen');
 
-    // KAN-147: un único conjunto de datos de ejemplo para citas y reportes.
-    // No se inventan endpoints, no se consulta API ni se guardan cambios.
-    const citasParaReporte = filasCitas.map(fila => ({
-      paciente: fila.dataset.paciente,
-      doctor: fila.dataset.doctor,
-      especialidad: fila.dataset.especialidad,
-      fecha: fila.dataset.fecha,
-      hora: fila.dataset.hora,
-      estado: fila.dataset.estado
-    }));
-    const especialidadReporte = document.getElementById('reporteEspecialidad');
-    const estadoReporte = document.getElementById('reporteEstado');
-    const desdeReporte = document.getElementById('reporteDesde');
-    const hastaReporte = document.getElementById('reporteHasta');
-    const tablaReporte = document.querySelector('#tablaReporte tbody');
-    const nombresEstados = {pendiente:'Pendiente', confirmada:'Confirmada', completada:'Completada', cancelada:'Cancelada'};
-    const ordenEstados = ['pendiente', 'confirmada', 'completada', 'cancelada'];
-    const fechaLegibleReporte = fecha => `${fecha.slice(8,10)}/${fecha.slice(5,7)}/${fecha.slice(0,4)}`;
 
-    function actualizarReporte() {
-      const fechaInvalida = Boolean(desdeReporte.value && hastaReporte.value && desdeReporte.value > hastaReporte.value);
-      document.getElementById('reporteFechasInvalidas').classList.toggle('d-none', !fechaInvalida);
-      desdeReporte.setCustomValidity(fechaInvalida ? 'La fecha inicial supera la final' : '');
-      hastaReporte.setCustomValidity(fechaInvalida ? 'La fecha final es anterior a la inicial' : '');
-      const filtradas = fechaInvalida ? [] : citasParaReporte.filter(cita =>
-        (especialidadReporte.value === 'todos' || cita.especialidad === especialidadReporte.value) &&
-        (estadoReporte.value === 'todos' || cita.estado === estadoReporte.value) &&
-        (!desdeReporte.value || cita.fecha >= desdeReporte.value) &&
-        (!hastaReporte.value || cita.fecha <= hastaReporte.value)
-      );
-      const cantidades = Object.fromEntries(ordenEstados.map(estado => [estado, filtradas.filter(cita => cita.estado === estado).length]));
-      document.getElementById('reporteTotal').textContent = String(filtradas.length);
-      document.getElementById('reportePorAtender').textContent = String(cantidades.pendiente + cantidades.confirmada);
-      document.getElementById('reporteCompletadas').textContent = String(cantidades.completada);
-      document.getElementById('reporteCanceladas').textContent = String(cantidades.cancelada);
-      document.getElementById('reporteContador').textContent = `${filtradas.length} de ${citasParaReporte.length} citas de ejemplo`;
+// Reportes de lectura derivados del mismo GET /api/citas (sin endpoints adicionales).
+const especialidadReporte = document.getElementById('reporteEspecialidad');
+const estadoReporte = document.getElementById('reporteEstado');
+const desdeReporte = document.getElementById('reporteDesde');
+const hastaReporte = document.getElementById('reporteHasta');
+const tablaReporte = document.querySelector('#tablaReporte tbody');
+function actualizarReporte() {
+  const especialidadActual = especialidadReporte.value;
+  const nombresEspecialidades = [...new Set(citasAdmin.map(c => nombreRelacion(c.especialidad)))].sort((a,b) => a.localeCompare(b,'es'));
+  especialidadReporte.replaceChildren(new Option('Todas las especialidades','todos'));
+  nombresEspecialidades.forEach(nombre => especialidadReporte.add(new Option(nombre, nombre)));
+  especialidadReporte.value = nombresEspecialidades.includes(especialidadActual) ? especialidadActual : 'todos';
+  const fechaInvalida = Boolean(desdeReporte.value && hastaReporte.value && desdeReporte.value > hastaReporte.value);
+  document.getElementById('reporteFechasInvalidas').classList.toggle('d-none', !fechaInvalida);
+  desdeReporte.setCustomValidity(fechaInvalida ? 'La fecha inicial supera la final' : '');
+  hastaReporte.setCustomValidity(fechaInvalida ? 'La fecha final es anterior a la inicial' : '');
+  const filtradas = fechaInvalida ? [] : citasAdmin.filter(cita =>
+    (especialidadReporte.value === 'todos' || nombreRelacion(cita.especialidad) === especialidadReporte.value) &&
+    (estadoReporte.value === 'todos' || cita.estado === estadoReporte.value) &&
+    (!desdeReporte.value || cita.fecha >= desdeReporte.value) &&
+    (!hastaReporte.value || cita.fecha <= hastaReporte.value)
+  );
+  const cantidades = Object.fromEntries(ordenEstados.map(estado => [estado, filtradas.filter(c => c.estado === estado).length]));
+  document.getElementById('reporteTotal').textContent = String(filtradas.length);
+  document.getElementById('reportePorAtender').textContent = String(cantidades.pendiente + cantidades.confirmada);
+  document.getElementById('reporteCompletadas').textContent = String(cantidades.completada);
+  document.getElementById('reporteCanceladas').textContent = String(cantidades.cancelada);
+  document.getElementById('reporteContador').textContent = `${filtradas.length} de ${citasAdmin.length} citas registradas`;
+  const distribucion = document.getElementById('reporteDistribucion');
+  distribucion.replaceChildren();
+  ordenEstados.forEach(estado => {
+    const fila = document.createElement('div');
+    fila.className = 'report-distribution-row mb-3';
+    const encabezado = document.createElement('div');
+    encabezado.className = 'd-flex justify-content-between gap-2 small mb-1';
+    const titulo = document.createElement('span');
+    titulo.textContent = nombresEstados[estado];
+    const cantidad = document.createElement('strong');
+    cantidad.textContent = String(cantidades[estado]);
+    encabezado.append(titulo, cantidad);
+    const pista = document.createElement('div');
+    pista.className = 'report-distribution-track';
+    const barra = document.createElement('div');
+    barra.className = 'report-distribution-bar';
+    barra.style.width = `${filtradas.length ? (cantidades[estado] / filtradas.length) * 100 : 0}%`;
+    pista.append(barra);
+    fila.append(encabezado, pista);
+    distribucion.append(fila);
+  });
+  tablaReporte.replaceChildren();
+  filtradas.forEach(cita => {
+    const fila = document.createElement('tr');
+    [nombreRelacion(cita.paciente), nombreRelacion(cita.especialidad), nombreRelacion(cita.doctor), `${fechaLegibleReporte(cita.fecha)} · ${cita.hora}`].forEach(valor => {
+      const td = document.createElement('td');
+      td.textContent = valor;
+      fila.append(td);
+    });
+    const tdEstado = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `badge-cita badge-cita-${cita.estado}`;
+    badge.textContent = nombresEstados[cita.estado] || cita.estado;
+    tdEstado.append(badge);
+    fila.append(tdEstado);
+    tablaReporte.append(fila);
+  });
+  document.getElementById('reporteSinResultados').classList.toggle('d-none', filtradas.length !== 0 || fechaInvalida || !cargaCitasCorrecta);
+}
+document.getElementById('filtrosReporte').addEventListener('input', actualizarReporte);
+document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
+document.getElementById('filtrosReporte').addEventListener('reset', event => {
+  event.preventDefault();
+  especialidadReporte.value = 'todos';
+  estadoReporte.value = 'todos';
+  desdeReporte.value = '';
+  hastaReporte.value = '';
+  actualizarReporte();
+});
+cargarCitasAdmin();
 
-      const distribucion = document.getElementById('reporteDistribucion');
-      distribucion.replaceChildren();
-      ordenEstados.forEach(estado => {
-        const fila = document.createElement('div');
-        fila.className = 'report-distribution-row mb-3';
-        const encabezado = document.createElement('div');
-        encabezado.className = 'd-flex justify-content-between gap-2 small mb-1';
-        const titulo = document.createElement('span');
-        titulo.textContent = nombresEstados[estado];
-        const cantidad = document.createElement('strong');
-        cantidad.textContent = String(cantidades[estado]);
-        encabezado.append(titulo, cantidad);
-        const pista = document.createElement('div');
-        pista.className = 'report-distribution-track';
-        const barra = document.createElement('div');
-        barra.className = 'report-distribution-bar';
-        barra.style.width = `${filtradas.length ? (cantidades[estado] / filtradas.length) * 100 : 0}%`;
-        pista.append(barra);
-        fila.append(encabezado, pista);
-        distribucion.append(fila);
-      });
-
-      tablaReporte.replaceChildren();
-      filtradas.forEach(cita => {
-        const fila = document.createElement('tr');
-        [cita.paciente, cita.especialidad, cita.doctor, `${fechaLegibleReporte(cita.fecha)} · ${cita.hora}`].forEach(valor => {
-          const td = document.createElement('td');
-          td.textContent = valor;
-          fila.append(td);
-        });
-        const tdEstado = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = `badge-cita badge-cita-${cita.estado}`;
-        badge.textContent = nombresEstados[cita.estado];
-        tdEstado.append(badge);
-        fila.append(tdEstado);
-        tablaReporte.append(fila);
-      });
-      document.getElementById('reporteSinResultados').classList.toggle('d-none', filtradas.length !== 0 || fechaInvalida);
-    }
-    document.getElementById('filtrosReporte').addEventListener('input', actualizarReporte);
-    document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
-    document.getElementById('filtrosReporte').addEventListener('reset', () => {
-      // Restablecer visualmente sin temporizadores y sin datos persistentes.
-      especialidadReporte.value = 'todos';
-      estadoReporte.value = 'todos';
-      desdeReporte.value = '';
-      hastaReporte.value = '';
-      actualizarReporte();
-    });
-    actualizarReporte();
-    // Los modales reciben la fila seleccionada sin acceder a datos privados ni a la API.
-    document.getElementById('modalReprogramarCita').addEventListener('show.bs.modal', event => {
-      const fila = event.relatedTarget?.closest('tr[data-estado]');
-      if (!fila) return;
-      document.getElementById('reprogramarPaciente').value = fila.dataset.paciente;
-      document.getElementById('reprogramarDoctor').value = fila.dataset.doctor;
-      document.getElementById('reprogramarFecha').value = fila.dataset.fecha;
-      document.getElementById('reprogramarHora').value = fila.dataset.hora;
-    });
-    document.getElementById('modalCancelarCita').addEventListener('show.bs.modal', event => {
-      const fila = event.relatedTarget?.closest('tr[data-estado]');
-      if (!fila) return;
-      document.getElementById('cancelarCitaDetalle').textContent = `${fila.dataset.paciente} · ${fila.dataset.fecha} · ${fila.dataset.hora}`;
-    });
-    document.getElementById('vistaPreviaCancelarCita').addEventListener('click', () => {
-      const aviso = 'Vista previa validada. La cita ficticia NO ha sido cancelada ni modificada.';
-      document.getElementById('mensajePrototipo').textContent = aviso;
-      window.alert(aviso);
-    });
     // KAN-81: administración visual de doctores con registros ficticios.
     // Todas las operaciones se limitan al DOM y se reinician al recargar.
     const tablaDoctores = document.querySelector('#tablaDoctores tbody');

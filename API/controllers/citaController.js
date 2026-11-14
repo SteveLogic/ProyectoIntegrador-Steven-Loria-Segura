@@ -3,6 +3,19 @@ const mongoose = require("mongoose");
 const Cita = require("../models/Cita");
 const Usuario = require("../models/Usuario");
 const Especialidad = require("../models/Especialidad");
+const Doctor = require("../models/Doctor");
+
+// Fecha/hora local de Costa Rica (UTC-6); validar formato, día real y futuro.
+function horarioValido(fecha, hora) {
+    if (typeof fecha !== "string" || typeof hora !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(fecha) ||
+        !/^([01]\d|2[0-3]):[0-5]\d$/.test(hora)) return false;
+    const [y, m, d] = fecha.split("-").map(Number);
+    const diaUTC = new Date(Date.UTC(y, m - 1, d));
+    if (diaUTC.getUTCFullYear() !== y || diaUTC.getUTCMonth() !== m - 1 || diaUTC.getUTCDate() !== d) return false;
+    const fechaLocal = new Date(`${fecha}T${hora}:00-06:00`);
+    return !Number.isNaN(fechaLocal.getTime()) && fechaLocal.getTime() > Date.now();
+}
 
 // Crear una nueva cita médica
 const crearCita = async (req, res) => {
@@ -32,6 +45,13 @@ const crearCita = async (req, res) => {
             });
         }
 
+        // Rechazar horarios con formato inválido o en el pasado.
+        if (!horarioValido(fecha, hora)) {
+            return res.status(400).json({
+                mensaje: "La fecha y hora deben ser válidas y futuras (hora de Costa Rica)."
+            });
+        }
+
         // Comprobar que el paciente existe y tiene el rol correcto
         const pacienteEncontrado = await Usuario.findById(paciente);
 
@@ -57,6 +77,14 @@ const crearCita = async (req, res) => {
         if (!especialidadEncontrada || !especialidadEncontrada.activo) {
             return res.status(400).json({
                 mensaje: "La especialidad no existe o está inactiva."
+            });
+        }
+
+        // La cita debe corresponder al perfil médico activo y su especialidad.
+        const perfilMedico = await Doctor.findOne({ usuario: doctor, activo: true });
+        if (!perfilMedico || String(perfilMedico.especialidad) !== String(especialidad)) {
+            return res.status(400).json({
+                mensaje: "El doctor no está activo o no pertenece a la especialidad indicada."
             });
         }
 
@@ -175,6 +203,12 @@ const reprogramarCita = async (req, res) => {
             !fecha || !hora) {
             return res.status(400).json({
                 mensaje: "La fecha y la hora son obligatorias."
+            });
+        }
+
+        if (!horarioValido(fecha, hora)) {
+            return res.status(400).json({
+                mensaje: "La nueva fecha y hora deben ser válidas y futuras (hora de Costa Rica)."
             });
         }
 
