@@ -62,7 +62,7 @@
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Integración académica progresiva: doctores y especialidades conectados a la API; otros módulos siguen como prototipos.</p>
+      <p class="small px-3 text-muted-app">Integración académica progresiva: usuarios, doctores y especialidades conectados a la API; citas y reportes siguen como prototipos.</p>
     </aside>
     <main class="app-main" id="resumen">
       <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -75,12 +75,12 @@
       </div>
       <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
         <span aria-hidden="true">ⓘ</span>
-        <div><strong>Integración en progreso:</strong> doctores y especialidades utilizan la API y MongoDB; las vistas de usuarios, citas y reportes todavía contienen datos de demostración.</div>
+        <div><strong>Integración en progreso:</strong> usuarios, doctores y especialidades utilizan la API y MongoDB; las vistas de citas y reportes todavía contienen datos de demostración.</div>
       </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
         <div class="row g-3">
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3" id="kpiUsuarios">—</div><div class="kpi-label mt-2">Datos de MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
@@ -150,26 +150,27 @@
           <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code>, <code>PUT /api/doctores/:id/especialidad</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <strong>La reactivación no está implementada en la API actual.</strong></p></div>
         </div>
       </section>
-      <!-- Gestión de usuarios: maqueta visual alineada con API/models/Usuario.js.
-           Los datos de ejemplo NO provienen de MongoDB. -->
+      <!-- KAN-16: Gestión de usuarios conectada con la API (GET, POST, PUT nombre/email).
+           El cambio de rol, alta de administradores y estado siguen pendientes de autorización real. -->
       <section class="mb-4" id="usuarios" aria-labelledby="usuariosTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
               <p class="eyebrow mb-1">Administración de cuentas</p>
               <h2 class="section-title mb-1" id="usuariosTitulo">Gestión de usuarios</h2>
-              <p class="small text-muted-app mb-0">Listado de muestra, búsqueda, filtros y formularios preparados para la API.</p>
+              <p class="small text-muted-app mb-0">Consulta, búsqueda, registro y edición de usuarios conectados con MongoDB.</p>
             </div>
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">+ Registrar usuario</button>
           </div>
           <div class="app-card-body pb-2">
             <div class="alert alert-light border mb-3" role="note">
-              <strong>Datos ilustrativos.</strong> Los usuarios de esta tabla no son registros reales de MongoDB. Los formularios son prototipos y no guardan cambios.
+              <strong>Datos de MongoDB:</strong> el listado, el registro y la modificación de nombre y correo utilizan la API. El rol solo se asigna al crear cuentas de paciente o doctor; los cambios de rol y de estado aún no están implementados. <strong>Uso académico local:</strong> estas rutas todavía no tienen autorización real en el servidor; no publiques la API en Internet.
             </div>
-            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios de ejemplo">
+            <div id="avisoUsuarios" class="alert alert-info d-none small" role="status" aria-live="polite"></div>
+            <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios registrados">
               <div class="col-12 col-md-7">
                 <label for="buscarUsuario" class="form-label">Buscar por nombre o correo</label>
-                <input id="buscarUsuario" type="search" class="form-control" placeholder="Ej.: paciente, doctor o ejemplo.com" autocomplete="off">
+                <input id="buscarUsuario" type="search" class="form-control" placeholder="Ej.: paciente, doctor o correo.com" autocomplete="off">
               </div>
               <div class="col-12 col-md-3">
                 <label for="filtrarRolUsuario" class="form-label">Filtrar por rol</label>
@@ -184,31 +185,18 @@
                 <button id="limpiarFiltrosUsuario" class="btn btn-outline-app w-100" type="button">Limpiar</button>
               </div>
             </div>
-            <p class="small text-muted-app mt-3 mb-2" aria-live="polite" id="contadorUsuarios">3 usuarios de ejemplo</p>
+            <p class="small text-muted-app mt-3 mb-2" aria-live="polite" id="contadorUsuarios">Cargando usuarios...</p>
           </div>
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaUsuarios">
-              <caption class="visually-hidden">Listado de usuarios ilustrativos para probar la interfaz. No corresponde a datos de MongoDB.</caption>
+              <caption class="visually-hidden">Listado de usuarios obtenidos desde la API, sin contraseñas</caption>
               <thead><tr><th scope="col">Nombre</th><th scope="col">Correo electrónico</th><th scope="col">Rol</th><th scope="col">Acciones</th></tr></thead>
-              <tbody>
-                <tr data-rol="paciente" data-nombre="Paciente de ejemplo" data-email="paciente@example.com">
-                  <td class="fw-semibold">Paciente de ejemplo</td><td>paciente@example.com</td><td><span class="badge-role">Paciente</span></td>
-                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
-                </tr>
-                <tr data-rol="doctor" data-nombre="Doctor de ejemplo" data-email="doctor@example.com">
-                  <td class="fw-semibold">Doctor de ejemplo</td><td>doctor@example.com</td><td><span class="badge-role">Doctor</span></td>
-                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
-                </tr>
-                <tr data-rol="administrador" data-nombre="Administrador de ejemplo" data-email="admin@example.com">
-                  <td class="fw-semibold">Administrador de ejemplo</td><td>admin@example.com</td><td><span class="badge-role">Administrador</span></td>
-                  <td><button type="button" class="btn btn-sm btn-outline-app editar-usuario" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario">Editar</button></td>
-                </tr>
-              </tbody>
+              <tbody></tbody>
             </table>
           </div>
-          <div id="sinResultadosUsuarios" class="empty-state m-3 d-none" role="status">No hay usuarios de ejemplo que coincidan con los filtros.</div>
+          <div id="sinResultadosUsuarios" class="empty-state m-3 d-none" role="status">No hay usuarios registrados que coincidan con los filtros seleccionados.</div>
           <div class="app-card-body pt-2">
-            <p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/usuarios</code>, <code>POST /api/usuarios</code> y <code>PUT /api/usuarios/:id</code>. El backend de edición permite modificar <code>nombre</code> y <code>email</code>; los cambios de rol y estado requieren desarrollo adicional.</p>
+            <p class="small text-muted-app mb-0">API conectada: <code>GET /api/usuarios</code>, <code>POST /api/usuarios</code> y <code>PUT /api/usuarios/:id</code>. No se muestra ni recupera ninguna contraseña. El endpoint de edición permite modificar <code>nombre</code> y <code>email</code>, no <code>rol</code>. El modelo actual tampoco cuenta con campo de estado.</p>
           </div>
         </div>
       </section>
@@ -432,37 +420,39 @@
       </form>
     </div></div>
   </div>
-  <!-- Modales de Usuarios (solo demostración; no persisten cambios). -->
+  <!-- KAN-16: Formularios reales de usuarios; rol solo en registro de paciente/doctor. -->
   <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearUsuarioTitulo">Registrar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" action="#" method="post">
+      <form id="formCrearUsuario" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">Prototipo del endpoint <code>POST /api/usuarios</code>. Este formulario no envía datos a MongoDB.</p>
+          <p class="small text-muted-app">La cuenta se guardará mediante <code>POST /api/usuarios</code>. La contraseña se envía al backend para almacenarse como hash; no aparecerá en la tabla ni en mensajes de confirmación. Trabajar solo en entorno local hasta implementar autorización del servidor.</p>
+          <div id="crearUsuarioError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
-            <div class="col-12"><label for="usuarioNombre" class="form-label">Nombre completo</label><input type="text" id="usuarioNombre" name="nombre" class="form-control" maxlength="120" autocomplete="name" placeholder="Ej.: María Pérez" required></div>
-            <div class="col-12 col-md-6"><label for="usuarioEmail" class="form-label">Correo electrónico</label><input type="email" id="usuarioEmail" name="email" class="form-control" autocomplete="email" placeholder="nombre@example.com" required></div>
-            <div class="col-12 col-md-6"><label for="usuarioRol" class="form-label">Rol</label><select id="usuarioRol" name="rol" class="form-select" required><option value="">Seleccionar rol</option><option value="paciente">Paciente</option><option value="doctor">Doctor</option><option value="administrador">Administrador</option></select></div>
-            <div class="col-12"><label for="usuarioPassword" class="form-label">Contraseña</label><input type="password" id="usuarioPassword" name="password" class="form-control" minlength="8" autocomplete="new-password" required><div class="form-text">Campo de demostración; no se guardará ni enviará la contraseña.</div></div>
+            <div class="col-12"><label for="usuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="usuarioNombre" name="nombre" class="form-control" maxlength="120" autocomplete="name" placeholder="Ej.: María Pérez" required></div>
+            <div class="col-12 col-md-6"><label for="usuarioEmail" class="form-label">Correo electrónico *</label><input type="email" id="usuarioEmail" name="email" class="form-control" autocomplete="email" placeholder="nombre@example.com" required></div>
+            <div class="col-12 col-md-6"><label for="usuarioRol" class="form-label">Rol *</label><select id="usuarioRol" name="rol" class="form-select" required><option value="">Seleccionar rol</option><option value="paciente">Paciente</option><option value="doctor">Doctor</option><option value="administrador" disabled>Administrador (pendiente de autorización)</option></select></div>
+            <div class="col-12"><label for="usuarioPassword" class="form-label">Contraseña *</label><input type="password" id="usuarioPassword" name="password" class="form-control" minlength="8" autocomplete="new-password" required><div class="form-text">Mínimo 8 caracteres. Se almacena como hash en MongoDB; no compartas contraseñas de cuentas reales.</div></div>
           </div>
         </div>
-        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Registrar usuario</button></div>
       </form>
     </div></div>
   </div>
   <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarUsuarioTitulo">Editar usuario de ejemplo</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form class="form-maqueta" action="#" method="post">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarUsuarioTitulo">Editar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <form id="formEditarUsuario" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">Prototipo de <code>PUT /api/usuarios/:id</code>: actualmente este endpoint permite modificar <code>nombre</code> y <code>email</code>. Aquí no se guardarán cambios.</p>
+          <p class="small text-muted-app">Se guardarán el nombre y el correo mediante <code>PUT /api/usuarios/:id</code>. El rol y la contraseña no se modifican desde este formulario.</p>
+          <div id="editarUsuarioError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
-            <div class="col-12"><label for="editarUsuarioNombre" class="form-label">Nombre completo</label><input type="text" id="editarUsuarioNombre" name="nombre" class="form-control" required></div>
-            <div class="col-12"><label for="editarUsuarioEmail" class="form-label">Correo electrónico</label><input type="email" id="editarUsuarioEmail" name="email" class="form-control" required></div>
-            <div class="col-12"><label for="editarUsuarioRol" class="form-label">Rol actual (solo lectura)</label><input type="text" id="editarUsuarioRol" class="form-control" disabled><div class="form-text">Cambiar roles aún no está contemplado en el endpoint de actualización.</div></div>
+            <div class="col-12"><label for="editarUsuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="editarUsuarioNombre" name="nombre" class="form-control" maxlength="120" required></div>
+            <div class="col-12"><label for="editarUsuarioEmail" class="form-label">Correo electrónico *</label><input type="email" id="editarUsuarioEmail" name="email" class="form-control" required></div>
+            <div class="col-12"><label for="editarUsuarioRol" class="form-label">Rol actual (solo lectura)</label><input type="text" id="editarUsuarioRol" class="form-control" readonly><div class="form-text">El endpoint actual no permite cambiar roles.</div></div>
           </div>
         </div>
-        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Guardar cambios</button></div>
       </form>
     </div></div>
   </div>
@@ -587,24 +577,104 @@
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, ' ');
     }
-    // Buscar y filtrar la tabla ilustrativa de usuarios (sin llamadas al backend).
+    // KAN-16: Consulta, registro y edición de usuarios con datos reales de MongoDB.
+    // No se modifica rol/estado. La API no tiene protección de permisos: uso local únicamente.
+    const API_USUARIOS = 'http://localhost:3000/api/usuarios';
+    const tablaUsuarios = document.querySelector('#tablaUsuarios tbody');
     const buscarUsuario = document.getElementById('buscarUsuario');
     const filtrarRolUsuario = document.getElementById('filtrarRolUsuario');
-    const filasUsuarios = [...document.querySelectorAll('#tablaUsuarios tbody tr[data-rol]')];
+    const avisoUsuarios = document.getElementById('avisoUsuarios');
+    const rolesUsuarios = {paciente:'Paciente', doctor:'Doctor', administrador:'Administrador'};
+    let idUsuarioEditando = null;
+
+    function avisarUsuarios(mensaje, tipo = 'info') {
+      avisoUsuarios.className = `alert alert-${tipo} small`;
+      avisoUsuarios.textContent = mensaje;
+    }
+
+    function errorUsuario(id, mensaje) {
+      const alerta = document.getElementById(id);
+      alerta.textContent = mensaje;
+      alerta.classList.toggle('d-none', !mensaje);
+    }
+
     function actualizarTablaUsuarios() {
       const termino = normalizarBusqueda(buscarUsuario.value);
       const rol = filtrarRolUsuario.value;
+      const filas = [...tablaUsuarios.querySelectorAll('tr[data-id]')];
       let visibles = 0;
-      filasUsuarios.forEach(fila => {
-        const coincideTexto = normalizarBusqueda(fila.dataset.nombre + ' ' + fila.dataset.email).includes(termino);
+      filas.forEach(fila => {
+        const coincideTexto = normalizarBusqueda(`${fila.dataset.nombre} ${fila.dataset.email}`).includes(termino);
         const coincideRol = rol === 'todos' || fila.dataset.rol === rol;
         const mostrar = coincideTexto && coincideRol;
         fila.classList.toggle('d-none', !mostrar);
         if (mostrar) visibles++;
       });
-      document.getElementById('contadorUsuarios').textContent = `${visibles} de ${filasUsuarios.length} usuarios de ejemplo`;
+      document.getElementById('contadorUsuarios').textContent = `${visibles} de ${filas.length} usuarios registrados`;
       document.getElementById('sinResultadosUsuarios').classList.toggle('d-none', visibles !== 0);
     }
+
+    function crearFilaUsuario(usuario) {
+      const fila = document.createElement('tr');
+      fila.dataset.id = usuario._id;
+      fila.dataset.nombre = usuario.nombre;
+      fila.dataset.email = usuario.email;
+      fila.dataset.rol = usuario.rol;
+      const nombre = document.createElement('td');
+      nombre.className = 'fw-semibold'; nombre.textContent = usuario.nombre;
+      const email = document.createElement('td'); email.textContent = usuario.email;
+      const rol = document.createElement('td');
+      const insignia = document.createElement('span');
+      insignia.className = 'badge-role';
+      insignia.textContent = rolesUsuarios[usuario.rol] || usuario.rol;
+      rol.append(insignia);
+      const acciones = document.createElement('td');
+      const editar = document.createElement('button');
+      editar.type = 'button'; editar.className = 'btn btn-sm btn-outline-app editar-usuario';
+      editar.textContent = 'Editar';
+      editar.dataset.bsToggle = 'modal'; editar.dataset.bsTarget = '#modalEditarUsuario';
+      acciones.append(editar);
+      fila.append(nombre, email, rol, acciones);
+      return fila;
+    }
+
+    async function cargarUsuariosDesdeAPI() {
+      avisarUsuarios('Consultando usuarios desde MongoDB...');
+      try {
+        const respuesta = await fetch(API_USUARIOS);
+        if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
+        const usuarios = await respuesta.json();
+        if (!Array.isArray(usuarios) || usuarios.some(usuario =>
+          !usuario || typeof usuario._id !== 'string' ||
+          typeof usuario.nombre !== 'string' || typeof usuario.email !== 'string' ||
+          typeof usuario.rol !== 'string')) {
+          throw new Error('La respuesta contiene usuarios con formato inválido.');
+        }
+        tablaUsuarios.replaceChildren(...usuarios.map(crearFilaUsuario));
+        actualizarTablaUsuarios();
+        document.getElementById('kpiUsuarios').textContent = String(usuarios.length);
+        avisarUsuarios(`${usuarios.length} usuario(s) cargado(s) desde MongoDB. Consulta, registro y edición disponibles.`, 'info');
+        return true;
+      } catch (error) {
+        console.error('Error al consultar usuarios:', error);
+        avisarUsuarios('No se pudieron cargar los usuarios. Comprueba que la API y MongoDB estén ejecutándose.', 'danger');
+        return false;
+      }
+    }
+
+    async function enviarUsuarioAPI(metodo, url, cuerpo) {
+      const respuesta = await fetch(url, {
+        method: metodo,
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(cuerpo)
+      });
+      const datos = await respuesta.json().catch(() => ({}));
+      if (!respuesta.ok) {
+        throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
+      }
+      return datos;
+    }
+
     buscarUsuario.addEventListener('input', actualizarTablaUsuarios);
     filtrarRolUsuario.addEventListener('change', actualizarTablaUsuarios);
     document.getElementById('limpiarFiltrosUsuario').addEventListener('click', () => {
@@ -613,15 +683,90 @@
       actualizarTablaUsuarios();
       buscarUsuario.focus();
     });
-    // Al seleccionar Editar, mostrar los datos de esa fila de demostración.
-    document.getElementById('modalEditarUsuario').addEventListener('show.bs.modal', event => {
-      const fila = event.relatedTarget?.closest('tr[data-rol]');
+
+    document.getElementById('modalCrearUsuario').addEventListener('show.bs.modal', () => {
+      document.getElementById('formCrearUsuario').reset();
+      errorUsuario('crearUsuarioError', '');
+    });
+
+    document.getElementById('formCrearUsuario').addEventListener('submit', async evento => {
+      evento.preventDefault();
+      const form = evento.currentTarget;
+      errorUsuario('crearUsuarioError', '');
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const nombre = document.getElementById('usuarioNombre').value.trim();
+      const email = document.getElementById('usuarioEmail').value.trim().toLowerCase();
+      const rol = document.getElementById('usuarioRol').value;
+      const password = document.getElementById('usuarioPassword').value;
+      if (!nombre || !email || password.length < 8 || !['paciente', 'doctor'].includes(rol)) {
+        errorUsuario('crearUsuarioError', 'Completa los campos correctamente. Solo se pueden registrar cuentas de paciente o doctor desde este panel.');
+        return;
+      }
+      const boton = form.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      boton.textContent = 'Registrando...';
+      try {
+        await enviarUsuarioAPI('POST', API_USUARIOS, {nombre, email, rol, password});
+        form.reset(); // No conservar la contraseña en la interfaz.
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCrearUsuario')).hide();
+        const actualizado = await cargarUsuariosDesdeAPI();
+        avisarUsuarios(actualizado
+          ? `La cuenta «${nombre}» se registró correctamente en MongoDB.`
+          : 'La cuenta se registró, pero no se pudo recargar la tabla. Comprueba la conexión.', actualizado ? 'success' : 'warning');
+      } catch (error) {
+        console.error('Error al registrar usuario:', error);
+        errorUsuario('crearUsuarioError', error.message || 'No se pudo registrar el usuario.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Registrar usuario';
+      }
+    });
+
+    document.getElementById('modalEditarUsuario').addEventListener('show.bs.modal', evento => {
+      const fila = evento.relatedTarget?.closest('tr[data-id]');
+      idUsuarioEditando = fila?.dataset.id || null;
+      errorUsuario('editarUsuarioError', '');
       if (!fila) return;
       document.getElementById('editarUsuarioNombre').value = fila.dataset.nombre;
       document.getElementById('editarUsuarioEmail').value = fila.dataset.email;
-      const etiqueta = {paciente:'Paciente', doctor:'Doctor', administrador:'Administrador'};
-      document.getElementById('editarUsuarioRol').value = etiqueta[fila.dataset.rol] || fila.dataset.rol;
+      document.getElementById('editarUsuarioRol').value = rolesUsuarios[fila.dataset.rol] || fila.dataset.rol;
     });
+    document.getElementById('modalEditarUsuario').addEventListener('hidden.bs.modal', () => {
+      idUsuarioEditando = null;
+    });
+
+    document.getElementById('formEditarUsuario').addEventListener('submit', async evento => {
+      evento.preventDefault();
+      const form = evento.currentTarget;
+      errorUsuario('editarUsuarioError', '');
+      if (!idUsuarioEditando) return;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const nombre = document.getElementById('editarUsuarioNombre').value.trim();
+      const email = document.getElementById('editarUsuarioEmail').value.trim().toLowerCase();
+      if (!nombre || !email) {
+        errorUsuario('editarUsuarioError', 'El nombre y el correo son obligatorios.');
+        return;
+      }
+      const boton = form.querySelector('button[type="submit"]');
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+      try {
+        await enviarUsuarioAPI('PUT', `${API_USUARIOS}/${encodeURIComponent(idUsuarioEditando)}`, {nombre, email});
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarUsuario')).hide();
+        const actualizado = await cargarUsuariosDesdeAPI();
+        avisarUsuarios(actualizado
+          ? `Los datos de «${nombre}» se actualizaron en MongoDB.`
+          : 'Los cambios se guardaron, pero no se pudo recargar la tabla.', actualizado ? 'success' : 'warning');
+      } catch (error) {
+        console.error('Error al editar usuario:', error);
+        errorUsuario('editarUsuarioError', error.message || 'No se pudo modificar el usuario.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Guardar cambios';
+      }
+    });
+
+    cargarUsuariosDesdeAPI();
     // KAN-9: listado, registro, edición y búsqueda con datos reales de MongoDB.
     const API_ESPECIALIDADES = 'http://localhost:3000/api/especialidades';
     const tablaEspecialidades = document.querySelector('#tablaEspecialidades tbody');
