@@ -72,16 +72,16 @@
             <div>
               <p class="eyebrow mb-1">Portal del doctor</p>
               <h1 class="page-title" id="resumenDoctorTitulo">Bienvenido, <span id="saludoDoctor">Doctor</span></h1>
-              <p class="page-intro mb-0">Organiza tu agenda, consulta horarios y revisa la actividad de demostración.</p>
+              <p class="page-intro mb-0">Consulta tus citas registradas y revisa los horarios de demostración.</p>
             </div>
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Prototipo visual:</strong> las citas, pacientes y disponibilidades de esta página son ficticios. No se leen ni modifican registros de MongoDB y no se guarda información clínica.</div>
-        <div class="row g-3" aria-label="Indicadores de demostración">
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0">3</p><span class="kpi-label">Datos ilustrativos</span></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0">2</p><span class="kpi-label">Solo demostración</span></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◯</span><div><p class="kpi-label mb-1">Pacientes de ejemplo</p><p class="kpi-value mb-0">5</p><span class="kpi-label">No son pacientes reales</span></div></div></div>
+        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; los formularios de atención, cambio de estado y disponibilidad continúan siendo vistas previas. Solo entorno académico local: la API aún no autoriza ni filtra por identidad en el servidor.</div>
+        <div class="row g-3" aria-label="Indicadores de agenda y horarios">
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◯</span><div><p class="kpi-label mb-1">Pacientes de ejemplo</p><p class="kpi-value mb-0" id="kpiPacientesDoctor">—</p><span class="kpi-label">Con citas registradas</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">＋</span><div><p class="kpi-label mb-1">Franjas de atención</p><p class="kpi-value mb-0">4</p><span class="kpi-label">Horarios ficticios</span></div></div></div>
         </div>
       </section>
@@ -89,7 +89,7 @@
       <section id="agenda" class="mb-4" aria-labelledby="agendaDoctorTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Citas de ejemplo para probar filtros, estados y visualización de detalles.</p></div>
+            <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Citas obtenidas de MongoDB asociadas al usuario doctor de esta sesión.</p></div>
             <div class="d-flex flex-wrap gap-2 align-items-center">
               <button type="button" class="btn btn-sm btn-outline-app btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalEstadoCitaDoctor">Actualizar estado (vista previa)</button>
               <a href="#disponibilidad" class="btn btn-sm btn-app-primary btn-mobile-wide">Consultar horarios</a>
@@ -102,23 +102,18 @@
               <div class="col-12 col-sm-6 col-md-3"><label for="filtrarFechaAgenda" class="form-label">Fecha</label><input id="filtrarFechaAgenda" class="form-control" type="date"></div>
               <div class="col-12 col-md-2"><button type="button" id="limpiarAgenda" class="btn btn-outline-app w-100">Limpiar</button></div>
             </div>
-            <p class="small text-muted-app mt-3 mb-0" id="contadorAgenda" role="status" aria-live="polite">5 citas de ejemplo</p>
+            <p class="small text-muted-app mt-3 mb-0" id="contadorAgenda" role="status" aria-live="polite">Cargando agenda...</p><div id="agendaAPIInfo" class="alert alert-info small mt-3" role="status" aria-live="polite">Conectando con la API...</div>
           </div>
           <div class="table-responsive doctor-table-scroll">
             <table class="table app-table doctor-table align-middle">
-              <caption class="visually-hidden">Agenda de citas ficticias del doctor</caption>
+              <caption class="visually-hidden">Agenda de citas del doctor consultadas desde la API</caption>
               <thead><tr><th scope="col">Paciente</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
               <tbody id="filasAgendaDoctor">
-                <tr data-busqueda="María López Pediatría" data-estado="pendiente" data-fecha="2026-11-04"><td class="fw-semibold">María López</td><td>Pediatría</td><td>04/11/2026</td><td>09:30</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td><td><button type="button" class="btn btn-sm btn-outline-app ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleDoctor" data-paciente="María López" data-especialidad="Pediatría" data-fecha="04/11/2026" data-hora="09:30" data-estado="Pendiente">Ver detalle</button></td></tr>
-                <tr data-busqueda="Mateo Solís Pediatría" data-estado="confirmada" data-fecha="2026-11-04"><td class="fw-semibold">Mateo Solís</td><td>Pediatría</td><td>04/11/2026</td><td>10:30</td><td><span class="badge-cita badge-cita-confirmada">Confirmada</span></td><td><button type="button" class="btn btn-sm btn-outline-app ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleDoctor" data-paciente="Mateo Solís" data-especialidad="Pediatría" data-fecha="04/11/2026" data-hora="10:30" data-estado="Confirmada">Ver detalle</button></td></tr>
-                <tr data-busqueda="Valeria Rojas Pediatría" data-estado="pendiente" data-fecha="2026-11-05"><td class="fw-semibold">Valeria Rojas</td><td>Pediatría</td><td>05/11/2026</td><td>14:00</td><td><span class="badge-cita badge-cita-pendiente">Pendiente</span></td><td><button type="button" class="btn btn-sm btn-outline-app ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleDoctor" data-paciente="Valeria Rojas" data-especialidad="Pediatría" data-fecha="05/11/2026" data-hora="14:00" data-estado="Pendiente">Ver detalle</button></td></tr>
-                <tr data-busqueda="Lucía Fernández Pediatría" data-estado="cancelada" data-fecha="2026-10-23"><td class="fw-semibold">Lucía Fernández</td><td>Pediatría</td><td>23/10/2026</td><td>11:00</td><td><span class="badge-cita badge-cita-cancelada">Cancelada</span></td><td><button type="button" class="btn btn-sm btn-outline-app ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleDoctor" data-paciente="Lucía Fernández" data-especialidad="Pediatría" data-fecha="23/10/2026" data-hora="11:00" data-estado="Cancelada">Ver detalle</button></td></tr>
-                <tr data-busqueda="Pablo Mora Pediatría" data-estado="completada" data-fecha="2026-10-25"><td class="fw-semibold">Pablo Mora</td><td>Pediatría</td><td>25/10/2026</td><td>08:00</td><td><span class="badge-cita badge-cita-completada">Completada</span></td><td><button type="button" class="btn btn-sm btn-outline-app ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleDoctor" data-paciente="Pablo Mora" data-especialidad="Pediatría" data-fecha="25/10/2026" data-hora="08:00" data-estado="Completada">Ver detalle</button></td></tr>
               </tbody>
             </table>
             <p class="doctor-empty m-3" id="agendaVacia" hidden>No se encontraron citas con esos filtros.</p>
           </div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Integración futura: consulta de citas asignadas al doctor autenticado, con permisos comprobados en el servidor. Las filas actuales son ficticias.</p></div>
+          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas y filtrada por el usuario de sesión en el navegador. Advertencia: el servidor todavía no impone permisos ni restringe la consulta por doctor; no exponer la API en Internet.</p></div>
         </div>
       </section>
 
@@ -140,13 +135,8 @@
 
       <section id="pacientes" class="mb-4" aria-labelledby="pacientesTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Lista ilustrativa</p><h2 class="section-title mb-1" id="pacientesTitulo">Mis pacientes</h2><p class="small text-muted-app mb-0">Personas ficticias que aparecen en la agenda de demostración; no es una base de datos clínica.</p></div>
-          <div class="app-card-body"><div class="row g-3">
-            <div class="col-12 col-md-6 col-xl-4"><div class="doctor-patient"><span class="doctor-avatar" aria-hidden="true">ML</span><div><h3 class="h6 mb-1">María López</h3><p class="small text-muted-app mb-0">Cita pendiente · 04/11/2026</p></div></div></div>
-            <div class="col-12 col-md-6 col-xl-4"><div class="doctor-patient"><span class="doctor-avatar" aria-hidden="true">MS</span><div><h3 class="h6 mb-1">Mateo Solís</h3><p class="small text-muted-app mb-0">Cita confirmada · 04/11/2026</p></div></div></div>
-            <div class="col-12 col-md-6 col-xl-4"><div class="doctor-patient"><span class="doctor-avatar" aria-hidden="true">VR</span><div><h3 class="h6 mb-1">Valeria Rojas</h3><p class="small text-muted-app mb-0">Cita pendiente · 05/11/2026</p></div></div></div>
-            <div class="col-12 col-md-6 col-xl-4"><div class="doctor-patient"><span class="doctor-avatar" aria-hidden="true">LF</span><div><h3 class="h6 mb-1">Lucía Fernández</h3><p class="small text-muted-app mb-0">Cita cancelada · 23/10/2026</p></div></div></div>
-            <div class="col-12 col-md-6 col-xl-4"><div class="doctor-patient"><span class="doctor-avatar" aria-hidden="true">PM</span><div><h3 class="h6 mb-1">Pablo Mora</h3><p class="small text-muted-app mb-0">Cita completada · 25/10/2026</p></div></div></div>
+          <div class="app-card-header"><p class="eyebrow mb-1">Citas vinculadas al doctor</p><h2 class="section-title mb-1" id="pacientesTitulo">Mis pacientes</h2><p class="small text-muted-app mb-0">Pacientes asociados a citas de este doctor. No se exponen historiales clínicos.</p></div>
+          <div class="app-card-body"><div class="row g-3" id="tarjetasPacientesDoctor">
           </div></div>
         </div>
       </section>
@@ -159,10 +149,10 @@
           </div>
           <div class="app-card-body">
             <div class="row align-items-end g-3">
-              <div class="col-12 col-md-7"><label for="consultaEjemplo" class="form-label">Selecciona una cita de ejemplo</label><select id="consultaEjemplo" class="form-select"><option value="">Selecciona una cita</option><option value="María López · 04/11/2026 · 09:30">María López — 04/11/2026 · 09:30</option><option value="Mateo Solís · 04/11/2026 · 10:30">Mateo Solís — 04/11/2026 · 10:30</option><option value="Valeria Rojas · 05/11/2026 · 14:00">Valeria Rojas — 05/11/2026 · 14:00</option></select></div>
+              <div class="col-12 col-md-7"><label for="consultaEjemplo" class="form-label">Selecciona una cita de la agenda</label><select id="consultaEjemplo" class="form-select"><option value="">Selecciona una cita</option></select></div>
               <div class="col-12 col-md-5"><button type="button" class="btn btn-outline-app w-100" id="verConsultaEjemplo">Ver consulta seleccionada</button></div>
             </div>
-            <p class="doctor-empty mt-3 mb-0" id="mensajeConsultaDoctor" role="status" aria-live="polite">Selecciona una cita para consultar su vista previa. No se muestran datos de salud reales ni se guardan anotaciones.</p>
+            <p class="doctor-empty mt-3 mb-0" id="mensajeConsultaDoctor" role="status" aria-live="polite">Selecciona una cita registrada para consultar su vista previa. No se guardan anotaciones médicas.</p>
           </div>
         </div>
       </section>
@@ -184,8 +174,8 @@
 
   <div class="modal fade" id="modalDetalleDoctor" tabindex="-1" aria-labelledby="detalleDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="detalleDoctorTitulo">Detalle de cita (demostración)</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <div class="modal-body"><p class="small text-muted-app">Información ficticia; no se consulta ningún expediente médico.</p><dl class="row g-2 doctor-detail-list mb-0"><dt class="col-5">Paciente</dt><dd class="col-7" id="detallePaciente"></dd><dt class="col-5">Especialidad</dt><dd class="col-7" id="detalleEspecialidad"></dd><dt class="col-5">Fecha</dt><dd class="col-7" id="detalleFecha"></dd><dt class="col-5">Hora</dt><dd class="col-7" id="detalleHora"></dd><dt class="col-5">Estado</dt><dd class="col-7" id="detalleEstado"></dd></dl></div>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="detalleDoctorTitulo">Detalle de cita</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body"><p class="small text-muted-app">Información de la cita obtenida desde la API; no se consulta ningún expediente clínico.</p><dl class="row g-2 doctor-detail-list mb-0"><dt class="col-5">Paciente</dt><dd class="col-7" id="detallePaciente"></dd><dt class="col-5">Especialidad</dt><dd class="col-7" id="detalleEspecialidad"></dd><dt class="col-5">Fecha</dt><dd class="col-7" id="detalleFecha"></dd><dt class="col-5">Hora</dt><dd class="col-7" id="detalleHora"></dd><dt class="col-5">Estado</dt><dd class="col-7" id="detalleEstado"></dd></dl></div>
       <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cerrar</button></div>
     </div></div>
   </div>
@@ -205,7 +195,7 @@
           <div class="mb-3">
             <label for="citaSeleccionadaEstado" class="form-label">Cita médica *</label>
             <select id="citaSeleccionadaEstado" class="form-select" required>
-              <option value="">Selecciona una cita de ejemplo</option>
+              <option value="">Selecciona una cita</option>
             </select>
           </div>
           <div id="datosCitaEstado" class="border rounded-3 p-3 mb-3" hidden>
@@ -258,9 +248,9 @@
             <div class="mb-3">
               <label for="atencionCita" class="form-label">Cita asociada *</label>
               <select id="atencionCita" name="cita" class="form-select" required>
-                <option value="">Selecciona una cita de ejemplo</option>
+                <option value="">Selecciona una cita</option>
               </select>
-              <div class="form-text">Se muestran citas ilustrativas no canceladas. La asociación real requerirá el ID de la cita en la API.</div>
+              <div class="form-text">Se muestran citas no canceladas de la agenda real; el registro de atención sigue siendo una vista previa sin persistencia.</div>
             </div>
             <div id="atencionDatosCita" class="border rounded-3 p-3 mb-3" hidden>
               <h3 class="h6 mb-3">Datos de la atención seleccionada</h3>
@@ -368,7 +358,7 @@
       return String(valor ?? '').trim().toLocaleLowerCase('es').normalize('NFD')
         .replace(/n\u0303/g, 'ñ').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
     }
-    const filasAgenda = [...document.querySelectorAll('#filasAgendaDoctor tr')];
+    const filasAgenda = [];
     const buscarAgenda = document.getElementById('buscarAgenda');
     const filtrarEstadoAgenda = document.getElementById('filtrarEstadoAgenda');
     const filtrarFechaAgenda = document.getElementById('filtrarFechaAgenda');
@@ -383,7 +373,7 @@
         fila.hidden = !mostrar;
         if (mostrar) visibles++;
       });
-      document.getElementById('contadorAgenda').textContent = `${visibles} de ${filasAgenda.length} citas de ejemplo`;
+      document.getElementById('contadorAgenda').textContent = `${visibles} de ${filasAgenda.length} citas del doctor`;
       document.getElementById('agendaVacia').hidden = visibles !== 0;
     }
     buscarAgenda.addEventListener('input', actualizarAgenda);
@@ -396,7 +386,8 @@
       actualizarAgenda();
     });
     document.getElementById('modalDetalleDoctor').addEventListener('show.bs.modal', evento => {
-      const datos = evento.relatedTarget.dataset;
+      const datos = evento.relatedTarget?.dataset;
+      if (!datos) return;
       for (const [campo, valor] of Object.entries({Paciente:'paciente', Especialidad:'especialidad', Fecha:'fecha', Hora:'hora', Estado:'estado'})) {
         document.getElementById('detalle' + campo).textContent = datos[valor];
       }
@@ -409,6 +400,163 @@
     const vistaEstadoPropuesto = document.getElementById('estadoPropuestoVista');
     const badgeEstadoPropuesto = document.getElementById('estadoPropuestoBadge');
     const nombresEstadoCita = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' };
+
+    // Paquete 05A — Lectura de agenda desde GET /api/citas.
+    // La sesión de Live Server no es un mecanismo de autorización; uso solo académico local.
+    function idDocumento(obj) {
+      return typeof obj === 'string' ? obj : (obj?._id || obj?.id || '');
+    }
+    function fechaPresentable(fecha) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha || '')) return String(fecha || '—');
+      const [y, m, d] = fecha.split('-');
+      return `${d}/${m}/${y}`;
+    }
+    function filaDesdeCita(cita) {
+      const paciente = cita.paciente?.nombre || 'Paciente no disponible';
+      const especialidad = cita.especialidad?.nombre || 'Sin especialidad';
+      const estado = nombresEstadoCita[cita.estado] ? cita.estado : 'pendiente';
+      const fila = document.createElement('tr');
+      fila.dataset.busqueda = `${paciente} ${especialidad}`;
+      fila.dataset.estado = estado;
+      fila.dataset.fecha = cita.fecha || '';
+      const celda = (valor, clase) => {
+        const td = document.createElement('td');
+        td.textContent = String(valor ?? '—');
+        if (clase) td.className = clase;
+        fila.appendChild(td);
+        return td;
+      };
+      celda(paciente, 'fw-semibold');
+      celda(especialidad);
+      celda(fechaPresentable(cita.fecha));
+      celda(cita.hora);
+      const estadoCelda = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge-cita badge-cita-${estado}`;
+      badge.textContent = nombresEstadoCita[estado];
+      estadoCelda.append(badge);
+      fila.append(estadoCelda);
+      const acciones = document.createElement('td');
+      const boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'btn btn-sm btn-outline-app ver-detalle';
+      boton.textContent = 'Ver detalle';
+      boton.setAttribute('data-bs-toggle', 'modal');
+      boton.setAttribute('data-bs-target', '#modalDetalleDoctor');
+      Object.assign(boton.dataset, {
+        paciente, especialidad, fecha: fechaPresentable(cita.fecha),
+        hora: cita.hora || '', estado: nombresEstadoCita[estado]
+      });
+      acciones.append(boton);
+      fila.append(acciones);
+      return fila;
+    }
+    function llenarSelector(selector, incluirCanceladas = false) {
+      selector.replaceChildren(new Option('Selecciona una cita', ''));
+      filasAgenda.forEach((fila, indice) => {
+        if (!incluirCanceladas && fila.dataset.estado === 'cancelada') return;
+        const datos = fila.querySelector('.ver-detalle').dataset;
+        selector.add(new Option(`${datos.paciente} — ${datos.fecha} · ${datos.hora}`, String(indice)));
+      });
+    }
+    function llenarPacientes(citas) {
+      const contenedor = document.getElementById('tarjetasPacientesDoctor');
+      contenedor.replaceChildren();
+      const vistos = new Set();
+      citas.forEach(cita => {
+        const id = idDocumento(cita.paciente);
+        if (!id || vistos.has(id)) return;
+        vistos.add(id);
+        const nombre = cita.paciente?.nombre || 'Paciente';
+        const col = document.createElement('div');
+        col.className = 'col-12 col-md-6 col-xl-4';
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'doctor-patient';
+        const avatar = document.createElement('span');
+        avatar.className = 'doctor-avatar';
+        avatar.setAttribute('aria-hidden', 'true');
+        avatar.textContent = nombre.split(/\s+/).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+        const grupo = document.createElement('div');
+        const h = document.createElement('h3');
+        h.className = 'h6 mb-1';
+        h.textContent = nombre;
+        const info = document.createElement('p');
+        info.className = 'small text-muted-app mb-0';
+        info.textContent = 'Paciente con cita registrada';
+        grupo.append(h, info);
+        tarjeta.append(avatar, grupo);
+        col.append(tarjeta);
+        contenedor.append(col);
+      });
+      if (!vistos.size) {
+        const p = document.createElement('p');
+        p.className = 'text-muted-app mb-0';
+        p.textContent = 'No hay pacientes asociados a citas de este doctor.';
+        contenedor.append(p);
+      }
+      document.getElementById('kpiPacientesDoctor').textContent = String(vistos.size);
+    }
+    async function cargarAgendaDesdeAPI() {
+      const usuarioId = sessionStorage.getItem('usuarioId');
+      const tabla = document.getElementById('filasAgendaDoctor');
+      const aviso = document.getElementById('agendaAPIInfo');
+      if (!usuarioId) {
+        aviso.className = 'alert alert-warning small mt-3';
+        aviso.textContent = 'No se encontró el ID de sesión. Inicia sesión nuevamente como doctor.';
+        return;
+      }
+      aviso.className = 'alert alert-info small mt-3';
+      aviso.textContent = 'Consultando agenda desde MongoDB...';
+      try {
+        const respuesta = await fetch('http://localhost:3000/api/citas');
+        if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
+        const lista = await respuesta.json();
+        if (!Array.isArray(lista)) throw new Error('La API no devolvió una lista de citas.');
+        const citas = lista
+          .filter(cita => idDocumento(cita.doctor) === usuarioId)
+          .sort((a,b) => `${a.fecha||''} ${a.hora||''}`.localeCompare(`${b.fecha||''} ${b.hora||''}`));
+        tabla.replaceChildren();
+        filasAgenda.splice(0, filasAgenda.length);
+        citas.forEach(cita => {
+          const fila = filaDesdeCita(cita);
+          tabla.append(fila);
+          filasAgenda.push(fila);
+        });
+        llenarSelector(seleccionarCitaEstado, true);
+        llenarSelector(atencionCita);
+        const seleccionConsulta = document.getElementById('consultaEjemplo');
+        llenarSelector(seleccionConsulta);
+        // El selector de consulta usa las etiquetas de la agenda, sin guardar notas clínicas.
+        seleccionConsulta.querySelectorAll('option').forEach(opcion => {
+          if (!opcion.value) return;
+          const d = filasAgenda[Number(opcion.value)].querySelector('.ver-detalle').dataset;
+          opcion.value = `${d.paciente} · ${d.fecha} · ${d.hora}`;
+        });
+        llenarPacientes(citas);
+        const partesHoy = new Intl.DateTimeFormat('es-CR', {timeZone:'America/Costa_Rica',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+        const valorHoy = tipo => partesHoy.find(parte => parte.type === tipo)?.value || '';
+        const hoy = `${valorHoy('year')}-${valorHoy('month')}-${valorHoy('day')}`;
+        document.getElementById('kpiProximasDoctor').textContent = String(citas.filter(c => c.fecha >= hoy && ['pendiente','confirmada'].includes(c.estado)).length);
+        document.getElementById('kpiPendientesDoctor').textContent = String(citas.filter(c => c.estado === 'pendiente').length);
+        actualizarAgenda();
+        aviso.className = 'alert alert-info small mt-3';
+        aviso.textContent = `${citas.length} cita(s) vinculada(s) al doctor de esta sesión. El filtro se aplica en el navegador; la API aún no aplica permisos de acceso.`;
+      } catch (error) {
+        tabla.replaceChildren();
+        filasAgenda.splice(0);
+        llenarSelector(seleccionarCitaEstado, true);
+        llenarSelector(atencionCita);
+        llenarSelector(document.getElementById('consultaEjemplo'));
+        llenarPacientes([]);
+        document.getElementById('kpiProximasDoctor').textContent = '—';
+        document.getElementById('kpiPendientesDoctor').textContent = '—';
+        actualizarAgenda();
+        aviso.className = 'alert alert-danger small mt-3';
+        aviso.textContent = 'No se pudo consultar la agenda. Comprueba la API y MongoDB.';
+        console.error('Error al consultar la agenda:', error);
+      }
+    }
+
     filasAgenda.forEach((fila, indice) => {
       const datos = fila.querySelector('.ver-detalle').dataset;
       const opcion = document.createElement('option');
@@ -547,8 +695,10 @@
       const seleccion = document.getElementById('consultaEjemplo').value;
       document.getElementById('mensajeConsultaDoctor').textContent = seleccion
         ? `Consulta seleccionada: ${seleccion}. Vista previa solamente: no existe expediente clínico ni registro de atención funcional.`
-        : 'Selecciona primero una cita de ejemplo para ver su información.';
+        : 'Selecciona primero una cita de la agenda para ver su información.';
     });
+    cargarAgendaDesdeAPI();
+
     // Evita mantener foco dentro de modales que quedan ocultos.
     document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('hide.bs.modal', () => {
       if (modal.contains(document.activeElement)) document.activeElement.blur();
