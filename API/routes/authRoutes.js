@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
+const { crearSesion, requerirSesion, cerrarSesion } = require("../middleware/sesiones");
 
 const router = express.Router();
 
@@ -45,6 +46,7 @@ router.post("/login", async (req, res) => {
         // Login correcto
         res.status(200).json({
             mensaje: "Inicio de sesión exitoso.",
+            token: crearSesion(usuario),
             usuario: {
                 id: usuario._id,
                 nombre: usuario.nombre,
@@ -148,5 +150,7 @@ router.put("/restablecer-password", async (req, res) => {
     }
 });
 
+
+router.post("/logout", requerirSesion, cerrarSesion);
 
 module.exports = router;

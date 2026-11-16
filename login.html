@@ -267,6 +267,9 @@
                         sessionStorage.setItem("rolUsuario", datos.usuario.rol);
                         sessionStorage.setItem("usuarioId", datos.usuario.id);
                         sessionStorage.setItem("nombreUsuario", datos.usuario.nombre);
+                        // Sesión temporal para los endpoints de atención médica.
+                        if (datos.token) sessionStorage.setItem("tokenAtencion", datos.token);
+                        else sessionStorage.removeItem("tokenAtencion");
 
                         // Redirección según rol
                         if (datos.usuario.rol === "paciente") {
