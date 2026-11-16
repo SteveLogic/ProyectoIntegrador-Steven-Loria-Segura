@@ -486,12 +486,12 @@
   <!-- Modal de registro real de cita -->
   <div class="modal fade" id="modalNuevaCita" tabindex="-1" aria-labelledby="modalCitaTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalCitaTitulo">Nueva cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form id="formNuevaCita" novalidate><div class="modal-body"><p class="small text-muted-app">Registro de cita en MongoDB mediante <code>POST /api/citas</code>. Selecciona una fecha y hora futuras; la API comprueba conflictos de horario.</p><div id="errorNuevaCita" class="alert alert-warning d-none" role="alert"></div><div class="row g-3">
+      <form id="formNuevaCita" novalidate><div class="modal-body"><p class="small text-muted-app">Registro de cita en MongoDB mediante <code>POST /api/citas</code>. Elige doctor y fecha para consultar franjas libres de 30 minutos. La API valida la disponibilidad.</p><div id="errorNuevaCita" class="alert alert-warning d-none" role="alert"></div><div class="row g-3">
         <div class="col-12 col-md-6"><label for="citaPaciente" class="form-label">Paciente</label><select name="paciente" id="citaPaciente" class="form-select" required><option value="">Seleccione un paciente</option></select></div>
         <div class="col-12 col-md-6"><label for="citaDoctor" class="form-label">Doctor</label><select name="doctor" id="citaDoctor" class="form-select" required><option value="">Seleccione un doctor</option></select></div>
         <div class="col-12 col-md-6"><label for="citaEspecialidad" class="form-label">Especialidad</label><select name="especialidad" id="citaEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
         <div class="col-6 col-md-3"><label for="citaFecha" class="form-label">Fecha</label><input type="date" class="form-control" name="fecha" id="citaFecha" required></div>
-        <div class="col-6 col-md-3"><label for="citaHora" class="form-label">Hora</label><input type="time" class="form-control" name="hora" id="citaHora" required></div>
+        <div class="col-6 col-md-3"><label for="citaHora" class="form-label">Hora</label><select class="form-select" name="hora" id="citaHora" required disabled><option value="">Selecciona doctor y fecha</option></select></div>
         <div class="col-12"><label for="citaMotivo" class="form-label">Motivo de consulta</label><textarea name="motivo" id="citaMotivo" class="form-control" maxlength="500" rows="3"></textarea></div>
       </div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Registrar cita</button></div></form>
     </div></div>
@@ -507,9 +507,9 @@
             <div class="col-12 col-sm-6"><label for="reprogramarPaciente" class="form-label">Paciente (solo lectura)</label><input id="reprogramarPaciente" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarDoctor" class="form-label">Doctor (solo lectura)</label><input id="reprogramarDoctor" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarFecha" class="form-label">Nueva fecha</label><input id="reprogramarFecha" type="date" name="fecha" class="form-control" required></div>
-            <div class="col-12 col-sm-6"><label for="reprogramarHora" class="form-label">Nueva hora</label><input id="reprogramarHora" type="time" name="hora" class="form-control" required></div>
+            <div class="col-12 col-sm-6"><label for="reprogramarHora" class="form-label">Nueva hora</label><select id="reprogramarHora" name="hora" class="form-select" required disabled><option value="">Selecciona una fecha</option></select></div>
           </div>
-          <div class="alert alert-light border small mt-3 mb-0" role="note">La hora solicitada no está garantizada hasta que la API acepte el cambio.</div>
+          <div class="alert alert-light border small mt-3 mb-0" role="note">Se muestran franjas libres. La API verifica nuevamente al guardar.</div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Guardar reprogramación</button></div>
       </form>
@@ -989,7 +989,8 @@ function crearBotonAccionCita(texto, accion, cita) {
       document.getElementById('reprogramarDoctor').value = nombreRelacion(cita.doctor);
       document.getElementById('reprogramarFecha').min = hoyEnCostaRica();
           document.getElementById('reprogramarFecha').value = cita.fecha;
-      document.getElementById('reprogramarHora').value = cita.hora;
+      doctorReprogramacionId = idRelacion(cita.doctor);
+      cargarSlotsReprogramacionAdmin(cita.hora);
       ponerAlertaCita(document.getElementById('errorReprogramarCita'), '');
       bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarCita')).show();
     } else {
@@ -1116,8 +1117,62 @@ const formNuevaCita = document.getElementById('formNuevaCita');
 const citaPaciente = document.getElementById('citaPaciente');
 const citaDoctor = document.getElementById('citaDoctor');
 const citaEspecialidad = document.getElementById('citaEspecialidad');
+const citaHoraSelect = document.getElementById('citaHora');
+let solicitudHorariosAdmin=0;
+async function consultarHorariosAdmin({doctor,fecha,excluirCita}) {
+  const parametros=new URLSearchParams({doctor,fecha});
+  if(excluirCita)parametros.set('excluirCita',excluirCita);
+  return pedirJSONCitas(`http://localhost:3000/api/disponibilidad/slots?${parametros}`);
+}
+async function cargarSlotsCitaAdmin() {
+  const solicitud=++solicitudHorariosAdmin;
+  const doctor=citaDoctor.value,fecha=document.getElementById('citaFecha').value;
+  citaHoraSelect.disabled=true;
+  citaHoraSelect.replaceChildren(new Option('Selecciona doctor y fecha',''));
+  if(!doctor||!fecha)return;
+  try {
+    const datos=await consultarHorariosAdmin({doctor,fecha});
+    if(solicitud!==solicitudHorariosAdmin)return;
+    const libres=(datos.horarios||[]).filter(h=>h.disponible);
+    citaHoraSelect.replaceChildren(new Option(libres.length?'Seleccione un horario libre':'Sin horarios disponibles',''));
+    libres.forEach(h=>citaHoraSelect.add(new Option(h.hora,h.hora)));
+    citaHoraSelect.disabled=libres.length===0;
+  }catch(error){
+    if(solicitud!==solicitudHorariosAdmin)return;
+    citaHoraSelect.replaceChildren(new Option('Error al consultar horarios',''));
+    ponerAlertaCita(document.getElementById('errorNuevaCita'),error.message);
+  }
+}
+citaDoctor.addEventListener('change',cargarSlotsCitaAdmin);
+document.getElementById('citaFecha').addEventListener('change',cargarSlotsCitaAdmin);
+let doctorReprogramacionId=null;
+let solicitudReprogramacionAdmin=0;
+async function cargarSlotsReprogramacionAdmin(horaPreferida='') {
+  const solicitud=++solicitudReprogramacionAdmin;
+  const horaSelect=document.getElementById('reprogramarHora');
+  const fecha=document.getElementById('reprogramarFecha').value;
+  horaSelect.disabled=true;
+  horaSelect.replaceChildren(new Option('Consultando horarios...',''));
+  if(!doctorReprogramacionId||!fecha||!idCitaSeleccionada)return;
+  try {
+    const datos=await consultarHorariosAdmin({doctor:doctorReprogramacionId,fecha,excluirCita:idCitaSeleccionada});
+    if(solicitud!==solicitudReprogramacionAdmin)return;
+    const libres=(datos.horarios||[]).filter(h=>h.disponible);
+    horaSelect.replaceChildren(new Option(libres.length?'Seleccione un horario libre':'Sin horarios disponibles',''));
+    libres.forEach(h=>horaSelect.add(new Option(h.hora,h.hora)));
+    if(horaPreferida&&libres.some(h=>h.hora===horaPreferida))horaSelect.value=horaPreferida;
+    horaSelect.disabled=libres.length===0;
+  }catch(error){
+    if(solicitud!==solicitudReprogramacionAdmin)return;
+    horaSelect.replaceChildren(new Option('Error al consultar horarios',''));
+    ponerAlertaCita(document.getElementById('errorReprogramarCita'),error.message);
+  }
+}
+document.getElementById('reprogramarFecha').addEventListener('change',()=>cargarSlotsReprogramacionAdmin());
+
 modalNuevaCita.addEventListener('show.bs.modal', async () => {
   formNuevaCita.reset();
+  cargarSlotsCitaAdmin();
   ponerAlertaCita(document.getElementById('errorNuevaCita'), '');
   citaPaciente.disabled = citaDoctor.disabled = citaEspecialidad.disabled = true;
   citaPaciente.replaceChildren(new Option('Cargando pacientes...', ''));
@@ -1153,6 +1208,7 @@ citaEspecialidad.addEventListener('change', () => {
     citaDoctor.add(new Option(nombreRelacion(p.usuario), idRelacion(p.usuario)));
   });
   citaDoctor.disabled = !especialidadId;
+  cargarSlotsCitaAdmin();
 });
 formNuevaCita.addEventListener('submit', async event => {
   event.preventDefault();

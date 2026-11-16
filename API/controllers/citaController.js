@@ -4,6 +4,7 @@ const Cita = require("../models/Cita");
 const Usuario = require("../models/Usuario");
 const Especialidad = require("../models/Especialidad");
 const Doctor = require("../models/Doctor");
+const {evaluarHorario} = require("../utils/horarios");
 
 // Fecha/hora local de Costa Rica (UTC-6); validar formato, día real y futuro.
 function horarioValido(fecha, hora) {
@@ -88,18 +89,10 @@ const crearCita = async (req, res) => {
             });
         }
 
-        // Verificar que el doctor no tenga una cita en ese horario
-        const citaExistente = await Cita.exists({
-            doctor,
-            fecha,
-            hora,
-            estado: { $ne: "cancelada" }
-        });
-
-        if (citaExistente) {
-            return res.status(409).json({
-                mensaje: "El doctor ya tiene una cita en ese horario."
-            });
+        // Exigir franja semanal válida y bloquear citas solapadas de 30 minutos.
+        const verificacion = await evaluarHorario({doctor,fecha,hora});
+        if (!verificacion.valido) {
+            return res.status(verificacion.codigo).json({mensaje:verificacion.mensaje});
         }
 
         // Registrar la cita en MongoDB
@@ -228,19 +221,10 @@ const reprogramarCita = async (req, res) => {
             });
         }
 
-        // Comprobar conflictos de horario con otras citas
-        const conflicto = await Cita.exists({
-            _id: { $ne: cita._id },
-            doctor: cita.doctor,
-            fecha,
-            hora,
-            estado: { $ne: "cancelada" }
-        });
-
-        if (conflicto) {
-            return res.status(409).json({
-                mensaje: "El doctor ya tiene una cita en ese horario."
-            });
+        // Reprogramar solo dentro de una franja y sin solaparse con otras citas.
+        const verificacion = await evaluarHorario({doctor:cita.doctor,fecha,hora,excluirCita:cita._id});
+        if (!verificacion.valido) {
+            return res.status(verificacion.codigo).json({mensaje:verificacion.mensaje});
         }
 
         // Guardar la nueva fecha y hora

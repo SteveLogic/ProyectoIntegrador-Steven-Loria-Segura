@@ -72,17 +72,17 @@
             <div>
               <p class="eyebrow mb-1">Portal del doctor</p>
               <h1 class="page-title" id="resumenDoctorTitulo">Bienvenido, <span id="saludoDoctor">Doctor</span></h1>
-              <p class="page-intro mb-0">Consulta tus citas registradas y revisa los horarios de demostración.</p>
+              <p class="page-intro mb-0">Consulta tus citas registradas y configura tu disponibilidad real de atención.</p>
             </div>
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; los formularios de atención, cambio de estado y disponibilidad continúan siendo vistas previas. Solo entorno académico local: la API aún no autoriza ni filtra por identidad en el servidor.</div>
+        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; los formularios de atención y cambio de estado siguen siendo vistas previas; la disponibilidad se guarda en MongoDB. Solo entorno académico local: la API aún no autoriza ni filtra por identidad en el servidor.</div>
         <div class="row g-3" aria-label="Indicadores de agenda y horarios">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◯</span><div><p class="kpi-label mb-1">Pacientes de ejemplo</p><p class="kpi-value mb-0" id="kpiPacientesDoctor">—</p><span class="kpi-label">Con citas registradas</span></div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">＋</span><div><p class="kpi-label mb-1">Franjas de atención</p><p class="kpi-value mb-0">4</p><span class="kpi-label">Horarios ficticios</span></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◯</span><div><p class="kpi-label mb-1">Pacientes vinculados</p><p class="kpi-value mb-0" id="kpiPacientesDoctor">—</p><span class="kpi-label">Con citas registradas</span></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">＋</span><div><p class="kpi-label mb-1">Franjas de atención</p><p class="kpi-value mb-0" id="kpiFranjasDoctor">—</p><span class="kpi-label">Horarios semanales</span></div></div></div>
         </div>
       </section>
 
@@ -120,16 +120,11 @@
       <section id="disponibilidad" class="mb-4" aria-labelledby="disponibilidadTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div><p class="eyebrow mb-1">Horario de atención</p><h2 class="section-title mb-1" id="disponibilidadTitulo">Mi disponibilidad</h2><p class="small text-muted-app mb-0">Días y franjas horarias de ejemplo para mostrar cómo funcionará la gestión.</p></div>
+            <div><p class="eyebrow mb-1">Horario de atención</p><h2 class="section-title mb-1" id="disponibilidadTitulo">Mi disponibilidad</h2><p class="small text-muted-app mb-0">Franjas semanales reales registradas en MongoDB. Citas de 30 minutos.</p></div>
             <button class="btn btn-sm btn-app-primary btn-mobile-wide" type="button" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="nuevo">+ Nueva franja</button>
           </div>
-          <div class="app-card-body"><div class="row g-3" id="franjasDoctor">
-            <div class="col-12 col-md-6 col-xl-3"><div class="doctor-slot h-100"><div><p class="eyebrow mb-2">Lunes</p><h3 class="h6 mb-2">09:00 – 12:00</h3><span class="badge-soft">Horario de ejemplo</span></div><button type="button" class="btn btn-sm btn-outline-app mt-3" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="editar" data-dia="lunes" data-inicio="09:00" data-fin="12:00">Editar vista previa</button></div></div>
-            <div class="col-12 col-md-6 col-xl-3"><div class="doctor-slot h-100"><div><p class="eyebrow mb-2">Martes</p><h3 class="h6 mb-2">14:00 – 17:00</h3><span class="badge-soft">Horario de ejemplo</span></div><button type="button" class="btn btn-sm btn-outline-app mt-3" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="editar" data-dia="martes" data-inicio="14:00" data-fin="17:00">Editar vista previa</button></div></div>
-            <div class="col-12 col-md-6 col-xl-3"><div class="doctor-slot h-100"><div><p class="eyebrow mb-2">Miércoles</p><h3 class="h6 mb-2">09:00 – 12:00</h3><span class="badge-soft">Horario de ejemplo</span></div><button type="button" class="btn btn-sm btn-outline-app mt-3" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="editar" data-dia="miercoles" data-inicio="09:00" data-fin="12:00">Editar vista previa</button></div></div>
-            <div class="col-12 col-md-6 col-xl-3"><div class="doctor-slot h-100"><div><p class="eyebrow mb-2">Viernes</p><h3 class="h6 mb-2">08:00 – 11:00</h3><span class="badge-soft">Horario de ejemplo</span></div><button type="button" class="btn btn-sm btn-outline-app mt-3" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="editar" data-dia="viernes" data-inicio="08:00" data-fin="11:00">Editar vista previa</button></div></div>
-          </div></div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">La disponibilidad real, los conflictos de horario y los cambios de agenda todavía no se almacenan ni verifican con la API.</p></div>
+          <div class="app-card-body"><div class="alert alert-info small" id="avisoDisponibilidadDoctor" role="status">Cargando disponibilidad...</div><div class="row g-3" id="franjasDoctor"></div></div>
+          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Los horarios se almacenan en MongoDB. Una franja debe estar alineada a medias horas y no puede superponerse con otra. Los cambios no cancelan citas ya registradas.</p></div>
         </div>
       </section>
 
@@ -298,13 +293,122 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalHorarioDoctorTitulo">Nueva franja de atención</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formHorarioDoctor">
         <div class="modal-body">
-          <p class="small text-muted-app">Prototipo de gestión de disponibilidad. Los cambios no se guardan ni afectan las reservas.</p>
+          <p class="small text-muted-app">Crea o edita una franja semanal de atención. Se guardará en MongoDB.</p>
           <div class="mb-3"><label class="form-label" for="horarioDia">Día de la semana</label><select class="form-select" id="horarioDia" required><option value="">Selecciona un día</option><option value="lunes">Lunes</option><option value="martes">Martes</option><option value="miercoles">Miércoles</option><option value="jueves">Jueves</option><option value="viernes">Viernes</option><option value="sabado">Sábado</option><option value="domingo">Domingo</option></select></div>
-          <div class="row g-3"><div class="col-6"><label class="form-label" for="horarioInicio">Hora de inicio</label><input class="form-control" type="time" id="horarioInicio" required></div><div class="col-6"><label class="form-label" for="horarioFin">Hora de fin</label><input class="form-control" type="time" id="horarioFin" required></div></div>
-          <p class="small text-muted-app mt-3 mb-0">La disponibilidad real requiere validar superposiciones y permisos desde el servidor.</p>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label" for="horarioInicio">Hora de inicio</label>
+              <select class="form-select" id="horarioInicio" required>
+                <option value="" selected disabled>Seleccionar hora</option>
+                <option value="00:00">00:00</option>
+                <option value="00:30">00:30</option>
+                <option value="01:00">01:00</option>
+                <option value="01:30">01:30</option>
+                <option value="02:00">02:00</option>
+                <option value="02:30">02:30</option>
+                <option value="03:00">03:00</option>
+                <option value="03:30">03:30</option>
+                <option value="04:00">04:00</option>
+                <option value="04:30">04:30</option>
+                <option value="05:00">05:00</option>
+                <option value="05:30">05:30</option>
+                <option value="06:00">06:00</option>
+                <option value="06:30">06:30</option>
+                <option value="07:00">07:00</option>
+                <option value="07:30">07:30</option>
+                <option value="08:00">08:00</option>
+                <option value="08:30">08:30</option>
+                <option value="09:00">09:00</option>
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+                <option value="17:30">17:30</option>
+                <option value="18:00">18:00</option>
+                <option value="18:30">18:30</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+                <option value="20:30">20:30</option>
+                <option value="21:00">21:00</option>
+                <option value="21:30">21:30</option>
+                <option value="22:00">22:00</option>
+                <option value="22:30">22:30</option>
+                <option value="23:00">23:00</option>
+                <option value="23:30">23:30</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="horarioFin">Hora de fin</label>
+              <select class="form-select" id="horarioFin" required>
+                <option value="" selected disabled>Seleccionar hora</option>
+                <option value="00:00">00:00</option>
+                <option value="00:30">00:30</option>
+                <option value="01:00">01:00</option>
+                <option value="01:30">01:30</option>
+                <option value="02:00">02:00</option>
+                <option value="02:30">02:30</option>
+                <option value="03:00">03:00</option>
+                <option value="03:30">03:30</option>
+                <option value="04:00">04:00</option>
+                <option value="04:30">04:30</option>
+                <option value="05:00">05:00</option>
+                <option value="05:30">05:30</option>
+                <option value="06:00">06:00</option>
+                <option value="06:30">06:30</option>
+                <option value="07:00">07:00</option>
+                <option value="07:30">07:30</option>
+                <option value="08:00">08:00</option>
+                <option value="08:30">08:30</option>
+                <option value="09:00">09:00</option>
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+                <option value="17:30">17:30</option>
+                <option value="18:00">18:00</option>
+                <option value="18:30">18:30</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+                <option value="20:30">20:30</option>
+                <option value="21:00">21:00</option>
+                <option value="21:30">21:30</option>
+                <option value="22:00">22:00</option>
+                <option value="22:30">22:30</option>
+                <option value="23:00">23:00</option>
+                <option value="23:30">23:30</option>
+              </select>
+            </div>
+          </div>
+          <p class="small text-muted-app mt-3 mb-0">Horarios de 30 minutos, por ejemplo 09:00–12:00. El servidor valida superposiciones.</p>
           <div class="alert alert-light border mt-3 mb-0" id="mensajeHorarioDoctor" role="status" aria-live="polite" hidden></div>
         </div>
-        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Validar vista previa</button></div>
+        <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Guardar horario</button></div>
       </form>
     </div></div>
   </div>
@@ -673,24 +777,111 @@
       }
       mensajeRegistroAtencion.textContent = `Vista previa validada: se preparó un registro de atención de ejemplo para ${datos.paciente}, asociado a su cita del ${datos.fecha} a las ${datos.hora}. No se guardó ningún expediente ni se enviaron datos a la API.`;
     });
-    document.getElementById('modalHorarioDoctor').addEventListener('show.bs.modal', evento => {
-      const datos = evento.relatedTarget.dataset;
-      document.getElementById('modalHorarioDoctorTitulo').textContent = datos.modo === 'editar' ? 'Editar franja (demostración)' : 'Nueva franja de atención';
-      document.getElementById('horarioDia').value = datos.dia || '';
-      document.getElementById('horarioInicio').value = datos.inicio || '';
-      document.getElementById('horarioFin').value = datos.fin || '';
-      document.getElementById('mensajeHorarioDoctor').hidden = true;
+    // Paquete 05B — franjas de disponibilidad semanales persistentes.
+    const doctorHorarioId = sessionStorage.getItem('usuarioId');
+    const API_HORARIOS = 'http://localhost:3000/api/disponibilidad';
+    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const indiceDias = {domingo:0,lunes:1,martes:2,miercoles:3,jueves:4,viernes:5,sabado:6};
+    let franjasRegistradas = [];
+    let franjaEnEdicion = null;
+    const avisoFranjas = document.getElementById('avisoDisponibilidadDoctor');
+    const modalFranjas = document.getElementById('modalHorarioDoctor');
+
+    function notificarFranjas(mensaje, tipo = 'info') {
+      avisoFranjas.className = `alert alert-${tipo} small`;
+      avisoFranjas.textContent = mensaje;
+    }
+    async function solicitarFranjas(url, opciones) {
+      const r = await fetch(url, opciones);
+      const datos = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(datos.mensaje || `Error HTTP ${r.status}`);
+      return datos;
+    }
+    async function cargarFranjasDoctor() {
+      if (!doctorHorarioId) {
+        notificarFranjas('No se encontró una sesión de doctor. Inicia sesión nuevamente.', 'danger');
+        return;
+      }
+      try {
+        franjasRegistradas = await solicitarFranjas(`${API_HORARIOS}?doctor=${encodeURIComponent(doctorHorarioId)}`);
+        if (!Array.isArray(franjasRegistradas)) throw new Error('Respuesta de disponibilidad inválida.');
+        const contenedor = document.getElementById('franjasDoctor');
+        contenedor.replaceChildren();
+        franjasRegistradas.forEach(franja => {
+          const columna = document.createElement('div');
+          columna.className = 'col-12 col-md-6 col-xl-3';
+          const tarjeta = document.createElement('div');
+          tarjeta.className = 'doctor-slot h-100';
+          const titulo = document.createElement('h3');
+          titulo.className = 'h6 mb-2';
+          titulo.textContent = nombresDias[franja.diaSemana];
+          const horario = document.createElement('p');
+          horario.className = 'mb-2';
+          horario.textContent = `${franja.horaInicio} – ${franja.horaFin}`;
+          const acciones = document.createElement('div');
+          acciones.className = 'd-flex flex-wrap gap-2';
+          const editar = document.createElement('button');
+          editar.type='button'; editar.className='btn btn-sm btn-outline-app';editar.textContent='Editar';
+          editar.addEventListener('click', () => {
+            franjaEnEdicion = franja._id;
+            document.getElementById('horarioDia').value = Object.keys(indiceDias).find(k=>indiceDias[k]===franja.diaSemana);
+            document.getElementById('horarioInicio').value=franja.horaInicio;
+            document.getElementById('horarioFin').value=franja.horaFin;
+            document.getElementById('modalHorarioDoctorTitulo').textContent='Editar franja de atención';
+            document.getElementById('mensajeHorarioDoctor').hidden=true;
+            bootstrap.Modal.getOrCreateInstance(modalFranjas).show();
+          });
+          const eliminar = document.createElement('button');
+          eliminar.type='button';eliminar.className='btn btn-sm btn-outline-danger';eliminar.textContent='Eliminar';
+          eliminar.addEventListener('click', async () => {
+            if (!confirm('¿Eliminar esta franja semanal? Las citas existentes no se cancelarán.')) return;
+            eliminar.disabled=true;
+            try {
+              await solicitarFranjas(`${API_HORARIOS}/${encodeURIComponent(franja._id)}`,{method:'DELETE'});
+              await cargarFranjasDoctor();
+              notificarFranjas('Franja eliminada de MongoDB.', 'success');
+            } catch(error) {notificarFranjas(error.message,'danger');eliminar.disabled=false;}
+          });
+          acciones.append(editar, eliminar);
+          tarjeta.append(titulo,horario,acciones);columna.append(tarjeta);contenedor.append(columna);
+        });
+        document.getElementById('kpiFranjasDoctor').textContent=String(franjasRegistradas.length);
+        notificarFranjas(franjasRegistradas.length
+          ? `${franjasRegistradas.length} franja(s) semanal(es) registradas en MongoDB.`
+          : 'Todavía no has registrado horarios. Pulsa «Nueva franja» para habilitar reservas.');
+      }catch(error){notificarFranjas(`No se pudo cargar la disponibilidad: ${error.message}`,'danger');}
+    }
+    modalFranjas.addEventListener('show.bs.modal', evento => {
+      if (evento.relatedTarget?.dataset.modo !== 'nuevo') return;
+      franjaEnEdicion=null;
+      document.getElementById('formHorarioDoctor').reset();
+      document.getElementById('modalHorarioDoctorTitulo').textContent='Nueva franja de atención';
+      document.getElementById('mensajeHorarioDoctor').hidden=true;
     });
-    document.getElementById('formHorarioDoctor').addEventListener('submit', evento => {
+    document.getElementById('formHorarioDoctor').addEventListener('submit', async evento => {
       evento.preventDefault();
-      const inicio = document.getElementById('horarioInicio').value;
-      const fin = document.getElementById('horarioFin').value;
-      const aviso = document.getElementById('mensajeHorarioDoctor');
-      aviso.hidden = false;
-      aviso.textContent = fin <= inicio
-        ? 'La hora de fin debe ser posterior a la hora de inicio.'
-        : 'Vista previa validada. No se guardó ningún horario. La API deberá verificar superposiciones antes de registrar.';
+      const formulario=evento.currentTarget;
+      if (!formulario.reportValidity())return;
+      const aviso=document.getElementById('mensajeHorarioDoctor');
+      const boton=formulario.querySelector('button[type="submit"]');
+      const diaSemana=indiceDias[document.getElementById('horarioDia').value];
+      const horaInicio=document.getElementById('horarioInicio').value;
+      const horaFin=document.getElementById('horarioFin').value;
+      boton.disabled=true;
+      try {
+        const ruta=franjaEnEdicion ? `${API_HORARIOS}/${encodeURIComponent(franjaEnEdicion)}` : API_HORARIOS;
+        await solicitarFranjas(ruta,{
+          method:franjaEnEdicion?'PUT':'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({doctor:doctorHorarioId,diaSemana,horaInicio,horaFin})
+        });
+        bootstrap.Modal.getOrCreateInstance(modalFranjas).hide();
+        await cargarFranjasDoctor();
+        notificarFranjas('Horario guardado correctamente en MongoDB.','success');
+      }catch(error){aviso.hidden=false;aviso.className='alert alert-danger mt-3 mb-0';aviso.textContent=error.message;}
+      finally {boton.disabled=false;}
     });
+    cargarFranjasDoctor();
     document.getElementById('verConsultaEjemplo').addEventListener('click', () => {
       const seleccion = document.getElementById('consultaEjemplo').value;
       document.getElementById('mensajeConsultaDoctor').textContent = seleccion
