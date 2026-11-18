@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
-const { crearSesion, requerirSesion, cerrarSesion } = require("../middleware/sesiones");
+const { crearSesion, requerirSesion, cerrarSesion, cerrarSesionesDeUsuario } = require("../middleware/sesiones");
 
 const router = express.Router();
 
@@ -121,6 +121,8 @@ router.put("/cambiar-password", requerirSesion, async (req, res) => {
 
         usuario.password = await bcrypt.hash(nuevaPassword, 10);
         await usuario.save();
+
+        cerrarSesionesDeUsuario(usuario._id);
 
         return res.status(200).json({
             mensaje: "Contraseña actualizada correctamente. Vuelve a iniciar sesión."

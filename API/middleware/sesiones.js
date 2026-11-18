@@ -48,4 +48,19 @@ function cerrarSesion(req, res) {
   res.json({ mensaje: 'Sesión cerrada.' });
 }
 
-module.exports = { crearSesion, requerirSesion, requerirDoctor, cerrarSesion };
+function cerrarSesionesDeUsuario(usuarioId) {
+  const id = String(usuarioId);
+  let sesionesCerradas = 0;
+
+  for (const [clave, sesion] of sesiones) {
+    if (sesion.usuarioId === id) {
+      sesiones.delete(clave);
+      sesionesCerradas++;
+    }
+  }
+
+  return sesionesCerradas;
+}
+
+
+module.exports = { crearSesion, requerirSesion, requerirDoctor, cerrarSesion, cerrarSesionesDeUsuario };
