@@ -9,27 +9,34 @@ const {
     cancelarCita
 } = require("../controllers/citaController");
 
-const { requerirSesion, requerirDoctor } = require("../middleware/sesiones");
+const {
+    requerirSesion,
+    requerirDoctor
+} = require("../middleware/sesiones");
+
 const { completarCita } = require("../controllers/atencionController");
 
 const router = express.Router();
 
-// Registrar una nueva cita médica
+// Todas las operaciones de citas requieren una sesión válida.
+router.use(requerirSesion);
+
+// Registrar una nueva cita médica.
 router.post("/", crearCita);
 
-// Consultar todas las citas médicas
+// Consultar citas según los permisos del usuario.
 router.get("/", obtenerCitas);
 
-// Consultar una cita por ID
+// Consultar una cita por ID.
 router.get("/:id", obtenerCitaPorId);
 
-// Marcar una cita pasada como completada (solo doctor asignado autenticado)
-router.patch("/:id/completar", requerirSesion, requerirDoctor, completarCita);
+// Completar una cita: únicamente el doctor asignado.
+router.patch("/:id/completar", requerirDoctor, completarCita);
 
-// Reprogramar una cita médica
+// Reprogramar una cita.
 router.put("/:id", reprogramarCita);
 
-// Cancelar una cita médica (eliminación lógica)
+// Cancelar una cita.
 router.delete("/:id", cancelarCita);
 
 module.exports = router;

@@ -75,7 +75,7 @@
       </div>
       <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
         <span aria-hidden="true">ⓘ</span>
-        <div><strong>Integración en progreso:</strong> usuarios, doctores, especialidades y citas consultan MongoDB. La API aún no implementa autorización de acceso por rol; utilice exclusivamente el entorno local.</div>
+        <div><strong>Integración en progreso:</strong> usuarios, doctores, especialidades y citas consultan MongoDB. Las rutas de citas ya aplican autorización por rol; los demás módulos están pendientes de revisión de seguridad. Utilice exclusivamente el entorno local.</div>
       </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
@@ -247,7 +247,7 @@
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Registrar cita</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB.</strong> La consulta, el registro, la reprogramación y la cancelación utilizan la API. Solo para pruebas locales: el servidor todavía no controla permisos por usuario.</div>
+            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB.</strong> La consulta, el registro, la reprogramación y la cancelación utilizan la API.Las operaciones de citas utilizan autenticación y permisos por rol en el servidor. Entorno académico local. </div>
             <div id="avisoCitas" class="alert alert-info small" role="status" aria-live="polite">Cargando citas desde la API...</div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas">
               <div class="col-12 col-lg-5">
@@ -1068,12 +1068,35 @@ function actualizarProximasCitas() {
   });
   resumen.append(lista);
 }
+
 async function pedirJSONCitas(url, opciones = {}) {
-  const respuesta = await fetch(url, opciones);
+  const token = sessionStorage.getItem('tokenAtencion');
+
+  if (!token) {
+    throw new Error('Debes iniciar sesión nuevamente.');
+  }
+
+  const headers = {
+    ...(opciones.headers || {}),
+    Authorization: `Bearer ${token}`
+  };
+
+  const respuesta = await fetch(url, {
+    ...opciones,
+    headers
+  });
+
   const datos = await respuesta.json().catch(() => ({}));
-  if (!respuesta.ok) throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`
+    );
+  }
+
   return datos;
 }
+
 async function cargarCitasAdmin() {
   mostrarAvisoCitas('Consultando citas en MongoDB...');
   try {

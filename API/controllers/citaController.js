@@ -37,6 +37,24 @@ const crearCita = async (req, res) => {
             });
         }
 
+        // Comprobar permisos para registrar citas.
+        const { usuarioId, rol } = req.sesion;
+
+        if (rol !== "paciente" && rol !== "administrador") {
+            return res.status(403).json({
+                mensaje: "No tienes permiso para registrar citas."
+            });
+        }
+
+        // Un paciente solamente puede reservar citas para sí mismo.
+        if (rol === "paciente" && String(paciente) !== usuarioId) {
+            return res.status(403).json({
+                mensaje: "No puedes registrar citas para otro paciente."
+            });
+        }
+
+
+
         // Validar los identificadores de MongoDB
         if (![paciente, doctor, especialidad].every(
             id => mongoose.isValidObjectId(id)
@@ -126,21 +144,39 @@ const crearCita = async (req, res) => {
 
 
  // Consultar todas las citas médicas
+
 const obtenerCitas = async (req, res) => {
     try {
-        const citas = await Cita.find()
+        const { usuarioId, rol } = req.sesion;
+
+        const filtro = {};
+
+        if (rol === "paciente") {
+            filtro.paciente = usuarioId;
+        } else if (rol === "doctor") {
+            filtro.doctor = usuarioId;
+        } else if (rol !== "administrador") {
+            return res.status(403).json({
+                mensaje: "No tienes permiso para consultar las citas."
+            });
+        }
+
+        const citas = await Cita.find(filtro)
             .populate("paciente", "nombre email rol")
             .populate("doctor", "nombre email rol")
             .populate("especialidad", "nombre descripcion activo");
 
-        res.status(200).json(citas);
+        return res.status(200).json(citas);
 
     } catch (error) {
-        res.status(500).json({
+        console.error("Error al consultar citas:", error);
+
+        return res.status(500).json({
             mensaje: "Error interno al consultar las citas."
         });
     }
 };
+
 
 
  // Consultar una cita médica por ID
@@ -166,6 +202,26 @@ const obtenerCitaPorId = async (req, res) => {
                 mensaje: "Cita médica no encontrada."
             });
         }
+
+        const { usuarioId, rol } = req.sesion;
+
+        const esPacientePropietario =
+            rol === "paciente" &&
+            String(cita.paciente?._id) === usuarioId;
+
+        const esDoctorAsignado =
+            rol === "doctor" &&
+            String(cita.doctor?._id) === usuarioId;
+
+        const esAdministrador = rol === "administrador";
+
+        if (!esPacientePropietario && !esDoctorAsignado && !esAdministrador) {
+            return res.status(403).json({
+                mensaje: "No tienes permiso para consultar esta cita."
+            });
+        }
+
+
 
         res.status(200).json(cita);
 
@@ -213,6 +269,22 @@ const reprogramarCita = async (req, res) => {
                 mensaje: "Cita médica no encontrada."
             });
         }
+
+        // Verificar autorización antes de modificar la cita.
+        const { usuarioId, rol } = req.sesion;
+
+        const esPacientePropietario =
+            rol === "paciente" &&
+            String(cita.paciente) === usuarioId;
+
+        const esAdministrador = rol === "administrador";
+
+        if (!esPacientePropietario && !esAdministrador) {
+            return res.status(403).json({
+                mensaje: "No tienes permiso para reprogramar esta cita."
+            });
+        }
+
 
         // No permitir reprogramar citas cerradas
         if (["cancelada", "completada"].includes(cita.estado)) {
@@ -276,6 +348,22 @@ const cancelarCita = async (req, res) => {
                 mensaje: "Cita médica no encontrada."
             });
         }
+
+        // Verificar autorización antes de cancelar la cita.
+        const { usuarioId, rol } = req.sesion;
+
+        const esPacientePropietario =
+            rol === "paciente" &&
+            String(cita.paciente) === usuarioId;
+
+        const esAdministrador = rol === "administrador";
+
+        if (!esPacientePropietario && !esAdministrador) {
+            return res.status(403).json({
+                mensaje: "No tienes permiso para cancelar esta cita."
+            });
+        }
+
 
         // Evitar cancelar una cita que ya fue cancelada
         if (cita.estado === "cancelada") {

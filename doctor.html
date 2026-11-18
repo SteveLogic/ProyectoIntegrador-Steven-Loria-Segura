@@ -77,7 +77,7 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; el registro de atención utiliza una API de prueba con sesión temporal y la disponibilidad se guarda en MongoDB. El cambio general de estado sigue siendo vista previa. Solo entorno académico local: la API aún no autoriza ni filtra por identidad en el servidor.</div>
+        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; el registro de atención utiliza una API de prueba con sesión temporal y la disponibilidad se guarda en MongoDB. El cambio general de estado sigue siendo vista previa. Solo entorno académico local: las rutas de citas y atención médica aplican controles de sesión y permisos en el servidor; otros módulos siguen en desarrollo.</div>
         <div class="row g-3" aria-label="Indicadores de agenda y horarios">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
@@ -113,7 +113,7 @@
             </table>
             <p class="doctor-empty m-3" id="agendaVacia" hidden>No se encontraron citas con esos filtros.</p>
           </div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas y filtrada por el usuario de sesión en el navegador. Advertencia: el servidor todavía no impone permisos ni restringe la consulta por doctor; no exponer la API en Internet.</p></div>
+          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas. El servidor devuelve únicamente las citas asignadas al doctor autenticado; los filtros de búsqueda se aplican en el navegador. Uso académico local.</p></div>
         </div>
       </section>
 
@@ -637,7 +637,19 @@
       aviso.className = 'alert alert-info small mt-3';
       aviso.textContent = 'Consultando agenda desde MongoDB...';
       try {
-        const respuesta = await fetch('http://localhost:3000/api/citas');
+
+        const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+          throw new Error('Debes iniciar sesión nuevamente.');
+        }
+
+        const respuesta = await fetch('http://localhost:3000/api/citas', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
         if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
         const lista = await respuesta.json();
         if (!Array.isArray(lista)) throw new Error('La API no devolvió una lista de citas.');
@@ -662,7 +674,7 @@
         document.getElementById('kpiPendientesDoctor').textContent = String(citas.filter(c => c.estado === 'pendiente').length);
         actualizarAgenda();
         aviso.className = 'alert alert-info small mt-3';
-        aviso.textContent = `${citas.length} cita(s) vinculada(s) al doctor de esta sesión. El filtro se aplica en el navegador; la API aún no aplica permisos de acceso.`;
+        aviso.textContent = `${citas.length} cita(s) vinculada(s) al doctor de esta sesión. El servidor restringe las citas al doctor autenticado; los filtros de búsqueda se aplican en el navegador.`;
       } catch (error) {
         tabla.replaceChildren();
         filasAgenda.splice(0);

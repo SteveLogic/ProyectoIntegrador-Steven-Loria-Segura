@@ -73,7 +73,7 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#reservarCita">+ Solicitar cita</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3" role="note"><strong>Integración académica local:</strong> doctores, especialidades y citas se consultan desde MongoDB. Las operaciones se guardan mediante la API. La reserva ahora consulta franjas semanales de disponibilidad real y evita horarios ocupados. <strong>No usar con datos médicos reales:</strong> falta autorización de acceso en el servidor.</div>
+        <div class="alert alert-light border mt-3" role="note"><strong>Integración académica local:</strong> doctores, especialidades y citas se consultan desde MongoDB. Las operaciones se guardan mediante la API. La reserva ahora consulta franjas semanales de disponibilidad real y evita horarios ocupados. <strong>No usar con datos médicos reales:</strong> las rutas de citas ya verifican la sesión y los permisos del usuario, pero otros módulos aún requieren revisión de seguridad.</div>
         <div class="row g-3" aria-label="Resumen ilustrativo">
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value" id="resumenProximasCitas">—</div><div class="kpi-label">Pendientes o confirmadas</div></div></div></div>
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value" id="resumenEspecialidades">—</div><div class="kpi-label">Especialidades activas</div></div></div></div>
@@ -134,7 +134,7 @@
             </tbody></table>
           </div>
           <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas registradas que coincidan con tu búsqueda.</p>
-          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. <strong>Solo para entorno académico local:</strong> la API aún no autentica ni restringe las citas por usuario en el servidor; el filtro del navegador no proporciona seguridad.</p></div>
+          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. <strong>Solo para entorno académico local:</strong> las rutas de citas requieren autenticación y el servidor restringe las consultas y modificaciones según los permisos de cada usuario.</p></div>
         </div>
       </section>
       <!-- KAN-141: maqueta de notificaciones; no existe todavía un modelo Notificación en la API. -->
@@ -306,12 +306,35 @@
     let citasPaciente = [];
     let citaSeleccionada = null;
 
+
     async function peticionCitas(ruta, opciones = {}) {
-      const respuesta = await fetch(`${API_CITAS}${ruta}`, opciones);
+      const token = sessionStorage.getItem('tokenAtencion');
+
+      if (!token) {
+        throw new Error('Debes iniciar sesión nuevamente.');
+      }
+
+      const headers = {
+        ...(opciones.headers || {}),
+        Authorization: `Bearer ${token}`
+      };
+
+      const respuesta = await fetch(`${API_CITAS}${ruta}`, {
+        ...opciones,
+        headers
+      });
+
       const datos = await respuesta.json().catch(() => ({}));
-      if (!respuesta.ok) throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
+
+      if (!respuesta.ok) {
+        throw new Error(
+          datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`
+        );
+      }
+
       return datos;
     }
+
     function fechaLocalHoy() {
       const ahora = new Date();
       const anio = ahora.getFullYear();
