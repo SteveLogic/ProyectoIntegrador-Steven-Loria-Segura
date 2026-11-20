@@ -4,6 +4,22 @@ const Doctor = require('../models/Doctor');
 const {intervaloValido, minutos, solapan, fechaCorrecta, listarSlots} = require('../utils/horarios');
 
 const idValido = value => typeof value === 'string' && mongoose.isValidObjectId(value);
+const puedeModificarHorario = (req, doctorId) => {
+    const sesion = req.sesion;
+
+    if (!sesion) return false;
+
+    if (sesion.rol === 'administrador') {
+        return true;
+    }
+
+    return (
+        sesion.rol === 'doctor' &&
+        Boolean(sesion.usuarioId) &&
+        Boolean(doctorId) &&
+        String(sesion.usuarioId) === String(doctorId)
+    );
+};
 const errorServidor = res => res.status(500).json({mensaje:'Error al consultar o modificar la disponibilidad.'});
 
 async function listar(req,res) {
@@ -17,6 +33,11 @@ async function listar(req,res) {
 async function crear(req,res) {
   try {
     const {doctor,diaSemana,horaInicio,horaFin}=req.body;
+    if (!puedeModificarHorario(req, doctor)) {
+    return res.status(403).json({
+        mensaje: 'No tienes permiso para crear horarios de este doctor.'
+    });
+    }
     if (!idValido(doctor) || !Number.isInteger(diaSemana) || diaSemana<0 || diaSemana>6 || !intervaloValido(horaInicio,horaFin)) {
       return res.status(400).json({mensaje:'Indica doctor, día y horas válidas, alineadas a intervalos de 30 minutos.'});
     }
@@ -35,6 +56,11 @@ async function editar(req,res) {
     if (!idValido(req.params.id)) return res.status(400).json({mensaje:'Identificador inválido.'});
     const actual = await Disponibilidad.findById(req.params.id);
     if (!actual)return res.status(404).json({mensaje:'Franja no encontrada.'});
+    if (!puedeModificarHorario(req, actual.doctor)) {
+    return res.status(403).json({
+        mensaje: 'No tienes permiso para modificar este horario.'
+    });
+    }
     const {diaSemana,horaInicio,horaFin}=req.body;
     if(!Number.isInteger(diaSemana)||diaSemana<0||diaSemana>6||!intervaloValido(horaInicio,horaFin)){
       return res.status(400).json({mensaje:'Día u horas inválidas: utiliza intervalos de 30 minutos.'});
@@ -48,14 +74,53 @@ async function editar(req,res) {
     return res.json({mensaje:'Franja actualizada correctamente.',franja:actual});
   }catch(e){if(e.code===11000)return res.status(409).json({mensaje:'Horario de inicio duplicado.'});console.error(e);return errorServidor(res);}
 }
-async function eliminar(req,res){
-  try{
-    if(!idValido(req.params.id))return res.status(400).json({mensaje:'Identificador inválido.'});
-    const borrada=await Disponibilidad.findByIdAndDelete(req.params.id);
-    if(!borrada)return res.status(404).json({mensaje:'Franja no encontrada.'});
-    return res.json({mensaje:'Franja eliminada correctamente. Las citas existentes permanecen registradas.'});
-  }catch(e){console.error(e);return errorServidor(res);}
+
+async function eliminar(req, res) {
+    try {
+        if (!idValido(req.params.id)) {
+            return res.status(400).json({
+                mensaje: 'Identificador inválido.'
+            });
+        }
+
+        // Primero consultar la franja existente.
+        const actual = await Disponibilidad.findById(req.params.id);
+
+        if (!actual) {
+            return res.status(404).json({
+                mensaje: 'Franja no encontrada.'
+            });
+        }
+
+        // Comprobar el propietario antes de eliminar.
+        if (!puedeModificarHorario(req, actual.doctor)) {
+            return res.status(403).json({
+                mensaje: 'No tienes permiso para eliminar este horario.'
+            });
+        }
+
+        // Eliminar únicamente la franja identificada y su propietario.
+        const borrada = await Disponibilidad.findOneAndDelete({
+            _id: actual._id,
+            doctor: actual.doctor
+        });
+
+        if (!borrada) {
+            return res.status(404).json({
+                mensaje: 'Franja no encontrada.'
+            });
+        }
+
+        return res.json({
+            mensaje: 'Franja eliminada correctamente. Las citas existentes permanecen registradas.'
+        });
+
+    } catch (error) {
+        console.error(error);
+        return errorServidor(res);
+    }
 }
+
 async function slots(req,res){
   try{
     const {doctor,fecha,excluirCita}=req.query;

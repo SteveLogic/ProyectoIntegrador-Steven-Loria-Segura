@@ -3,29 +3,55 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  crearDoctor,
-  listarDoctores,
-  obtenerDoctorPorId,
-  actualizarDoctor,
-  desactivarDoctor,
-  asignarEspecialidadDoctor
+    crearDoctor,
+    listarDoctores,
+    obtenerDoctorPorId,
+    actualizarDoctor,
+    desactivarDoctor,
+    asignarEspecialidadDoctor
 } = require("../controllers/doctorController");
 
-// Registrar un perfil médico
-router.post("/", crearDoctor);
+const {
+    requerirSesion,
+    requerirAdministrador
+} = require("../middleware/sesiones");
 
-// Listar todos los doctores
+// Consultar todos los doctores (público)
 router.get("/", listarDoctores);
 
-// Consultar un doctor por ID
+// Consultar un doctor por ID (público)
 router.get("/:id", obtenerDoctorPorId);
 
-router.put("/:id/especialidad", asignarEspecialidadDoctor);
+// Registrar un perfil médico (solo administrador)
+router.post(
+    "/",
+    requerirSesion,
+    requerirAdministrador,
+    crearDoctor
+);
 
-// Actualizar la información profesional
-router.put("/:id", actualizarDoctor);
+// Asignar especialidad (solo administrador)
+router.put(
+    "/:id/especialidad",
+    requerirSesion,
+    requerirAdministrador,
+    asignarEspecialidadDoctor
+);
 
-// Desactivar un doctor (eliminación lógica)
-router.delete("/:id", desactivarDoctor);
+// Actualizar información profesional (solo administrador)
+router.put(
+    "/:id",
+    requerirSesion,
+    requerirAdministrador,
+    actualizarDoctor
+);
+
+// Desactivar doctor (solo administrador)
+router.delete(
+    "/:id",
+    requerirSesion,
+    requerirAdministrador,
+    desactivarDoctor
+);
 
 module.exports = router;

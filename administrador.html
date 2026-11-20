@@ -872,17 +872,32 @@
     }
 
     async function enviarEspecialidadAPI(metodo, url, cuerpo) {
-      const respuesta = await fetch(url, {
-        method: metodo,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cuerpo)
-      });
-      const datos = await respuesta.json().catch(() => ({}));
-      if (!respuesta.ok) {
-        throw new Error(datos.mensaje || `No se pudo guardar la especialidad (HTTP ${respuesta.status}).`);
-      }
-      return datos;
+    const token = sessionStorage.getItem('tokenAtencion');
+
+    if (!token) {
+        throw new Error('Debes iniciar sesión nuevamente.');
     }
+
+    const respuesta = await fetch(url, {
+        method: metodo,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(cuerpo)
+    });
+
+    const datos = await respuesta.json().catch(() => ({}));
+
+    if (!respuesta.ok) {
+        throw new Error(
+            datos.mensaje ||
+            `No se pudo guardar la especialidad (HTTP ${respuesta.status}).`
+        );
+    }
+
+    return datos;
+}
     function datosFormularioEspecialidad(nombreId, descripcionId, errorId) {
       const nombre = document.getElementById(nombreId).value.trim();
       const descripcion = document.getElementById(descripcionId).value.trim();
@@ -1660,13 +1675,19 @@ cargarCitasAdmin();
     botonGuardar.textContent = 'Guardando doctor...';
 
     try {
+      const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+            throw new Error('Debes iniciar sesión nuevamente.');
+        }
         // Enviar los datos a nuestra API REST
         const respuesta = await fetch(
             'http://localhost:3000/api/doctores',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     usuario,
@@ -1764,16 +1785,35 @@ cargarCitasAdmin();
       edicionDoctorPreparada = false;
     });
 
+
     async function enviarCambioDoctor(url, cuerpo) {
-      const respuesta = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cuerpo)
-      });
-      const datos = await respuesta.json().catch(() => ({}));
-      if (!respuesta.ok) throw new Error(datos.mensaje || `La API devolvió un error (${respuesta.status}).`);
-      return datos;
-    }
+        const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+            throw new Error('Debes iniciar sesión nuevamente.');
+        }
+
+        const respuesta = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(cuerpo)
+        });
+
+        const datos = await respuesta.json().catch(() => ({}));
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje ||
+                `La API devolvió un error (${respuesta.status}).`
+            );
+        }
+
+        return datos;
+}
+
 
     campoDoctor('formEditarDoctor').addEventListener('submit', async evento => {
       evento.preventDefault();

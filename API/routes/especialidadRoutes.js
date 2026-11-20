@@ -7,24 +7,44 @@ const {
     obtenerEspecialidadPorId,
     actualizarEspecialidad,
     desactivarEspecialidad
-
 } = require("../controllers/especialidadController");
+
+// Middleware de autenticación y autorización
+const {
+    requerirSesion,
+    requerirAdministrador
+} = require("../middleware/sesiones");
 
 const router = express.Router();
 
-// Crear especialidad médica
-router.post("/", crearEspecialidad);
-
-// Consultar todas las especialidades
+// Consultar todas las especialidades (público)
 router.get("/", obtenerEspecialidades);
 
-// Consultar especialidad por ID
+// Consultar especialidad por ID (público)
 router.get("/:id", obtenerEspecialidadPorId);
 
-// Actualizar especialidad médica
-router.put("/:id", actualizarEspecialidad);
+// Crear especialidad (solo administrador)
+router.post(
+    "/",
+    requerirSesion,
+    requerirAdministrador,
+    crearEspecialidad
+);
 
-// Desactivar especialidad médica
-router.delete("/:id", desactivarEspecialidad);
+// Actualizar especialidad (solo administrador)
+router.put(
+    "/:id",
+    requerirSesion,
+    requerirAdministrador,
+    actualizarEspecialidad
+);
+
+// Desactivar especialidad (solo administrador)
+router.delete(
+    "/:id",
+    requerirSesion,
+    requerirAdministrador,
+    desactivarEspecialidad
+);
 
 module.exports = router;

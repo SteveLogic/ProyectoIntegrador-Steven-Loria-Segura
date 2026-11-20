@@ -913,12 +913,35 @@
       avisoFranjas.className = `alert alert-${tipo} small`;
       avisoFranjas.textContent = mensaje;
     }
-    async function solicitarFranjas(url, opciones) {
-      const r = await fetch(url, opciones);
-      const datos = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(datos.mensaje || `Error HTTP ${r.status}`);
-      return datos;
+
+    async function solicitarFranjas(url, opciones = {}) {
+        const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+            throw new Error('Debes iniciar sesión nuevamente.');
+        }
+
+        const headers = {
+            ...(opciones.headers || {}),
+            Authorization: `Bearer ${token}`
+        };
+
+        const r = await fetch(url, {
+            ...opciones,
+            headers
+        });
+
+        const datos = await r.json().catch(() => ({}));
+
+        if (!r.ok) {
+            throw new Error(
+                datos.mensaje || `Error HTTP ${r.status}`
+            );
+        }
+
+        return datos;
     }
+
     async function cargarFranjasDoctor() {
       if (!doctorHorarioId) {
         notificarFranjas('No se encontró una sesión de doctor. Inicia sesión nuevamente.', 'danger');
