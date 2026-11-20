@@ -62,5 +62,16 @@ function cerrarSesionesDeUsuario(usuarioId) {
   return sesionesCerradas;
 }
 
+function requerirAdministrador(req, res, next) {
+    if (req.sesion?.rol !== "administrador") {
+        return res.status(403).json({
+            mensaje: "Solo un administrador puede realizar esta operación."
+        });
+    }
 
-module.exports = { crearSesion, requerirSesion, requerirDoctor, cerrarSesion, cerrarSesionesDeUsuario };
+    next();
+}
+
+
+
+module.exports = { crearSesion, requerirSesion, requerirDoctor, cerrarSesion, cerrarSesionesDeUsuario, requerirAdministrador };

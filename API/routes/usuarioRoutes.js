@@ -9,7 +9,16 @@ const {
     eliminarUsuario
 } = require("../controllers/usuarioController");
 
+const {
+    requerirSesion,
+    requerirAdministrador
+} = require("../middleware/sesiones");
+
 const router = express.Router();
+
+// Todas las rutas de usuarios requieren
+// una sesión válida con rol administrador.
+router.use(requerirSesion, requerirAdministrador);
 
 // Crear usuario
 router.post("/", crearUsuario);

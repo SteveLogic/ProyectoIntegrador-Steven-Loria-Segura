@@ -57,6 +57,102 @@ router.post("/login", async (req, res) => {
     }
 });
 
+/**
+ * Registro público de pacientes.
+ * El rol siempre se asigna en el servidor.
+ */
+router.post("/registro-paciente", async (req, res) => {
+    try {
+        const { nombre, email, password } = req.body || {};
+
+        if (
+            typeof nombre !== "string" ||
+            typeof email !== "string" ||
+            typeof password !== "string"
+        ) {
+            return res.status(400).json({
+                mensaje: "Todos los campos son obligatorios."
+            });
+        }
+
+        const nombreLimpio = nombre.trim();
+        const emailLimpio = email.trim().toLowerCase();
+
+        if (!nombreLimpio || nombreLimpio.length > 100) {
+            return res.status(400).json({
+                mensaje: "El nombre debe tener entre 1 y 100 caracteres."
+            });
+        }
+
+        if (
+            emailLimpio.length > 150 ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio)
+        ) {
+            return res.status(400).json({
+                mensaje: "Ingresa un correo electrónico válido."
+            });
+        }
+
+        const passwordValida =
+            password.length >= 8 &&
+            Buffer.byteLength(password, "utf8") <= 72 &&
+            /[A-Z]/.test(password) &&
+            /[a-z]/.test(password) &&
+            /[0-9]/.test(password);
+
+        if (!passwordValida) {
+            return res.status(400).json({
+                mensaje: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número, y no superar 72 bytes."
+            });
+        }
+
+        const existente = await Usuario.findOne({
+            email: emailLimpio
+        });
+
+        if (existente) {
+            return res.status(409).json({
+                mensaje: "El correo electrónico ya está registrado."
+            });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const nuevoUsuario = new Usuario({
+            nombre: nombreLimpio,
+            email: emailLimpio,
+            password: passwordHash,
+            rol: "paciente"
+        });
+
+        const usuarioGuardado = await nuevoUsuario.save();
+
+        return res.status(201).json({
+            mensaje: "Cuenta de paciente creada correctamente.",
+            usuario: {
+                id: usuarioGuardado._id,
+                nombre: usuarioGuardado.nombre,
+                email: usuarioGuardado.email,
+                rol: usuarioGuardado.rol
+            }
+        });
+
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({
+                mensaje: "El correo electrónico ya está registrado."
+            });
+        }
+
+        console.error("Error al registrar paciente:", error);
+
+        return res.status(500).json({
+            mensaje: "No se pudo completar el registro."
+        });
+    }
+});
+
+
 // Temporal: deshabilitada hasta implementar verificación de identidad por correo.
 // Conocer una dirección de email no demuestra que se es dueño de la cuenta.
 router.post("/verificar-correo", (req, res) => {

@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { validarAtencion, fechaCitaYaPaso } = require('../utils/validacionAtencion');
-const { crearSesion, requerirSesion, requerirDoctor, cerrarSesion } = require('../middleware/sesiones');
+const { crearSesion, requerirSesion, requerirDoctor, cerrarSesion, requerirAdministrador } = require('../middleware/sesiones');
 
 const valido = { motivo: 'Consulta ficticia', observaciones: 'Sin molestias inventadas', diagnostico: 'Diagnóstico académico ficticio', indicaciones: '' };
 
@@ -78,4 +78,48 @@ test('Cerrar sesión invalida el token',()=> {
  const r=procesarAuth(token);
  cerrarSesion(r.req,resSimulado());
  assert.equal(procesarAuth(token).res.codigo,401);
+});
+
+test('Solo un administrador puede acceder a operaciones administrativas', () => {
+    for (const rol of ['paciente', 'doctor']) {
+        const token = crearSesion({
+            _id: `usuario-${rol}`,
+            rol
+        });
+
+        const autenticacion = procesarAuth(token);
+        assert.equal(autenticacion.nextLlamado, true);
+
+        const respuesta = resSimulado();
+        let permitido = false;
+
+        requerirAdministrador(
+            autenticacion.req,
+            respuesta,
+            () => { permitido = true; }
+        );
+
+        assert.equal(permitido, false);
+        assert.equal(respuesta.codigo, 403);
+    }
+
+    const tokenAdmin = crearSesion({
+        _id: 'admin-prueba',
+        rol: 'administrador'
+    });
+
+    const autenticacionAdmin = procesarAuth(tokenAdmin);
+    assert.equal(autenticacionAdmin.nextLlamado, true);
+
+    const respuestaAdmin = resSimulado();
+    let permitidoAdmin = false;
+
+    requerirAdministrador(
+        autenticacionAdmin.req,
+        respuestaAdmin,
+        () => { permitidoAdmin = true; }
+    );
+
+    assert.equal(permitidoAdmin, true);
+    assert.equal(respuestaAdmin.codigo, 200);
 });

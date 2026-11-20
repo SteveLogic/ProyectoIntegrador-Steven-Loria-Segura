@@ -33,8 +33,7 @@
           </div>
           <div class="card-body p-4 p-md-5">
             <div class="alert alert-secondary small" role="note">
-              <strong>Prototipo académico:</strong> esta pantalla valida campos en el navegador,
-              pero <strong>no crea usuarios ni guarda contraseñas</strong> en MongoDB.
+              <strong>Registro de pacientes:</strong> completa tus datos para crear una cuenta en MongoDB. El rol de paciente se asigna de forma segura en el servidor.</strong>
             </div>
             <form id="registroPacienteForm" novalidate>
               <div class="row g-3">
@@ -57,7 +56,7 @@
                   <input class="form-control" id="password" name="password" type="password"
                          autocomplete="new-password" required minlength="8" maxlength="128"
                          aria-describedby="passwordAyuda" />
-                  <div id="passwordAyuda" class="form-text">Mínimo 8 caracteres para esta demostración.</div>
+                  <div id="passwordAyuda" class="form-text">Mínimo 8 caracteres, una mayúscula, una minúscula y un número. Máximo 72 bytes.</div>
                   <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -74,7 +73,7 @@
               <div id="mensajeRegistro" class="alert d-none" role="status" aria-live="polite"></div>
               <div class="d-grid d-sm-flex justify-content-sm-end gap-2 mt-4">
                 <button type="reset" class="btn btn-outline-app">Limpiar</button>
-                <button type="submit" class="btn btn-app-primary">Validar vista previa</button>
+                <button type="submit" class="btn btn-app-primary">Crear cuenta</button>
               </div>
             </form>
           </div>
@@ -83,7 +82,7 @@
           <a href="login.html" class="text-decoration-none">Volver a inicio de sesión</a>
         </div>
         <footer class="app-footer text-center mt-4">
-          Sistema de Citas Médicas · Proyecto Integrador 1 · Maqueta del segundo avance
+          Sistema de Citas Médicas · Proyecto Integrador 1 ·
         </footer>
       </div>
     </div>
@@ -104,18 +103,89 @@
     password.addEventListener("input", verificarCoincidencia);
     confirmarPassword.addEventListener("input", verificarCoincidencia);
 
-    formularioRegistro.addEventListener("submit", (evento) => {
-      evento.preventDefault();
-      verificarCoincidencia();
-      formularioRegistro.classList.add("was-validated");
-      if (!formularioRegistro.checkValidity()) {
-        mensajeRegistro.className = "alert alert-warning mt-3";
-        mensajeRegistro.textContent = "Revisa los campos marcados antes de continuar.";
-        return;
-      }
-      mensajeRegistro.className = "alert alert-secondary mt-3";
-      mensajeRegistro.textContent = "Vista previa validada correctamente. No se creó ninguna cuenta ni se enviaron datos a la API.";
+
+    formularioRegistro.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        verificarCoincidencia();
+        formularioRegistro.classList.add("was-validated");
+
+        if (!formularioRegistro.checkValidity()) {
+            mensajeRegistro.className = "alert alert-warning mt-3";
+            mensajeRegistro.textContent =
+                "Revisa los campos marcados antes de continuar.";
+            return;
+        }
+
+        const nombre = document.getElementById("nombre").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const clave = password.value;
+
+        const claveValida =
+            clave.length >= 8 &&
+            new TextEncoder().encode(clave).length <= 72 &&
+            /[A-Z]/.test(clave) &&
+            /[a-z]/.test(clave) &&
+            /[0-9]/.test(clave);
+
+        if (!claveValida) {
+            mensajeRegistro.className = "alert alert-warning mt-3";
+            mensajeRegistro.textContent =
+                "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número, y no superar 72 bytes.";
+            return;
+        }
+
+        const botonEnviar = formularioRegistro.querySelector(
+            'button[type="submit"]'
+        );
+
+        botonEnviar.disabled = true;
+        botonEnviar.textContent = "Registrando...";
+
+        mensajeRegistro.className = "alert alert-info mt-3";
+        mensajeRegistro.textContent = "Procesando el registro...";
+
+        try {
+            const respuesta = await fetch(
+                "http://localhost:3000/api/auth/registro-paciente",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        email,
+                        password: clave
+                    })
+                }
+            );
+
+            const datos = await respuesta.json().catch(() => ({}));
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    datos.mensaje || `Error HTTP ${respuesta.status}`
+                );
+            }
+            formularioRegistro.reset();
+
+            mensajeRegistro.className = "alert alert-success mt-3";
+            mensajeRegistro.textContent =
+                "Cuenta de paciente creada correctamente. Ya puedes iniciar sesión.";
+
+
+
+        } catch (error) {
+            mensajeRegistro.className = "alert alert-danger mt-3";
+            mensajeRegistro.textContent =
+                error.message || "No se pudo completar el registro.";
+        } finally {
+            botonEnviar.disabled = false;
+            botonEnviar.textContent = "Crear cuenta";
+        }
     });
+
 
     formularioRegistro.addEventListener("reset", () => {
       formularioRegistro.classList.remove("was-validated");

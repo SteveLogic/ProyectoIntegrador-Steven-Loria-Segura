@@ -164,7 +164,7 @@
           </div>
           <div class="app-card-body pb-2">
             <div class="alert alert-light border mb-3" role="note">
-              <strong>Datos de MongoDB:</strong> el listado, el registro y la modificación de nombre y correo utilizan la API. El rol solo se asigna al crear cuentas de paciente o doctor; los cambios de rol y de estado aún no están implementados. <strong>Uso académico local:</strong> estas rutas todavía no tienen autorización real en el servidor; no publiques la API en Internet.
+              <strong>Seguridad de usuarios:</strong> las operaciones de consulta, registro, edición y eliminación requieren una sesión válida con rol administrador. <strong>Uso académico local:</strong> En las rutas de usuarios, el servidor rechaza las solicitudes sin autenticación o sin permisos. La seguridad de otros módulos administrativos todavía está en revisión.
             </div>
             <div id="avisoUsuarios" class="alert alert-info d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios registrados">
@@ -626,7 +626,16 @@
     async function cargarUsuariosDesdeAPI() {
       avisarUsuarios('Consultando usuarios desde MongoDB...');
       try {
-        const respuesta = await fetch(API_USUARIOS);
+        const token = sessionStorage.getItem('tokenAtencion');
+          if (!token) {
+              throw new Error('Debes iniciar sesión nuevamente.');
+          }
+
+          const respuesta = await fetch(API_USUARIOS, {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          });
         if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
         const usuarios = await respuesta.json();
         if (!Array.isArray(usuarios) || usuarios.some(usuario =>
@@ -647,18 +656,34 @@
       }
     }
 
+
     async function enviarUsuarioAPI(metodo, url, cuerpo) {
-      const respuesta = await fetch(url, {
-        method: metodo,
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(cuerpo)
-      });
-      const datos = await respuesta.json().catch(() => ({}));
-      if (!respuesta.ok) {
-        throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
-      }
-      return datos;
+        const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+            throw new Error('Debes iniciar sesión nuevamente.');
+        }
+
+        const respuesta = await fetch(url, {
+            method: metodo,
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(cuerpo)
+        });
+
+        const datos = await respuesta.json().catch(() => ({}));
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`
+            );
+        }
+
+        return datos;
     }
+
 
     buscarUsuario.addEventListener('input', actualizarTablaUsuarios);
     filtrarRolUsuario.addEventListener('change', actualizarTablaUsuarios);
@@ -1492,9 +1517,20 @@ cargarCitasAdmin();
     selectEspecialidades.disabled = true;
 
     try {
+
+        const token = sessionStorage.getItem('tokenAtencion');
+
+        if (!token) {
+            throw new Error('Debes iniciar sesión nuevamente.');
+        }
+
         const [respuestaUsuarios, respuestaDoctores, respuestaEspecialidades] =
             await Promise.all([
-                fetch('http://localhost:3000/api/usuarios'),
+                fetch('http://localhost:3000/api/usuarios', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }),
                 fetch('http://localhost:3000/api/doctores'),
                 fetch('http://localhost:3000/api/especialidades')
             ]);
