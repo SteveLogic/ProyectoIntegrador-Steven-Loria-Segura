@@ -531,13 +531,47 @@
     // El nombre del usuario procede del flujo de login existente.
     const nombre = sessionStorage.getItem('nombreUsuario');
     if (nombre) document.getElementById('saludoUsuario').textContent = nombre;
-    document.getElementById('cerrarSesion').addEventListener('click', () => {
-      sessionStorage.removeItem('usuarioAutenticado');
-      sessionStorage.removeItem('rolUsuario');
-      sessionStorage.removeItem('usuarioId');
-      sessionStorage.removeItem('nombreUsuario');
-      window.location.href = 'login.html';
+
+    // Cerrar sesión del administrador e invalidar el token.
+    document.getElementById('cerrarSesion').addEventListener('click', async () => {
+      const boton = document.getElementById('cerrarSesion');
+      const token = sessionStorage.getItem('tokenAtencion');
+
+      boton.disabled = true;
+
+      try {
+        if (token) {
+          const respuesta = await fetch('http://localhost:3000/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          if (!respuesta.ok && respuesta.status !== 401) {
+            throw new Error('No se pudo invalidar la sesión.');
+          }
+        }
+
+        for (const clave of [
+          'usuarioAutenticado',
+          'rolUsuario',
+          'usuarioId',
+          'nombreUsuario',
+          'tokenAtencion'
+        ]) {
+          sessionStorage.removeItem(clave);
+        }
+
+        window.location.replace('login.html');
+
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        alert('No se pudo confirmar el cierre de sesión. Intenta nuevamente.');
+        boton.disabled = false;
+      }
     });
+
     // No envía datos: el segundo avance requiere maquetación, no integración completa.
     document.querySelectorAll('.form-maqueta').forEach(form => {
       form.addEventListener('submit', event => {

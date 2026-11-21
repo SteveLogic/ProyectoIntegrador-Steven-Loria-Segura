@@ -354,12 +354,47 @@
     document.getElementById('nombrePacienteBarra').textContent = nombrePaciente;
     document.getElementById('nombrePacientePerfil').textContent = nombrePaciente;
     document.getElementById('perfilNombrePaciente').value = nombrePaciente;
-    document.getElementById('cerrarSesionPaciente').addEventListener('click', () => {
-      for (const clave of ['usuarioAutenticado', 'rolUsuario', 'usuarioId', 'nombreUsuario']) {
-        sessionStorage.removeItem(clave);
+
+    // Cerrar sesión e invalidar el token en la API.
+    document.getElementById('cerrarSesionPaciente').addEventListener('click', async () => {
+      const boton = document.getElementById('cerrarSesionPaciente');
+      const token = sessionStorage.getItem('tokenAtencion');
+
+      boton.disabled = true;
+
+      try {
+        if (token) {
+          const respuesta = await fetch('http://localhost:3000/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          if (!respuesta.ok && respuesta.status !== 401) {
+            throw new Error('No se pudo invalidar la sesión.');
+          }
+        }
+
+        for (const clave of [
+          'usuarioAutenticado',
+          'rolUsuario',
+          'usuarioId',
+          'nombreUsuario',
+          'tokenAtencion'
+        ]) {
+          sessionStorage.removeItem(clave);
+        }
+
+        window.location.replace('login.html');
+
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        alert('No se pudo confirmar el cierre de sesión. Intenta nuevamente.');
+        boton.disabled = false;
       }
-      window.location.href = 'login.html';
     });
+
 
     // Navegación móvil: Bootstrap cancela la navegación nativa de los enlaces
     // que tienen data-bs-dismiss. Cerramos el offcanvas primero y luego
