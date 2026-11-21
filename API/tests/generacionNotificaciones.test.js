@@ -14,6 +14,10 @@ function citaSimulada() {
     return {
         _id: CITA_ID,
         paciente: PACIENTE_ID,
+        doctor: {
+            _id: "444444444444444444444444",
+            nombre: "Doctor Prueba"
+        },
         fecha: "2026-11-24",
         hora: "09:30",
         motivo: "Dato clínico confidencial"
@@ -59,6 +63,11 @@ for (const [tipo, palabraEsperada] of tipos) {
         assert.match(
             datosGuardados.mensaje,
             /09:30/
+        );
+
+        assert.match(
+            datosGuardados.mensaje,
+            /Doctor Prueba/
         );
 
         assert.match(
@@ -111,6 +120,7 @@ test("No genera notificaciones para un tipo desconocido", async t => {
     assert.equal(crear.mock.callCount(), 0);
 });
 
+
 test("Un error al guardar la notificación no se propaga", async t => {
     const crear = t.mock.method(
         Notificacion,
@@ -134,4 +144,37 @@ test("Un error al guardar la notificación no se propaga", async t => {
     assert.equal(resultado, null);
     assert.equal(crear.mock.callCount(), 1);
     assert.equal(registrarError.mock.callCount(), 1);
+});
+
+test("Consulta el nombre del doctor cuando solo tiene su ID", async t => {
+    const Usuario = require("../models/Usuario");
+
+    const buscarDoctor = t.mock.method(
+        Usuario,
+        "findById",
+        async () => ({
+            nombre: "Doctor desde MongoDB"
+        })
+    );
+
+    const crear = t.mock.method(
+        Notificacion,
+        "create",
+        async datos => datos
+    );
+
+    const cita = citaSimulada();
+    cita.doctor = "444444444444444444444444";
+
+    await registrarNotificacionCita(cita, "reserva");
+
+    assert.equal(buscarDoctor.mock.callCount(), 1);
+    assert.equal(crear.mock.callCount(), 1);
+
+    const datos = crear.mock.calls[0].arguments[0];
+
+    assert.match(
+        datos.mensaje,
+        /Doctor desde MongoDB/
+    );
 });

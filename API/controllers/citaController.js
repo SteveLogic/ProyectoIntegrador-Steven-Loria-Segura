@@ -132,6 +132,12 @@ const crearCita = async (req, res) => {
         });
 
     } catch (error) {
+        if (error.code === 11000) {
+             return res.status(409).json({
+             mensaje: "El doctor ya tiene una cita en ese horario."
+            });
+        }
+
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 mensaje: "Los datos de la cita no son válidos.",
@@ -296,36 +302,88 @@ const reprogramarCita = async (req, res) => {
             });
         }
 
+        // Evitar reprogramaciones repetidas con la misma fecha y hora.
+        // Si no hubo cambios, no se genera una nueva notificación.
+        if (cita.fecha === fecha && cita.hora === hora) {
+            return res.status(200).json({
+                mensaje: "La cita ya está programada para esta fecha y hora.",
+                cita
+            });
+        }
+
+
         // Reprogramar solo dentro de una franja y sin solaparse con otras citas.
         const verificacion = await evaluarHorario({doctor:cita.doctor,fecha,hora,excluirCita:cita._id});
         if (!verificacion.valido) {
             return res.status(verificacion.codigo).json({mensaje:verificacion.mensaje});
         }
 
-        // Guardar la nueva fecha y hora
-        const citaActualizada = await Cita.findByIdAndUpdate(
-            id,
-            { $set: { fecha, hora } },
+
+        // Actualización condicional para evitar operaciones simultáneas.
+        // Solo se modifica si la cita conserva la fecha y hora originales.
+        const citaActualizada = await Cita.findOneAndUpdate(
+            {
+                _id: id,
+                fecha: cita.fecha,
+                hora: cita.hora,
+                estado: { $in: ["pendiente", "confirmada"] }
+            },
+            {
+                $set: { fecha, hora }
+            },
             {
                 returnDocument: "after",
                 runValidators: true
             }
         );
-        // Notificar únicamente si la cita fue actualizada.
-        if (citaActualizada) {
-            await registrarNotificacionCita(
-                citaActualizada,
-                "reprogramacion"
-            );
+
+        // Otra solicitud pudo modificar la cita antes que esta.
+        if (!citaActualizada) {
+            const citaActual = await Cita.findById(id);
+
+            if (!citaActual) {
+                return res.status(404).json({
+                    mensaje: "Cita médica no encontrada."
+                });
+            }
+
+            // Si otra solicitud ya aplicó exactamente el mismo cambio,
+            // responder sin generar una notificación duplicada.
+            if (
+                citaActual.fecha === fecha &&
+                citaActual.hora === hora &&
+                !["cancelada", "completada"].includes(citaActual.estado)
+            ) {
+                return res.status(200).json({
+                    mensaje: "La cita ya está programada para esta fecha y hora.",
+                    cita: citaActual
+                });
+            }
+
+            return res.status(409).json({
+                mensaje: "La cita fue modificada por otra operación. Actualiza la información e inténtalo nuevamente."
+            });
         }
 
+        // Solo la solicitud que realizó el cambio genera la notificación.
+        await registrarNotificacionCita(
+            citaActualizada,
+            "reprogramacion"
+        );
 
-        res.status(200).json({
+        return res.status(200).json({
             mensaje: "Cita médica reprogramada correctamente.",
             cita: citaActualizada
         });
 
+
+
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({
+                mensaje: "El doctor ya tiene una cita en ese horario."
+            });
+        }
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 mensaje: "La fecha o la hora no tienen un formato válido."
@@ -390,17 +448,41 @@ const cancelarCita = async (req, res) => {
             });
         }
 
-        // Cambiar el estado sin eliminar el documento
-        cita.estado = "cancelada";
 
-        await cita.save();
-        // Notificar al paciente después de guardar la cancelación.
-        await registrarNotificacionCita(cita, "cancelacion");
+        // Cancelar de forma atómica para evitar operaciones simultáneas.
+        // Solo una solicitud puede cambiar la cita a "cancelada".
+        const citaCancelada = await Cita.findOneAndUpdate(
+            {
+                _id: cita._id,
+                estado: { $in: ["pendiente", "confirmada"] }
+            },
+            {
+                $set: { estado: "cancelada" }
+            },
+            {
+                returnDocument: "after",
+                runValidators: true
+            }
+        );
 
-        res.status(200).json({
+        // Otra solicitud pudo cancelar o completar la cita primero.
+        if (!citaCancelada) {
+            return res.status(409).json({
+                mensaje: "La cita ya fue cancelada o completada por otra operación."
+            });
+        }
+
+        // Solamente quien realizó la cancelación genera la notificación.
+        await registrarNotificacionCita(
+            citaCancelada,
+            "cancelacion"
+        );
+
+        return res.status(200).json({
             mensaje: "Cita médica cancelada correctamente.",
-            cita
+            cita: citaCancelada
         });
+
 
     } catch (error) {
         res.status(500).json({
