@@ -5,6 +5,7 @@ const Usuario = require("../models/Usuario");
 const Especialidad = require("../models/Especialidad");
 const Doctor = require("../models/Doctor");
 const {evaluarHorario} = require("../utils/horarios");
+const { registrarNotificacionCita } = require("../utils/notificaciones");
 
 // Fecha/hora local de Costa Rica (UTC-6); validar formato, día real y futuro.
 function horarioValido(fecha, hora) {
@@ -122,6 +123,8 @@ const crearCita = async (req, res) => {
             hora,
             motivo
         });
+        // Notificar al paciente después de guardar la cita.
+        await registrarNotificacionCita(nuevaCita, "reserva");
 
         res.status(201).json({
             mensaje: "Cita médica registrada correctamente.",
@@ -308,6 +311,14 @@ const reprogramarCita = async (req, res) => {
                 runValidators: true
             }
         );
+        // Notificar únicamente si la cita fue actualizada.
+        if (citaActualizada) {
+            await registrarNotificacionCita(
+                citaActualizada,
+                "reprogramacion"
+            );
+        }
+
 
         res.status(200).json({
             mensaje: "Cita médica reprogramada correctamente.",
@@ -383,6 +394,8 @@ const cancelarCita = async (req, res) => {
         cita.estado = "cancelada";
 
         await cita.save();
+        // Notificar al paciente después de guardar la cancelación.
+        await registrarNotificacionCita(cita, "cancelacion");
 
         res.status(200).json({
             mensaje: "Cita médica cancelada correctamente.",

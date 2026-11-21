@@ -13,6 +13,7 @@ const citaRoutes = require("./routes/citaRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const disponibilidadRoutes = require("./routes/disponibilidadRoutes");
 const atencionRoutes = require("./routes/atencionRoutes");
+const notificacionRoutes = require("./routes/notificacionRoutes");
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/citas", citaRoutes);
 app.use("/api/doctores", doctorRoutes);
 app.use("/api/disponibilidad", disponibilidadRoutes);
 app.use("/api/atenciones", atencionRoutes);
+app.use("/api/notificaciones", notificacionRoutes);
 // Ruta para comprobar que la API funciona
 app.get("/api/prueba", (req, res) => {
     res.json({
