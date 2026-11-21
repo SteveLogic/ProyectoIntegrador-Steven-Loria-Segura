@@ -257,8 +257,8 @@
 
       <section id="miPerfil" class="mb-4" aria-labelledby="miPerfilTitulo">
         <div class="app-card">
-          <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Vista visual de los datos del usuario autenticado.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar vista previa</button></div>
-          <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña (vista previa)</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0">Pendiente de consulta a la API. No se inventan datos de la cuenta.</p></div></div></div>
+          <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Vista visual de los datos del usuario autenticado.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar perfil</button></div>
+          <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña (vista previa)</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0" id="correoPacientePerfil">Consultando correo electrónico...</p></div></div></div>
         </div>
       </section>
       <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica con MongoDB · No usar datos médicos reales</footer>
@@ -274,10 +274,78 @@
   <div class="modal fade" id="modalCancelarPaciente" tabindex="-1" aria-labelledby="cancelarPacienteTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">La cita cambiará a estado <strong>cancelada</strong> en MongoDB mediante <code>DELETE /api/citas/:id</code>.</p><div class="alert alert-danger mt-3" id="errorCancelarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelacionPaciente" class="btn btn-app-primary">Confirmar cancelación</button></div></div></div>
   </div>
-  <!-- Edición de perfil de ejemplo -->
-  <div class="modal fade" id="modalPerfilPaciente" tabindex="-1" aria-labelledby="perfilPacienteTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="perfilPacienteTitulo">Editar mi perfil (demostración)</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><form class="form-vista-previa"><div class="modal-body"><p class="small text-muted-app">El formulario no guarda ni actualiza información real.</p><div class="mb-3"><label for="perfilNombrePaciente" class="form-label">Nombre completo</label><input id="perfilNombrePaciente" class="form-control" required maxlength="100"></div><div><label for="perfilCorreoPaciente" class="form-label">Correo electrónico</label><input id="perfilCorreoPaciente" type="email" class="form-control" placeholder="correo@ejemplo.com" required></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Validar vista previa</button></div></form></div></div>
+
+  <!-- Edición real del perfil del paciente -->
+  <div class="modal fade" id="modalPerfilPaciente"
+      tabindex="-1" aria-labelledby="perfilPacienteTitulo"
+      aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="perfilPacienteTitulo">
+            Editar mi perfil
+          </h2>
+          <button class="btn-close" type="button"
+                  data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <form id="formPerfilPaciente">
+          <div class="modal-body">
+
+            <p class="small text-muted-app">
+              Actualiza tu nombre y correo electrónico.
+              Los cambios se guardarán en tu cuenta.
+            </p>
+
+            <div class="mb-3">
+              <label for="perfilNombrePaciente" class="form-label">
+                Nombre completo
+              </label>
+              <input
+                id="perfilNombrePaciente"
+                class="form-control"
+                type="text"
+                maxlength="100"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="perfilCorreoPaciente" class="form-label">
+                Correo electrónico
+              </label>
+              <input
+                id="perfilCorreoPaciente"
+                class="form-control"
+                type="email"
+                maxlength="150"
+                required>
+            </div>
+
+            <div id="mensajeErrorPerfilPaciente"
+                class="alert alert-danger mt-3"
+                role="alert" hidden></div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-app"
+                    data-bs-dismiss="modal">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn btn-app-primary"
+                    id="btnGuardarPerfilPaciente">
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
   </div>
+
   <div class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite"><div id="toastPaciente" class="toast text-bg-light border shadow-sm" role="status" aria-atomic="true"><div class="d-flex"><div class="toast-body" id="toastPacienteMensaje">Función demostrativa: no se guardaron datos.</div><button class="btn-close me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Cerrar aviso"></button></div></div></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -371,6 +439,55 @@
       return datos;
     }
 
+    // Consultar los datos reales del perfil del paciente.
+    async function cargarPerfilPaciente() {
+      const correoPerfil = document.getElementById('correoPacientePerfil');
+
+      try {
+        const datos = await peticionCitas('/auth/perfil');
+        const usuario = datos.usuario;
+
+        if (
+          !usuario ||
+          typeof usuario.nombre !== 'string' ||
+          typeof usuario.email !== 'string'
+        ) {
+          throw new Error('La API devolvió información incompleta.');
+        }
+
+        // Actualizar la información visible del paciente.
+        document.getElementById('nombrePacientePerfil').textContent =
+          usuario.nombre;
+
+        document.getElementById('saludoPaciente').textContent =
+          usuario.nombre;
+
+        document.getElementById('nombrePacienteBarra').textContent =
+          usuario.nombre;
+
+        correoPerfil.textContent = usuario.email;
+
+        // Preparar los campos del formulario de edición.
+        document.getElementById('perfilNombrePaciente').value =
+          usuario.nombre;
+
+        document.getElementById('perfilCorreoPaciente').value =
+          usuario.email;
+
+        // Sincronizar el nombre mostrado durante la sesión.
+        sessionStorage.setItem('nombreUsuario', usuario.nombre);
+
+      } catch (error) {
+        console.error('Error al cargar el perfil:', error);
+        correoPerfil.textContent =
+          'No se pudo consultar el correo electrónico.';
+      }
+    }
+
+    // Cargar el perfil al ingresar a la página.
+    cargarPerfilPaciente();
+
+
     function fechaLocalHoy() {
       const ahora = new Date();
       const anio = ahora.getFullYear();
@@ -384,6 +501,100 @@
       elemento.className = `alert alert-${tipo} mt-3 mb-0`;
       elemento.textContent = mensaje;
     }
+
+    // Edición del perfil del paciente.
+    const modalPerfil = document.getElementById('modalPerfilPaciente');
+    const formPerfil = document.getElementById('formPerfilPaciente');
+    const errorPerfil = document.getElementById('mensajeErrorPerfilPaciente');
+    const botonGuardarPerfil = document.getElementById('btnGuardarPerfilPaciente');
+
+    // Cargar los datos actuales al abrir el formulario.
+    modalPerfil.addEventListener('show.bs.modal', () => {
+      const nombre = document.getElementById('nombrePacientePerfil')
+        .textContent.trim();
+
+      const correo = document.getElementById('correoPacientePerfil')
+        .textContent.trim();
+
+      document.getElementById('perfilNombrePaciente').value = nombre;
+      document.getElementById('perfilCorreoPaciente').value =
+        correo.includes('@') ? correo : '';
+
+      errorPerfil.hidden = true;
+      errorPerfil.textContent = '';
+    });
+
+    // Guardar los cambios mediante la API.
+    formPerfil.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const nombre = document.getElementById('perfilNombrePaciente')
+        .value.trim();
+
+      const email = document.getElementById('perfilCorreoPaciente')
+        .value.trim().toLowerCase();
+
+      errorPerfil.hidden = true;
+
+      if (!nombre || !email || !formPerfil.checkValidity()) {
+        formPerfil.reportValidity();
+        return;
+      }
+
+      botonGuardarPerfil.disabled = true;
+      botonGuardarPerfil.textContent = 'Guardando...';
+
+      try {
+        const datos = await peticionCitas('/auth/perfil', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nombre, email })
+        });
+
+        const usuario = datos.usuario;
+
+        if (!usuario || !usuario.nombre || !usuario.email) {
+          throw new Error('La API devolvió datos incompletos.');
+        }
+
+        // Actualizar la información visible.
+        document.getElementById('nombrePacientePerfil').textContent =
+          usuario.nombre;
+
+        document.getElementById('correoPacientePerfil').textContent =
+          usuario.email;
+
+        document.getElementById('saludoPaciente').textContent =
+          usuario.nombre;
+
+        document.getElementById('nombrePacienteBarra').textContent =
+          usuario.nombre;
+
+        sessionStorage.setItem('nombreUsuario', usuario.nombre);
+
+        // Cerrar el modal.
+        bootstrap.Modal.getOrCreateInstance(modalPerfil).hide();
+
+        // Mostrar confirmación.
+        document.getElementById('toastPacienteMensaje').textContent =
+          'Tu perfil se actualizó correctamente.';
+
+        bootstrap.Toast.getOrCreateInstance(
+          document.getElementById('toastPaciente')
+        ).show();
+
+      } catch (error) {
+        errorPerfil.textContent = error.message;
+        errorPerfil.hidden = false;
+
+      } finally {
+        botonGuardarPerfil.disabled = false;
+        botonGuardarPerfil.textContent = 'Guardar cambios';
+      }
+    });
+
     function nodo(etiqueta, clase, texto) {
       const e = document.createElement(etiqueta);
       if (clase) e.className = clase;

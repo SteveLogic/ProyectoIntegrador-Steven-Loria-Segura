@@ -231,6 +231,157 @@ router.put("/cambiar-password", requerirSesion, async (req, res) => {
     }
 });
 
+ // Consultar el perfil del paciente autenticado.
+router.get("/perfil", requerirSesion, async (req, res) => {
+    if (req.sesion.rol !== "paciente") {
+        return res.status(403).json({
+            mensaje: "Solo un paciente puede consultar este perfil."
+        });
+    }
+
+    try {
+        const usuario = await Usuario
+            .findById(req.sesion.usuarioId)
+            .select("-password");
+
+        if (!usuario || usuario.rol !== "paciente") {
+            return res.status(401).json({
+                mensaje: "Sesión inválida. Vuelve a iniciar sesión."
+            });
+        }
+
+        return res.status(200).json({ usuario });
+
+    } catch (error) {
+        console.error("Error al consultar el perfil:", error);
+
+        return res.status(500).json({
+            mensaje: "No se pudo consultar el perfil."
+        });
+    }
+});
+
+ // Actualizar el nombre y correo del paciente autenticado.
+router.put("/perfil", requerirSesion, async (req, res) => {
+    if (req.sesion.rol !== "paciente") {
+        return res.status(403).json({
+            mensaje: "Solo un paciente puede editar este perfil."
+        });
+    }
+
+    const datos = req.body;
+
+    if (!datos || typeof datos !== "object" || Array.isArray(datos)) {
+        return res.status(400).json({
+            mensaje: "Los datos del perfil no son válidos."
+        });
+    }
+
+    // Permitir únicamente nombre y email.
+    const permitidos = ["nombre", "email"];
+    const campos = Object.keys(datos);
+
+    if (
+        campos.length === 0 ||
+        campos.some(campo => !permitidos.includes(campo))
+    ) {
+        return res.status(400).json({
+            mensaje: "Solo puedes modificar tu nombre y correo electrónico."
+        });
+    }
+
+    const cambios = {};
+
+    // Validar y normalizar el nombre.
+    if (campos.includes("nombre")) {
+        if (typeof datos.nombre !== "string") {
+            return res.status(400).json({
+                mensaje: "El nombre debe ser texto."
+            });
+        }
+
+        const nombre = datos.nombre.trim();
+
+        if (!nombre || nombre.length > 100) {
+            return res.status(400).json({
+                mensaje: "El nombre debe tener entre 1 y 100 caracteres."
+            });
+        }
+
+        cambios.nombre = nombre;
+    }
+
+    // Validar y normalizar el correo electrónico.
+    if (campos.includes("email")) {
+        if (typeof datos.email !== "string") {
+            return res.status(400).json({
+                mensaje: "El correo debe ser texto."
+            });
+        }
+
+        const email = datos.email.trim().toLowerCase();
+
+        if (
+            email.length > 150 ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ) {
+            return res.status(400).json({
+                mensaje: "Ingresa un correo electrónico válido."
+            });
+        }
+
+        cambios.email = email;
+    }
+
+    try {
+        const usuario = await Usuario.findOneAndUpdate(
+            {
+                _id: req.sesion.usuarioId,
+                rol: "paciente"
+            },
+            {
+                $set: cambios
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        ).select("-password");
+
+        if (!usuario || usuario.rol !== "paciente") {
+            return res.status(401).json({
+                mensaje: "Sesión inválida. Vuelve a iniciar sesión."
+            });
+        }
+
+        return res.status(200).json({
+            mensaje: "Perfil actualizado correctamente.",
+            usuario
+        });
+
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({
+                mensaje: "El correo electrónico ya está registrado."
+            });
+        }
+
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                mensaje: "Los datos del perfil no son válidos."
+            });
+        }
+
+        console.error("Error al actualizar perfil:", error);
+
+        return res.status(500).json({
+            mensaje: "No se pudo actualizar el perfil."
+        });
+    }
+});
+
+
+
 router.post("/logout", requerirSesion, cerrarSesion);
 
 module.exports = router;
