@@ -30,6 +30,13 @@ router.post("/login", async (req, res) => {
                 mensaje: "Correo, contraseña o tipo de usuario incorrectos."
             });
         }
+        // Impedir el acceso a cuentas desactivadas.
+        if (usuario.activo === false) {
+            return res.status(403).json({
+                mensaje: "La cuenta está desactivada. Contacta con un administrador."
+            });
+        }
+
 
         const passwordCorrecta = await bcrypt.compare(password, usuario.password);
 
@@ -343,7 +350,7 @@ router.put("/perfil", requerirSesion, async (req, res) => {
                 $set: cambios
             },
             {
-                new: true,
+                returnDocument: "after",
                 runValidators: true
             }
         ).select("-password");

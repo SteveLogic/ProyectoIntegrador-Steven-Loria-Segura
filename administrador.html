@@ -190,18 +190,31 @@
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaUsuarios">
               <caption class="visually-hidden">Listado de usuarios obtenidos desde la API, sin contraseñas</caption>
-              <thead><tr><th scope="col">Nombre</th><th scope="col">Correo electrónico</th><th scope="col">Rol</th><th scope="col">Acciones</th></tr></thead>
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Correo electrónico</th>
+                  <th scope="col">Rol</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
               <tbody></tbody>
             </table>
           </div>
           <div id="sinResultadosUsuarios" class="empty-state m-3 d-none" role="status">No hay usuarios registrados que coincidan con los filtros seleccionados.</div>
           <div class="app-card-body pt-2">
-            <p class="small text-muted-app mb-0">API conectada: <code>GET /api/usuarios</code>, <code>POST /api/usuarios</code> y <code>PUT /api/usuarios/:id</code>. No se muestra ni recupera ninguna contraseña. El endpoint de edición permite modificar <code>nombre</code> y <code>email</code>, no <code>rol</code>. El modelo actual tampoco cuenta con campo de estado.</p>
+            <p class="small text-muted-app mb-0">
+              API conectada: GET, POST y PUT /api/usuarios,
+              además de PATCH /api/usuarios/:id/estado.
+              El administrador puede activar o desactivar cuentas.
+              Las contraseñas no se muestran y los cambios
+              de estado no modifican el rol del usuario.
+            </p>
           </div>
         </div>
       </section>
-      <!-- KAN-9: Gestión real de especialidades. GET, POST y PUT consultan MongoDB.
-           Desactivación NO habilitada en UI: el backend no permite reactivar. -->
+
       <section id="especialidades" aria-labelledby="especialidadesTitulo" class="mb-4">
         <div class="app-card">
           <div class="app-card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -633,29 +646,85 @@
       document.getElementById('sinResultadosUsuarios').classList.toggle('d-none', visibles !== 0);
     }
 
+
     function crearFilaUsuario(usuario) {
       const fila = document.createElement('tr');
+      const activo = usuario.activo !== false;
+
       fila.dataset.id = usuario._id;
       fila.dataset.nombre = usuario.nombre;
       fila.dataset.email = usuario.email;
       fila.dataset.rol = usuario.rol;
+      fila.dataset.activo = String(activo);
+
       const nombre = document.createElement('td');
-      nombre.className = 'fw-semibold'; nombre.textContent = usuario.nombre;
-      const email = document.createElement('td'); email.textContent = usuario.email;
+      nombre.className = 'fw-semibold';
+      nombre.textContent = usuario.nombre;
+
+      const email = document.createElement('td');
+      email.textContent = usuario.email;
+
       const rol = document.createElement('td');
       const insignia = document.createElement('span');
       insignia.className = 'badge-role';
-      insignia.textContent = rolesUsuarios[usuario.rol] || usuario.rol;
+      insignia.textContent =
+        rolesUsuarios[usuario.rol] || usuario.rol;
       rol.append(insignia);
+
+      // Mostrar el estado actual de la cuenta.
+      const estado = document.createElement('td');
+      const distintivo = document.createElement('span');
+
+      distintivo.className = activo
+        ? 'badge text-bg-success'
+        : 'badge text-bg-secondary';
+
+      distintivo.textContent = activo
+        ? 'Activa'
+        : 'Inactiva';
+
+      estado.append(distintivo);
+
       const acciones = document.createElement('td');
+
+      // Conservar el botón de edición existente.
       const editar = document.createElement('button');
-      editar.type = 'button'; editar.className = 'btn btn-sm btn-outline-app editar-usuario';
+      editar.type = 'button';
+      editar.className =
+        'btn btn-sm btn-outline-app editar-usuario';
       editar.textContent = 'Editar';
-      editar.dataset.bsToggle = 'modal'; editar.dataset.bsTarget = '#modalEditarUsuario';
-      acciones.append(editar);
-      fila.append(nombre, email, rol, acciones);
+      editar.dataset.bsToggle = 'modal';
+      editar.dataset.bsTarget = '#modalEditarUsuario';
+
+      // Nuevo botón para cambiar el estado.
+      const botonEstado = document.createElement('button');
+      botonEstado.type = 'button';
+
+      botonEstado.className =
+        `btn btn-sm ms-2 ${
+          activo ? 'btn-outline-danger' : 'btn-outline-success'
+        } cambiar-estado-usuario`;
+
+      botonEstado.textContent = activo
+        ? 'Desactivar'
+        : 'Activar';
+
+      // Proteger la cuenta del administrador actual.
+      if (
+        activo &&
+        String(usuario._id) === sessionStorage.getItem('usuarioId')
+      ) {
+        botonEstado.disabled = true;
+        botonEstado.title =
+          'No puedes desactivar tu propia cuenta';
+      }
+
+      acciones.append(editar, botonEstado);
+      fila.append(nombre, email, rol, estado, acciones);
+
       return fila;
     }
+
 
     async function cargarUsuariosDesdeAPI() {
       avisarUsuarios('Consultando usuarios desde MongoDB...');
@@ -717,6 +786,78 @@
 
         return datos;
     }
+
+
+    // Activar o desactivar cuentas desde la tabla.
+    tablaUsuarios.addEventListener('click', async evento => {
+      const boton = evento.target.closest(
+        'button.cambiar-estado-usuario'
+      );
+
+      if (!boton || boton.disabled) return;
+
+      const fila = boton.closest('tr[data-id]');
+      if (!fila) return;
+
+      const nuevoEstado = fila.dataset.activo === 'false';
+
+      // No permitir desactivar la propia cuenta.
+      if (
+        !nuevoEstado &&
+        fila.dataset.id === sessionStorage.getItem('usuarioId')
+      ) {
+        avisarUsuarios(
+          'No puedes desactivar tu propia cuenta.',
+          'warning'
+        );
+        return;
+      }
+
+      const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+      const confirmar = window.confirm(
+        `¿Deseas ${accion} la cuenta de «${fila.dataset.nombre}»?`
+      );
+
+      if (!confirmar) return;
+
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+
+      try {
+        await enviarUsuarioAPI(
+          'PATCH',
+          `${API_USUARIOS}/${encodeURIComponent(fila.dataset.id)}/estado`,
+          { activo: nuevoEstado }
+        );
+
+        // Consultar nuevamente MongoDB y reconstruir la tabla.
+        const recargado = await cargarUsuariosDesdeAPI();
+
+        avisarUsuarios(
+          recargado
+            ? `Cuenta de «${fila.dataset.nombre}» ${
+                nuevoEstado ? 'activada' : 'desactivada'
+              } correctamente.`
+            : 'El cambio se guardó, pero no fue posible actualizar la tabla.',
+          recargado ? 'success' : 'warning'
+        );
+
+      } catch (error) {
+        console.error('Error al cambiar el estado:', error);
+
+        avisarUsuarios(
+          error.message || 'No se pudo actualizar el estado.',
+          'danger'
+        );
+
+        boton.disabled = false;
+        boton.textContent = nuevoEstado
+          ? 'Activar'
+          : 'Desactivar';
+      }
+    });
+
 
 
     buscarUsuario.addEventListener('input', actualizarTablaUsuarios);

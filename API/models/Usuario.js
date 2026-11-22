@@ -21,7 +21,12 @@ const usuarioSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: ["paciente", "doctor", "administrador"]
-    }
+    },
+
+    activo: {
+    type: Boolean,
+    default: true
+}
 });
 
 module.exports = mongoose.model("Usuario", usuarioSchema);

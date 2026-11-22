@@ -1,6 +1,7 @@
 
 const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
+const { cerrarSesionesDeUsuario } = require("../middleware/sesiones");
 
 // Crear usuario
 const crearUsuario = async (req, res) => {
@@ -202,6 +203,84 @@ const eliminarUsuario = async (req, res) => {
     }
 };
 
+ // Activar o desactivar la cuenta de un usuario.
+const cambiarEstadoUsuario = async (req, res) => {
+    const id = req.params.id;
+
+    // Validar el identificador.
+    if (!Usuario.db.base.isValidObjectId(id)) {
+        return res.status(400).json({
+            mensaje: "El ID del usuario no es válido."
+        });
+    }
+
+    // Aceptar únicamente el campo activo como booleano.
+    const datos = req.body;
+
+    if (
+        !datos ||
+        typeof datos !== "object" ||
+        Array.isArray(datos) ||
+        Object.keys(datos).length !== 1 ||
+        typeof datos.activo !== "boolean"
+    ) {
+        return res.status(400).json({
+            mensaje: "Debes proporcionar el estado activo como booleano."
+        });
+    }
+
+    // Impedir que el administrador desactive su propia cuenta.
+    if (
+        datos.activo === false &&
+        String(req.sesion.usuarioId) === id
+    ) {
+        return res.status(403).json({
+            mensaje: "No puedes desactivar tu propia cuenta."
+        });
+    }
+
+    try {
+        const usuario = await Usuario.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    activo: datos.activo
+                }
+            },
+           {
+                returnDocument: "after",
+                runValidators: true
+            }
+        ).select("-password");
+
+        if (!usuario) {
+            return res.status(404).json({
+                mensaje: "Usuario no encontrado."
+            });
+        }
+
+        // Invalidar sesiones abiertas al desactivar una cuenta.
+        if (datos.activo === false) {
+            cerrarSesionesDeUsuario(id);
+        }
+
+        return res.status(200).json({
+            mensaje: datos.activo
+                ? "Cuenta activada correctamente."
+                : "Cuenta desactivada correctamente.",
+            usuario
+        });
+
+    } catch (error) {
+        console.error("Error al cambiar estado de usuario:", error);
+
+        return res.status(500).json({
+            mensaje: "No se pudo actualizar el estado del usuario."
+        });
+    }
+};
+
+
 
 
 // Exportar las funciones
@@ -210,5 +289,6 @@ module.exports = {
     obtenerUsuarios,
     obtenerUsuarioPorId,
     actualizarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    cambiarEstadoUsuario
 };

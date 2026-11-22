@@ -34,7 +34,10 @@ const completarCita = async (req, res) => {
     const resultado = await Cita.findOneAndUpdate(
       { _id: cita._id, doctor: req.sesion.usuarioId, estado: { $in: ['pendiente', 'confirmada'] } },
       { $set: { estado: 'completada' } },
-      { new: true, runValidators: true }
+      {
+          returnDocument: "after",
+          runValidators: true
+      }
     );
     if (!resultado) return res.status(409).json({ mensaje: 'La cita cambió de estado. Actualiza la agenda.' });
     return res.json({ mensaje: 'Cita marcada como completada.', cita: resultado });
