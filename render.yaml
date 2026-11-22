@@ -1,7 +1,9 @@
+
 services:
   - type: web
     name: sistema-citas-medicas
     runtime: node
+    plan: free
     buildCommand: cd API && npm ci
     startCommand: cd API && npm start
     envVars:
