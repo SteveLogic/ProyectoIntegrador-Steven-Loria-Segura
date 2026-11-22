@@ -81,7 +81,7 @@
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
         <div class="row g-3">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3" id="kpiUsuarios">—</div><div class="kpi-label mt-2">Datos de MongoDB</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3">—</div><div class="kpi-label mt-2">Pendiente de consulta API</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3" id="kpiDoctores">—</div><div class="kpi-label mt-2">Doctores activos en MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3" id="kpiCitas">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
         </div>
@@ -2311,6 +2311,14 @@ cargarCitasAdmin();
             if (!Array.isArray(doctores)) {
                 throw new Error("La API no devolvió una lista de doctores");
             }
+                        // Calcular el total de doctores activos desde MongoDB.
+            const cantidadDoctoresActivos = doctores.filter(
+                doctor => doctor.activo === true
+            ).length;
+
+            document.getElementById("kpiDoctores").textContent =
+                String(cantidadDoctoresActivos);
+
 
             // Sustituir las filas ficticias por registros reales
             tablaDoctores.replaceChildren();
@@ -2374,6 +2382,8 @@ cargarCitasAdmin();
 
         } catch (error) {
             console.error("Error al consultar doctores:", error);
+            // Evitar mostrar un total anterior si falla la consulta.
+            document.getElementById("kpiDoctores").textContent = "—";
 
             tablaDoctores.replaceChildren();
             actualizarDoctores();
