@@ -43,7 +43,7 @@ const citaSchema = new mongoose.Schema({
 
     estado: {
         type: String,
-        enum: ["pendiente", "confirmada", "cancelada", "completada"],
+        enum: ["pendiente", "confirmada", "cancelada", "completada", "no_presentada"],
         default: "pendiente"
     }
 

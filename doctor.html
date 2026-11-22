@@ -7,6 +7,7 @@
   <title>Panel del doctor | Sistema de Citas Médicas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
+  <script src="js/api-config.js"></script>
 </head>
 <body>
   <!-- La verificación de rol en sessionStorage es únicamente navegación de prueba.
@@ -77,7 +78,7 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; el registro de atención utiliza una API de prueba con sesión temporal y la disponibilidad se guarda en MongoDB. El cambio general de estado sigue siendo vista previa. Solo entorno académico local: las rutas de citas y atención médica aplican controles de sesión y permisos en el servidor; otros módulos siguen en desarrollo.</div>
+        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; el registro de atención utiliza una API de prueba con sesión temporal y la disponibilidad se guarda en MongoDB. El cambio de estado se registra en MongoDB. Solo entorno académico local: las rutas de citas y atención médica aplican controles de sesión y permisos en el servidor; otras funciones todavía requieren revisión.</div>
         <div class="row g-3" aria-label="Indicadores de agenda y horarios">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
@@ -91,14 +92,14 @@
           <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Citas obtenidas de MongoDB asociadas al usuario doctor de esta sesión.</p></div>
             <div class="d-flex flex-wrap gap-2 align-items-center">
-              <button type="button" class="btn btn-sm btn-outline-app btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalEstadoCitaDoctor">Actualizar estado (vista previa)</button>
+              <button type="button" class="btn btn-sm btn-outline-app btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalEstadoCitaDoctor">Actualizar estado</button>
               <a href="#disponibilidad" class="btn btn-sm btn-app-primary btn-mobile-wide">Consultar horarios</a>
             </div>
           </div>
           <div class="app-card-body pb-3">
             <div class="row g-3 align-items-end">
               <div class="col-12 col-md-4"><label for="buscarAgenda" class="form-label">Buscar paciente o especialidad</label><input id="buscarAgenda" class="form-control" type="search" placeholder="Ej.: maria, pediatria" autocomplete="off"></div>
-              <div class="col-12 col-sm-6 col-md-3"><label for="filtrarEstadoAgenda" class="form-label">Estado</label><select id="filtrarEstadoAgenda" class="form-select"><option value="">Todos los estados</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option></select></div>
+              <div class="col-12 col-sm-6 col-md-3"><label for="filtrarEstadoAgenda" class="form-label">Estado</label><select id="filtrarEstadoAgenda" class="form-select"><option value="">Todos los estados</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option><option value="no_presentada">No presentada</option></select></div>
               <div class="col-12 col-sm-6 col-md-3"><label for="filtrarFechaAgenda" class="form-label">Fecha</label><input id="filtrarFechaAgenda" class="form-control" type="date"></div>
               <div class="col-12 col-md-2"><button type="button" id="limpiarAgenda" class="btn btn-outline-app w-100">Limpiar</button></div>
             </div>
@@ -157,7 +158,7 @@
         <div class="app-card">
           <div class="app-card-header"><p class="eyebrow mb-1">Cuenta profesional</p><h2 class="section-title mb-1" id="perfilDoctorTitulo">Mi perfil</h2><p class="small text-muted-app mb-0">Datos básicos del usuario que inició sesión como doctor.</p></div>
           <div class="app-card-body row g-4">
-            <div class="col-12"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña (vista previa)</a></div>
+            <div class="col-12"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña</a></div>
             <div class="col-12 col-md-6"><p class="doctor-profile-label mb-1">Nombre</p><p class="doctor-profile-value mb-0" id="perfilNombreDoctor">Doctor</p></div>
             <div class="col-12 col-md-6"><p class="doctor-profile-label mb-1">Rol</p><p class="doctor-profile-value mb-0">Doctor</p></div>
             <div class="col-12"><p class="doctor-profile-label mb-1">Correo electrónico</p><p class="small text-muted-app mb-0">Pendiente de consulta a la API. No se muestran datos inventados de la cuenta.</p></div>
@@ -176,7 +177,7 @@
     </div></div>
   </div>
 
-  <!-- KAN-124: la cita y el estado nuevo son solo una propuesta visual, no una operación sobre la API. -->
+  <!-- KAN-37: el doctor actualiza una cita de su agenda mediante PATCH protegido. -->
   <div class="modal fade" id="modalEstadoCitaDoctor" tabindex="-1" aria-labelledby="estadoCitaDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
       <div class="modal-header">
@@ -186,7 +187,7 @@
       <form id="formEstadoCitaDoctor">
         <div class="modal-body">
           <div class="alert alert-light border small" role="note">
-            <strong>Vista previa académica:</strong> puedes seleccionar un nuevo estado, pero no se actualiza la agenda ni se envían datos a MongoDB.
+            Los cambios se guardan en MongoDB. Cancelación antes del horario; atendida o no presentada después de la cita.
           </div>
           <div class="mb-3">
             <label for="citaSeleccionadaEstado" class="form-label">Cita médica *</label>
@@ -208,10 +209,9 @@
             <label for="estadoNuevoCita" class="form-label">Nuevo estado *</label>
             <select class="form-select" id="estadoNuevoCita" name="estado" required>
               <option value="">Selecciona el nuevo estado</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="confirmada">Confirmada</option>
               <option value="cancelada">Cancelada</option>
-              <option value="completada">Completada</option>
+              <option value="completada">Completada (atendida)</option>
+              <option value="no_presentada">No presentada</option>
             </select>
             <div class="form-text">Estados definidos en el modelo de Mongoose <code>Cita.estado</code>.</div>
           </div>
@@ -222,7 +222,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-app-primary">Validar vista previa</button>
+          <button type="submit" class="btn btn-app-primary">Guardar estado</button>
         </div>
       </form>
     </div></div>
@@ -425,7 +425,7 @@
     document.getElementById('cerrarSesionDoctor').addEventListener('click', async () => {
       const token = sessionStorage.getItem('tokenAtencion');
       if (token) {
-        try { await fetch('http://localhost:3000/api/auth/logout', {method:'POST', headers:{Authorization:`Bearer ${token}`}}); }
+        try { await fetch(`${window.CITAS_API_ORIGIN}/api/auth/logout`, {method:'POST', headers:{Authorization:`Bearer ${token}`}}); }
         catch (_) { /* la sesión local se cerrará de cualquier modo */ }
       }
       for (const clave of ['usuarioAutenticado', 'rolUsuario', 'usuarioId', 'nombreUsuario', 'tokenAtencion']) sessionStorage.removeItem(clave);
@@ -470,7 +470,7 @@
     }
     const filasAgenda = [];
     let citasDoctorCache = [];
-    const API_ATENCIONES = 'http://localhost:3000/api/atenciones';
+    const API_ATENCIONES = `${window.CITAS_API_ORIGIN}/api/atenciones`;
     function encabezadosClinicos() {
       const token = sessionStorage.getItem('tokenAtencion');
       if (!token) throw new Error('Debes cerrar sesión e iniciar sesión de nuevo desde login.html para habilitar atención médica.');
@@ -521,17 +521,17 @@
         document.getElementById('detalle' + campo).textContent = datos[valor];
       }
     });
-    // KAN-124: propuesta de estado a partir de las filas ilustrativas de la agenda.
+    // KAN-37: cambio de estado persistente para citas del doctor de la sesión.
     const modalEstadoCita = document.getElementById('modalEstadoCitaDoctor');
     const seleccionarCitaEstado = document.getElementById('citaSeleccionadaEstado');
     const estadoNuevoCita = document.getElementById('estadoNuevoCita');
     const mensajeEstadoCita = document.getElementById('mensajeEstadoCitaDoctor');
     const vistaEstadoPropuesto = document.getElementById('estadoPropuestoVista');
     const badgeEstadoPropuesto = document.getElementById('estadoPropuestoBadge');
-    const nombresEstadoCita = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' };
+    const nombresEstadoCita = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada', no_presentada: 'No presentada' };
 
     // Paquete 05A — Lectura de agenda desde GET /api/citas.
-    // La sesión de Live Server no es un mecanismo de autorización; uso solo académico local.
+    // Live Server no autoriza las operaciones: la API valida el Bearer token y el doctor asignado.
     function idDocumento(obj) {
       return typeof obj === 'string' ? obj : (obj?._id || obj?.id || '');
     }
@@ -583,7 +583,7 @@
     function llenarSelector(selector, incluirCanceladas = false) {
       selector.replaceChildren(new Option('Selecciona una cita', ''));
       filasAgenda.forEach((fila, indice) => {
-        if (!incluirCanceladas && fila.dataset.estado === 'cancelada') return;
+        if (!incluirCanceladas && !['pendiente', 'confirmada'].includes(fila.dataset.estado)) return;
         const datos = fila.querySelector('.ver-detalle').dataset;
         selector.add(new Option(`${datos.paciente} — ${datos.fecha} · ${datos.hora}`, String(indice)));
       });
@@ -644,7 +644,7 @@
           throw new Error('Debes iniciar sesión nuevamente.');
         }
 
-        const respuesta = await fetch('http://localhost:3000/api/citas', {
+        const respuesta = await fetch(`${window.CITAS_API_ORIGIN}/api/citas`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -664,7 +664,7 @@
           tabla.append(fila);
           filasAgenda.push(fila);
         });
-        llenarSelector(seleccionarCitaEstado, true);
+        llenarSelector(seleccionarCitaEstado, false);
         actualizarConsultasClinicas();
         llenarPacientes(citas);
         const partesHoy = new Intl.DateTimeFormat('es-CR', {timeZone:'America/Costa_Rica',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
@@ -678,7 +678,7 @@
       } catch (error) {
         tabla.replaceChildren();
         filasAgenda.splice(0);
-        llenarSelector(seleccionarCitaEstado, true);
+        llenarSelector(seleccionarCitaEstado, false);
         citasDoctorCache = [];
         actualizarConsultasClinicas();
         llenarPacientes([]);
@@ -731,17 +731,33 @@
     });
     seleccionarCitaEstado.addEventListener('change', actualizarInfoCitaEstado);
     estadoNuevoCita.addEventListener('change', actualizarVistaEstadoPropuesto);
-    document.getElementById('formEstadoCitaDoctor').addEventListener('submit', evento => {
+    document.getElementById('formEstadoCitaDoctor').addEventListener('submit', async evento => {
       evento.preventDefault();
       const fila = citaEstadoActual();
-      if (!fila) return;
-      const estadoAnterior = fila.dataset.estado;
+      const cita = citasDoctorCache[Number(seleccionarCitaEstado.value)];
       const estadoPropuesto = estadoNuevoCita.value;
-      const datos = fila.querySelector('.ver-detalle').dataset;
+      if (!fila || !cita || !['cancelada', 'completada', 'no_presentada'].includes(estadoPropuesto)) return;
+      const boton = evento.currentTarget.querySelector('button[type="submit"]');
+      boton.disabled = true;
       mensajeEstadoCita.hidden = false;
-      mensajeEstadoCita.textContent = estadoPropuesto === estadoAnterior
-        ? `Selecciona un estado diferente de «${nombresEstadoCita[estadoAnterior]}» para mostrar el cambio propuesto.`
-        : `Vista previa validada: la cita de ${datos.paciente} pasaría de «${nombresEstadoCita[estadoAnterior]}» a «${nombresEstadoCita[estadoPropuesto]}». No se modificó la agenda ni se enviaron datos a la API.`;
+      try {
+        await solicitarClinica(`${window.CITAS_API_ORIGIN}/api/citas/${encodeURIComponent(idDocumento(cita))}/estado`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado: estadoPropuesto })
+        });
+        await cargarAgendaDesdeAPI();
+        document.getElementById('formEstadoCitaDoctor').reset();
+        document.getElementById('datosCitaEstado').hidden = true;
+        vistaEstadoPropuesto.hidden = true;
+        mensajeEstadoCita.className = 'alert alert-success mb-0';
+        mensajeEstadoCita.textContent = `Estado guardado: ${nombresEstadoCita[estadoPropuesto]}. La agenda fue actualizada.`;
+      } catch (error) {
+        mensajeEstadoCita.className = 'alert alert-danger mb-0';
+        mensajeEstadoCita.textContent = error.message;
+      } finally {
+        boton.disabled = false;
+      }
     });
     // Paquete 06A — Citas completadas y atención médica persistente.
     const modalRegistroAtencion = document.getElementById('modalRegistroAtencion');
@@ -795,7 +811,7 @@
       if (!sePuedeCompletar()) return;
       completarConsulta.disabled = true;
       try {
-        await solicitarClinica(`http://localhost:3000/api/citas/${encodeURIComponent(idDocumento(cita))}/completar`, { method: 'PATCH' });
+        await solicitarClinica(`${window.CITAS_API_ORIGIN}/api/citas/${encodeURIComponent(idDocumento(cita))}/completar`, { method: 'PATCH' });
         await cargarAgendaDesdeAPI();
         selectorConsulta.value = idDocumento(cita);
         actualizarConsultasClinicas();
@@ -901,7 +917,7 @@
     document.getElementById('verConsultaEjemplo').addEventListener('click', mostrarHistorialSeleccionado);
     // Paquete 05B — franjas de disponibilidad semanales persistentes.
     const doctorHorarioId = sessionStorage.getItem('usuarioId');
-    const API_HORARIOS = 'http://localhost:3000/api/disponibilidad';
+    const API_HORARIOS = `${window.CITAS_API_ORIGIN}/api/disponibilidad`;
     const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const indiceDias = {domingo:0,lunes:1,martes:2,miercoles:3,jueves:4,viernes:5,sabado:6};
     let franjasRegistradas = [];

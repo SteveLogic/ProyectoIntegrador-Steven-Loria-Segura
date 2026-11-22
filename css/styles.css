@@ -94,6 +94,7 @@ a:hover { color: var(--app-accent-hover); }
 .badge-cita-confirmada { background: #edf1ef; color: #37554a; }
 .badge-cita-cancelada { background: #f1f2f4; color: #626b76; }
 .badge-cita-completada { background: #eef0f5; color: #424d64; }
+.badge-cita-no_presentada { background: #f7eef1; color: #79515f; }
 @media (max-width: 575.98px) {
   #citas .app-card-header .btn { width: 100%; }
   #citas .modal-footer { flex-wrap: wrap; }

@@ -9,6 +9,7 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
+  <script src="js/api-config.js"></script>
 </head>
 
 <body class="auth-page">
@@ -153,7 +154,7 @@
   <script>
     "use strict";
 
-    const API_AUTH = "http://localhost:3000/api/auth";
+    const API_AUTH = `${window.CITAS_API_ORIGIN}/api/auth`;
 
     const rutasPorRol = {
       paciente: "paciente.html#miPerfil",

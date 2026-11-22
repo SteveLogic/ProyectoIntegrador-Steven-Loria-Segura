@@ -7,6 +7,8 @@
   <title>Panel administrativo | Sistema de Citas Médicas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/api-config.js"></script>
 </head>
 <body>
   <!-- Seguridad académica del prototipo: se conserva el acceso por sessionStorage.
@@ -274,7 +276,7 @@
                   <option value="pendiente">Pendiente</option>
                   <option value="confirmada">Confirmada</option>
                   <option value="cancelada">Cancelada</option>
-                  <option value="completada">Completada</option>
+                  <option value="completada">Completada</option><option value="no_presentada">No presentada</option>
                 </select>
               </div>
               <div class="col-12 col-sm-6 col-lg-2">
@@ -295,7 +297,7 @@
             </table>
           </div>
           <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No hay citas registradas que coincidan con los filtros.</div>
-          <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> y <code>completada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
+          <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> , <code>completada</code> y <code>no_presentada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
         </div>
       </section>
       <!-- KAN-147: reportes administrativos en vista previa. Sin modelos/endpoints nuevos. -->
@@ -338,7 +340,7 @@
                   <option value="todos">Todos los estados</option>
                   <option value="pendiente">Pendiente</option>
                   <option value="confirmada">Confirmada</option>
-                  <option value="completada">Completada</option>
+                  <option value="completada">Completada</option><option value="no_presentada">No presentada</option>
                   <option value="cancelada">Cancelada</option>
                 </select>
               </div>
@@ -434,7 +436,7 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearUsuarioTitulo">Registrar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formCrearUsuario" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">La cuenta se guardará mediante <code>POST /api/usuarios</code>. La contraseña se envía al backend para almacenarse como hash; no aparecerá en la tabla ni en mensajes de confirmación. Trabajar solo en entorno local hasta implementar autorización del servidor.</p>
+          <p class="small text-muted-app">La cuenta se guardará mediante <code>POST /api/usuarios</code>. La contraseña se envía al backend para almacenarse como hash; no aparecerá en la tabla ni en mensajes de confirmación. Las operaciones requieren autenticación con rol administrador.</p>
           <div id="crearUsuarioError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12"><label for="usuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="usuarioNombre" name="nombre" class="form-control" maxlength="120" autocomplete="name" placeholder="Ej.: María Pérez" required></div>
@@ -639,7 +641,7 @@
 
       try {
         if (token) {
-          const respuesta = await fetch('http://localhost:3000/api/auth/logout', {
+          const respuesta = await fetch(`${window.CITAS_API_ORIGIN}/api/auth/logout`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`
@@ -695,8 +697,8 @@
         .replace(/\s+/g, ' ');
     }
     // KAN-16: Consulta, registro y edición de usuarios con datos reales de MongoDB.
-    // No se modifica rol/estado. La API no tiene protección de permisos: uso local únicamente.
-    const API_USUARIOS = 'http://localhost:3000/api/usuarios';
+    // La API exige autenticación y rol administrador; el rol/estado usa rutas independientes.
+    const API_USUARIOS = `${window.CITAS_API_ORIGIN}/api/usuarios`;
     const tablaUsuarios = document.querySelector('#tablaUsuarios tbody');
     const buscarUsuario = document.getElementById('buscarUsuario');
     const filtrarRolUsuario = document.getElementById('filtrarRolUsuario');
@@ -1173,7 +1175,7 @@
 
     cargarUsuariosDesdeAPI();
     // KAN-9: listado, registro, edición y búsqueda con datos reales de MongoDB.
-    const API_ESPECIALIDADES = 'http://localhost:3000/api/especialidades';
+    const API_ESPECIALIDADES = `${window.CITAS_API_ORIGIN}/api/especialidades`;
     const tablaEspecialidades = document.querySelector('#tablaEspecialidades tbody');
     const buscarEspecialidad = document.getElementById('buscarEspecialidad');
     const filtrarEstadoEspecialidad = document.getElementById('filtrarEstadoEspecialidad');
@@ -1381,17 +1383,17 @@
     cargarEspecialidadesDesdeAPI();
 
 // Paquete 04B: gestión real de citas con API REST (solo desarrollo local).
-const API_CITAS_ADMIN = 'http://localhost:3000/api/citas';
-const API_USUARIOS_CITAS = 'http://localhost:3000/api/usuarios';
-const API_DOCTORES_CITAS = 'http://localhost:3000/api/doctores';
-const API_ESPECIALIDADES_CITAS = 'http://localhost:3000/api/especialidades';
+const API_CITAS_ADMIN = `${window.CITAS_API_ORIGIN}/api/citas`;
+const API_USUARIOS_CITAS = `${window.CITAS_API_ORIGIN}/api/usuarios`;
+const API_DOCTORES_CITAS = `${window.CITAS_API_ORIGIN}/api/doctores`;
+const API_ESPECIALIDADES_CITAS = `${window.CITAS_API_ORIGIN}/api/especialidades`;
 const tablaCitasAdmin = document.querySelector('#tablaCitas tbody');
 const buscarCita = document.getElementById('buscarCita');
 const filtrarEstadoCita = document.getElementById('filtrarEstadoCita');
 const filtrarFechaCita = document.getElementById('filtrarFechaCita');
 const avisoCitas = document.getElementById('avisoCitas');
-const nombresEstados = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' };
-const ordenEstados = ['pendiente', 'confirmada', 'completada', 'cancelada'];
+const nombresEstados = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada', no_presentada: 'No presentada' };
+const ordenEstados = ['pendiente', 'confirmada', 'completada', 'no_presentada', 'cancelada'];
 let citasAdmin = [];
 let doctorPerfilesCitas = [];
 let idCitaSeleccionada = null;
@@ -1580,7 +1582,7 @@ let solicitudHorariosAdmin=0;
 async function consultarHorariosAdmin({doctor,fecha,excluirCita}) {
   const parametros=new URLSearchParams({doctor,fecha});
   if(excluirCita)parametros.set('excluirCita',excluirCita);
-  return pedirJSONCitas(`http://localhost:3000/api/disponibilidad/slots?${parametros}`);
+  return pedirJSONCitas(`${window.CITAS_API_ORIGIN}/api/disponibilidad/slots?${parametros}`);
 }
 async function cargarSlotsCitaAdmin() {
   const solicitud=++solicitudHorariosAdmin;
@@ -1892,7 +1894,13 @@ function actualizarReporte() {
   document.getElementById('reporteSinResultados').classList.toggle('d-none', filtradas.length !== 0 || fechaInvalida || !cargaCitasCorrecta);
 }
 document.getElementById('filtrosReporte').addEventListener('input', actualizarReporte);
-document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
+// El proyecto usa jQuery para los eventos de cambios en reportes,
+// con fallback nativo si la CDN no está disponible.
+if (window.jQuery) {
+  window.jQuery('#filtrosReporte').on('change', actualizarReporte);
+} else {
+  document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
+}
 document.getElementById('filtrosReporte').addEventListener('reset', event => {
   event.preventDefault();
   doctorReporte.value = 'todos';
@@ -1989,13 +1997,13 @@ cargarCitasAdmin();
 
         const [respuestaUsuarios, respuestaDoctores, respuestaEspecialidades] =
             await Promise.all([
-                fetch('http://localhost:3000/api/usuarios', {
+                fetch(`${window.CITAS_API_ORIGIN}/api/usuarios`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 }),
-                fetch('http://localhost:3000/api/doctores'),
-                fetch('http://localhost:3000/api/especialidades')
+                fetch(`${window.CITAS_API_ORIGIN}/api/doctores`),
+                fetch(`${window.CITAS_API_ORIGIN}/api/especialidades`)
             ]);
 
         if (!respuestaUsuarios.ok ||
@@ -2130,7 +2138,7 @@ cargarCitasAdmin();
         }
         // Enviar los datos a nuestra API REST
         const respuesta = await fetch(
-            'http://localhost:3000/api/doctores',
+            `${window.CITAS_API_ORIGIN}/api/doctores`,
             {
                 method: 'POST',
                 headers: {
@@ -2199,7 +2207,7 @@ cargarCitasAdmin();
       campoDoctor('editarDoctorColegiado').value = doctorSeleccionado.dataset.colegiado;
       campoDoctor('editarDoctorTelefono').value = doctorSeleccionado.dataset.telefono;
       try {
-        const respuesta = await fetch('http://localhost:3000/api/especialidades');
+        const respuesta = await fetch(`${window.CITAS_API_ORIGIN}/api/especialidades`);
         if (!respuesta.ok) throw new Error(`Error al consultar especialidades (${respuesta.status}).`);
         const especialidades = await respuesta.json();
         if (!Array.isArray(especialidades)) throw new Error('La lista de especialidades no es válida.');
@@ -2298,13 +2306,13 @@ cargarCitasAdmin();
       try {
         // El backend dispone de endpoints independientes para datos profesionales y especialidad.
         if (cambiaDatos) {
-          await enviarCambioDoctor(`http://localhost:3000/api/doctores/${encodeURIComponent(perfilId)}`, {
+          await enviarCambioDoctor(`${window.CITAS_API_ORIGIN}/api/doctores/${encodeURIComponent(perfilId)}`, {
             numeroColegiado, telefono
           });
           cambiosParciales = true;
         }
         if (cambiaEspecialidad) {
-          await enviarCambioDoctor(`http://localhost:3000/api/doctores/${encodeURIComponent(perfilId)}/especialidad`, {
+          await enviarCambioDoctor(`${window.CITAS_API_ORIGIN}/api/doctores/${encodeURIComponent(perfilId)}/especialidad`, {
             especialidad
           });
           cambiosParciales = true;
@@ -2362,7 +2370,7 @@ cargarCitasAdmin();
 
         try {
             const respuesta = await fetch(
-                "http://localhost:3000/api/doctores"
+                `${window.CITAS_API_ORIGIN}/api/doctores`
             );
 
             if (!respuesta.ok) {

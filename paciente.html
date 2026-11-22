@@ -7,6 +7,7 @@
   <title>Panel del paciente | Sistema de Citas Médicas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
+  <script src="js/api-config.js"></script>
 </head>
 <body>
   <!-- El control de sesión del frontend es ilustrativo; la autorización real debe validarse en el backend. -->
@@ -123,7 +124,7 @@
           <div class="app-card-body">
             <div class="row g-3 align-items-end">
               <div class="col-12 col-md-6"><label for="buscarCitasPaciente" class="form-label">Buscar doctor o especialidad</label><input class="form-control" id="buscarCitasPaciente" type="search" placeholder="Ej.: pediatria, elena"></div>
-              <div class="col-12 col-md-4"><label for="estadoCitasPaciente" class="form-label">Estado</label><select class="form-select" id="estadoCitasPaciente"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option></select></div>
+              <div class="col-12 col-md-4"><label for="estadoCitasPaciente" class="form-label">Estado</label><select class="form-select" id="estadoCitasPaciente"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option><option value="completada">Completada</option><option value="no_presentada">No presentada</option></select></div>
               <div class="col-12 col-md-2"><button type="button" class="btn btn-outline-app w-100" id="limpiarCitasPaciente">Limpiar</button></div>
             </div>
             <p class="small text-muted-app my-3" id="contadorCitasPaciente" role="status" aria-live="polite">Cargando citas...</p>
@@ -258,7 +259,7 @@
       <section id="miPerfil" class="mb-4" aria-labelledby="miPerfilTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Vista visual de los datos del usuario autenticado.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar perfil</button></div>
-          <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña (vista previa)</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0" id="correoPacientePerfil">Consultando correo electrónico...</p></div></div></div>
+          <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0" id="correoPacientePerfil">Consultando correo electrónico...</p></div></div></div>
         </div>
       </section>
       <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica con MongoDB · No usar datos médicos reales</footer>
@@ -364,7 +365,7 @@
 
       try {
         if (token) {
-          const respuesta = await fetch('http://localhost:3000/api/auth/logout', {
+          const respuesta = await fetch(`${window.CITAS_API_ORIGIN}/api/auth/logout`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`
@@ -438,7 +439,7 @@
         .replace(/n\u0303/g, 'ñ').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
     }
     // Paquete 04A: directorio y citas reales con la API (uso académico local).
-    const API_CITAS = 'http://localhost:3000/api';
+    const API_CITAS = `${window.CITAS_API_ORIGIN}/api`;
     const pacienteId = sessionStorage.getItem('usuarioId');
     let doctoresActivos = [];
     let especialidadesActivas = [];
@@ -818,7 +819,7 @@
         const especialidad = cita.especialidad?.nombre || 'Sin especialidad';
         [nombreDoctor, especialidad, cita.fecha.split('-').reverse().join('/'), cita.hora].forEach(valor => fila.append(nodo('td', '', valor)));
         const celdaEstado = nodo('td');
-        celdaEstado.append(nodo('span', `badge-cita badge-cita-${cita.estado}`, cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)));
+        celdaEstado.append(nodo('span', `badge-cita badge-cita-${cita.estado}`, cita.estado === 'no_presentada' ? 'No presentada' : cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)));
         fila.append(celdaEstado);
         const acciones = nodo('td', 'patient-appointment-actions');
         if (cita.estado === 'pendiente' || cita.estado === 'confirmada') {
@@ -880,7 +881,7 @@
     cargarCitasPaciente();
 
     // KAN-141 a KAN-146: notificaciones reales de MongoDB.
-    const API_NOTIFICACIONES = 'http://localhost:3000/api/notificaciones';
+    const API_NOTIFICACIONES = `${window.CITAS_API_ORIGIN}/api/notificaciones`;
 
     const listaNotificaciones = document.getElementById('listaNotificaciones');
     const filtroTipoNotificacion = document.getElementById('filtroTipoNotificacion');

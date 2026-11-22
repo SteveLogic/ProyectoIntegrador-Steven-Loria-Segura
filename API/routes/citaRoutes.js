@@ -15,6 +15,7 @@ const {
 } = require("../middleware/sesiones");
 
 const { completarCita } = require("../controllers/atencionController");
+const { actualizarEstadoDoctor } = require("../controllers/estadoCitaController");
 
 const router = express.Router();
 
@@ -32,6 +33,9 @@ router.get("/:id", obtenerCitaPorId);
 
 // Completar una cita: únicamente el doctor asignado.
 router.patch("/:id/completar", requerirDoctor, completarCita);
+
+// Actualizar estado (atendida, cancelada, no presentada) como doctor asignado.
+router.patch("/:id/estado", requerirDoctor, actualizarEstadoDoctor);
 
 // Reprogramar una cita.
 router.put("/:id", reprogramarCita);
