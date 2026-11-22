@@ -437,6 +437,81 @@
       </form>
     </div></div>
   </div>
+
+  <!-- Modal para cambiar el rol de un usuario -->
+  <div class="modal fade"
+      id="modalCambiarRolUsuario"
+      tabindex="-1"
+      aria-labelledby="modalCambiarRolUsuarioTitulo"
+      aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h2 class="modal-title fs-5"
+              id="modalCambiarRolUsuarioTitulo">
+            Cambiar rol de usuario
+          </h2>
+
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Cerrar"></button>
+        </div>
+
+        <form id="formCambiarRolUsuario" novalidate>
+          <div class="modal-body">
+
+            <p class="mb-3">
+              Usuario:
+              <strong id="nombreCambiarRolUsuario"></strong>
+            </p>
+
+            <div id="errorCambiarRolUsuario"
+                class="alert alert-danger d-none"
+                role="alert"></div>
+
+            <label for="selectCambiarRolUsuario"
+                  class="form-label">
+              Nuevo rol
+            </label>
+
+            <select id="selectCambiarRolUsuario"
+                    class="form-select"
+                    required>
+              <option value="paciente">Paciente</option>
+              <option value="doctor">Doctor</option>
+              <option value="administrador">Administrador</option>
+            </select>
+
+            <p class="form-text mt-3">
+              El cambio invalidará las sesiones abiertas
+              del usuario. Si se asigna el rol Doctor,
+              su perfil profesional deberá registrarse
+              por separado.
+            </p>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button"
+                    class="btn btn-outline-app"
+                    data-bs-dismiss="modal">
+              Cancelar
+            </button>
+
+            <button type="submit"
+                    class="btn btn-app-primary">
+              Guardar rol
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarUsuarioTitulo">Editar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
@@ -447,7 +522,7 @@
           <div class="row g-3">
             <div class="col-12"><label for="editarUsuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="editarUsuarioNombre" name="nombre" class="form-control" maxlength="120" required></div>
             <div class="col-12"><label for="editarUsuarioEmail" class="form-label">Correo electrónico *</label><input type="email" id="editarUsuarioEmail" name="email" class="form-control" required></div>
-            <div class="col-12"><label for="editarUsuarioRol" class="form-label">Rol actual (solo lectura)</label><input type="text" id="editarUsuarioRol" class="form-control" readonly><div class="form-text">El endpoint actual no permite cambiar roles.</div></div>
+            <div class="col-12"><label for="editarUsuarioRol" class="form-label">Rol actual (solo lectura)</label><input type="text" id="editarUsuarioRol" class="form-control" readonly><div class="form-text">Para modificar el rol, utiliza el botón «Cambiar rol» de la tabla de usuarios.</div></div>
           </div>
         </div>
         <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Guardar cambios</button></div>
@@ -719,7 +794,24 @@
           'No puedes desactivar tu propia cuenta';
       }
 
-      acciones.append(editar, botonEstado);
+          // Botón para modificar el rol del usuario.
+    const botonRol = document.createElement('button');
+
+    botonRol.type = 'button';
+    botonRol.className =
+      'btn btn-sm btn-outline-app ms-2 cambiar-rol-usuario';
+
+    botonRol.textContent = 'Cambiar rol';
+    botonRol.dataset.bsToggle = 'modal';
+    botonRol.dataset.bsTarget = '#modalCambiarRolUsuario';
+
+    // El administrador no puede cambiar su propio rol.
+    if (String(usuario._id) === sessionStorage.getItem('usuarioId')) {
+      botonRol.disabled = true;
+      botonRol.title = 'No puedes cambiar tu propio rol';
+    }
+
+    acciones.append(editar, botonRol, botonEstado);
       fila.append(nombre, email, rol, estado, acciones);
 
       return fila;
@@ -906,6 +998,124 @@
         boton.textContent = 'Registrar usuario';
       }
     });
+
+    // KAN-66: cambio administrativo de roles.
+    const modalCambiarRolUsuario =
+      document.getElementById('modalCambiarRolUsuario');
+
+    const formularioCambiarRolUsuario =
+      document.getElementById('formCambiarRolUsuario');
+
+    const selectCambiarRolUsuario =
+      document.getElementById('selectCambiarRolUsuario');
+
+    const errorCambiarRolUsuario =
+      document.getElementById('errorCambiarRolUsuario');
+
+    let idUsuarioCambioRol = null;
+    let rolAnteriorUsuario = null;
+    let nombreUsuarioCambioRol = '';
+
+    modalCambiarRolUsuario.addEventListener('show.bs.modal', evento => {
+      const fila = evento.relatedTarget?.closest('tr[data-id]');
+
+      if (
+        !fila ||
+        fila.dataset.id === sessionStorage.getItem('usuarioId')
+      ) {
+        evento.preventDefault();
+        return;
+      }
+
+      idUsuarioCambioRol = fila.dataset.id;
+      rolAnteriorUsuario = fila.dataset.rol;
+      nombreUsuarioCambioRol = fila.dataset.nombre;
+
+      document.getElementById('nombreCambiarRolUsuario')
+        .textContent = nombreUsuarioCambioRol;
+
+      selectCambiarRolUsuario.value = rolAnteriorUsuario;
+
+      errorCambiarRolUsuario.textContent = '';
+      errorCambiarRolUsuario.classList.add('d-none');
+    });
+
+    modalCambiarRolUsuario.addEventListener('hidden.bs.modal', () => {
+      idUsuarioCambioRol = null;
+      rolAnteriorUsuario = null;
+      nombreUsuarioCambioRol = '';
+      formularioCambiarRolUsuario.reset();
+    });
+
+    formularioCambiarRolUsuario.addEventListener('submit', async evento => {
+      evento.preventDefault();
+
+      if (!idUsuarioCambioRol) return;
+
+      const nuevoRol = selectCambiarRolUsuario.value;
+
+      errorCambiarRolUsuario.textContent = '';
+      errorCambiarRolUsuario.classList.add('d-none');
+
+      if (nuevoRol === rolAnteriorUsuario) {
+        errorCambiarRolUsuario.textContent =
+          'Selecciona un rol diferente al actual.';
+
+        errorCambiarRolUsuario.classList.remove('d-none');
+        return;
+      }
+
+      const nombre = nombreUsuarioCambioRol;
+      const nombreRol = rolesUsuarios[nuevoRol] || nuevoRol;
+
+      const confirmado = window.confirm(
+        `¿Deseas asignar el rol ${nombreRol} a «${nombre}»? ` +
+        'Sus sesiones abiertas serán invalidadas.'
+      );
+
+      if (!confirmado) return;
+
+      const boton = formularioCambiarRolUsuario.querySelector(
+        'button[type="submit"]'
+      );
+
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+
+      try {
+        await enviarUsuarioAPI(
+          'PATCH',
+          `${API_USUARIOS}/${encodeURIComponent(idUsuarioCambioRol)}/rol`,
+          { rol: nuevoRol }
+        );
+
+        bootstrap.Modal.getOrCreateInstance(
+          modalCambiarRolUsuario
+        ).hide();
+
+        const actualizado = await cargarUsuariosDesdeAPI();
+
+        avisarUsuarios(
+          actualizado
+            ? `El rol de «${nombre}» se cambió a ${nombreRol}.`
+            : 'El rol se actualizó, pero no se pudo recargar la tabla.',
+          actualizado ? 'success' : 'warning'
+        );
+
+      } catch (error) {
+        console.error('Error al cambiar rol:', error);
+
+        errorCambiarRolUsuario.textContent =
+          error.message || 'No se pudo cambiar el rol.';
+
+        errorCambiarRolUsuario.classList.remove('d-none');
+
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Guardar rol';
+      }
+    });
+
 
     document.getElementById('modalEditarUsuario').addEventListener('show.bs.modal', evento => {
       const fila = evento.relatedTarget?.closest('tr[data-id]');

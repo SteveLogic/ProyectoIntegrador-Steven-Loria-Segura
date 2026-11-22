@@ -7,7 +7,8 @@ const {
     obtenerUsuarioPorId,
     actualizarUsuario,
     eliminarUsuario,
-    cambiarEstadoUsuario
+    cambiarEstadoUsuario,
+    cambiarRolUsuario
 } = require("../controllers/usuarioController");
 
 const {
@@ -35,6 +36,9 @@ router.put("/:id", actualizarUsuario);
 
 // Activar o desactivar usuarios.
 router.patch("/:id/estado", cambiarEstadoUsuario);
+
+// Cambiar el rol de un usuario.
+router.patch("/:id/rol", cambiarRolUsuario);
 
 // Eliminar usuario
 router.delete("/:id", eliminarUsuario);

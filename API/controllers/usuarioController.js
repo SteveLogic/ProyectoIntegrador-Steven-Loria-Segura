@@ -2,6 +2,7 @@
 const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
 const { cerrarSesionesDeUsuario } = require("../middleware/sesiones");
+const Doctor = require("../models/Doctor");
 
 // Crear usuario
 const crearUsuario = async (req, res) => {
@@ -280,6 +281,131 @@ const cambiarEstadoUsuario = async (req, res) => {
     }
 };
 
+const cambiarRolUsuario = async (req, res) => {
+    const id = req.params.id;
+    const datos = req.body;
+
+    // Validar el identificador del usuario.
+    if (!Usuario.db.base.isValidObjectId(id)) {
+        return res.status(400).json({
+            mensaje: "El ID del usuario no es válido."
+        });
+    }
+
+    // Aceptar únicamente un rol permitido.
+    const rolesPermitidos = [
+        "paciente",
+        "doctor",
+        "administrador"
+    ];
+
+    if (
+        !datos ||
+        typeof datos !== "object" ||
+        Array.isArray(datos) ||
+        Object.keys(datos).length !== 1 ||
+        typeof datos.rol !== "string" ||
+        !rolesPermitidos.includes(datos.rol)
+    ) {
+        return res.status(400).json({
+            mensaje: "Debes proporcionar un rol válido."
+        });
+    }
+
+    // Evitar que el administrador cambie su propio rol.
+    if (String(req.sesion.usuarioId) === id) {
+        return res.status(403).json({
+            mensaje: "No puedes modificar tu propio rol."
+        });
+    }
+
+    try {
+        // Comprobar que el usuario existe.
+        const usuarioActual = await Usuario.findById(id);
+
+        if (!usuarioActual) {
+            return res.status(404).json({
+                mensaje: "Usuario no encontrado."
+            });
+        }
+
+        // Si el usuario ya tiene ese rol, no modificar nada.
+        if (usuarioActual.rol === datos.rol) {
+            return res.status(200).json({
+                mensaje: "El usuario ya tiene ese rol.",
+                usuario: {
+                    _id: usuarioActual._id,
+                    nombre: usuarioActual.nombre,
+                    email: usuarioActual.email,
+                    rol: usuarioActual.rol,
+                    activo: usuarioActual.activo !== false
+                }
+            });
+        }
+
+        // No desvincular un doctor con perfil profesional registrado.
+        if (usuarioActual.rol === "doctor") {
+            const perfilMedico = await Doctor.exists({
+                usuario: id
+            });
+
+            if (perfilMedico) {
+                return res.status(409).json({
+                    mensaje:
+                        "No puedes cambiar el rol de un doctor " +
+                        "que tiene un perfil médico asociado."
+                });
+            }
+        }
+
+        // Actualizar el rol con las validaciones de Mongoose.
+        const usuarioActualizado =
+            await Usuario.findByIdAndUpdate(
+                id,
+                {
+                    $set: {
+                        rol: datos.rol
+                    }
+                },
+                {
+                    returnDocument: "after",
+                    runValidators: true
+                }
+            ).select("-password");
+
+        if (!usuarioActualizado) {
+            return res.status(404).json({
+                mensaje: "Usuario no encontrado."
+            });
+        }
+
+        // Invalidar los permisos conservados en sesiones anteriores.
+        cerrarSesionesDeUsuario(id);
+
+        return res.status(200).json({
+            mensaje: "Rol actualizado correctamente.",
+            usuario: usuarioActualizado
+        });
+
+    } catch (error) {
+        console.error("Error al cambiar rol de usuario:", error);
+
+        if (
+            error.name === "ValidationError" ||
+            error.name === "CastError"
+        ) {
+            return res.status(400).json({
+                mensaje: "El rol proporcionado no es válido."
+            });
+        }
+
+        return res.status(500).json({
+            mensaje: "No se pudo actualizar el rol del usuario."
+        });
+    }
+};
+
+
 
 
 
@@ -290,5 +416,6 @@ module.exports = {
     obtenerUsuarioPorId,
     actualizarUsuario,
     eliminarUsuario,
-    cambiarEstadoUsuario
+    cambiarEstadoUsuario,
+    cambiarRolUsuario
 };
