@@ -322,6 +322,16 @@
                   <option value="Pediatría">Pediatría</option>
                 </select>
               </div>
+
+              <div class="col-12 col-sm-6 col-xl-2">
+                <label for="reporteDoctor" class="form-label">
+                  Doctor
+                </label>
+                <select id="reporteDoctor" class="form-select">
+                  <option value="todos">Todos los doctores</option>
+                </select>
+              </div>
+
               <div class="col-12 col-sm-6 col-xl-3">
                 <label for="reporteEstado" class="form-label">Estado de cita</label>
                 <select id="reporteEstado" class="form-select">
@@ -1764,6 +1774,7 @@ document.getElementById('confirmarCancelarCita').addEventListener('click', async
 
 // Reportes de lectura derivados del mismo GET /api/citas (sin endpoints adicionales).
 const especialidadReporte = document.getElementById('reporteEspecialidad');
+const doctorReporte = document.getElementById('reporteDoctor');
 const estadoReporte = document.getElementById('reporteEstado');
 const desdeReporte = document.getElementById('reporteDesde');
 const hastaReporte = document.getElementById('reporteHasta');
@@ -1774,16 +1785,67 @@ function actualizarReporte() {
   especialidadReporte.replaceChildren(new Option('Todas las especialidades','todos'));
   nombresEspecialidades.forEach(nombre => especialidadReporte.add(new Option(nombre, nombre)));
   especialidadReporte.value = nombresEspecialidades.includes(especialidadActual) ? especialidadActual : 'todos';
+
+  // Construir la lista de doctores desde las citas obtenidas.
+  const doctorSeleccionado = doctorReporte.value;
+
+  const doctoresDelReporte = new Map();
+
+  citasAdmin.forEach(cita => {
+    const idDoctor = idRelacion(cita.doctor);
+
+    if (idDoctor && !doctoresDelReporte.has(idDoctor)) {
+      doctoresDelReporte.set(
+        idDoctor,
+        nombreRelacion(cita.doctor)
+      );
+    }
+  });
+
+  // Ordenar por nombre y conservar el filtro seleccionado.
+  const doctoresOrdenados = [...doctoresDelReporte.entries()]
+    .sort((a, b) => a[1].localeCompare(b[1], 'es'));
+
+  doctorReporte.replaceChildren(
+    new Option('Todos los doctores', 'todos')
+  );
+
+  doctoresOrdenados.forEach(([id, nombre]) => {
+    doctorReporte.add(new Option(nombre, id));
+  });
+
+  doctorReporte.value = doctoresDelReporte.has(doctorSeleccionado)
+    ? doctorSeleccionado
+    : 'todos';
+
   const fechaInvalida = Boolean(desdeReporte.value && hastaReporte.value && desdeReporte.value > hastaReporte.value);
   document.getElementById('reporteFechasInvalidas').classList.toggle('d-none', !fechaInvalida);
   desdeReporte.setCustomValidity(fechaInvalida ? 'La fecha inicial supera la final' : '');
   hastaReporte.setCustomValidity(fechaInvalida ? 'La fecha final es anterior a la inicial' : '');
+
   const filtradas = fechaInvalida ? [] : citasAdmin.filter(cita =>
-    (especialidadReporte.value === 'todos' || nombreRelacion(cita.especialidad) === especialidadReporte.value) &&
-    (estadoReporte.value === 'todos' || cita.estado === estadoReporte.value) &&
-    (!desdeReporte.value || cita.fecha >= desdeReporte.value) &&
-    (!hastaReporte.value || cita.fecha <= hastaReporte.value)
+    (
+      especialidadReporte.value === 'todos' ||
+      nombreRelacion(cita.especialidad) === especialidadReporte.value
+    ) &&
+    (
+      doctorReporte.value === 'todos' ||
+      idRelacion(cita.doctor) === doctorReporte.value
+    ) &&
+    (
+      estadoReporte.value === 'todos' ||
+      cita.estado === estadoReporte.value
+    ) &&
+    (
+      !desdeReporte.value ||
+      cita.fecha >= desdeReporte.value
+    ) &&
+    (
+      !hastaReporte.value ||
+      cita.fecha <= hastaReporte.value
+    )
   );
+
   const cantidades = Object.fromEntries(ordenEstados.map(estado => [estado, filtradas.filter(c => c.estado === estado).length]));
   document.getElementById('reporteTotal').textContent = String(filtradas.length);
   document.getElementById('reportePorAtender').textContent = String(cantidades.pendiente + cantidades.confirmada);
@@ -1833,6 +1895,7 @@ document.getElementById('filtrosReporte').addEventListener('input', actualizarRe
 document.getElementById('filtrosReporte').addEventListener('change', actualizarReporte);
 document.getElementById('filtrosReporte').addEventListener('reset', event => {
   event.preventDefault();
+  doctorReporte.value = 'todos';
   especialidadReporte.value = 'todos';
   estadoReporte.value = 'todos';
   desdeReporte.value = '';
