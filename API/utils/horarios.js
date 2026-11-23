@@ -1,6 +1,7 @@
 // Reglas compartidas para reservas y reprogramaciones. Zona horaria: Costa Rica (UTC-06).
 const Disponibilidad = require('../models/Disponibilidad');
 const Cita = require('../models/Cita');
+const Doctor = require('../models/Doctor');
 const DURACION = 30;
 const formatoFecha = /^\d{4}-\d{2}-\d{2}$/;
 const formatoHora = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -32,6 +33,12 @@ async function evaluarHorario({doctor, fecha, hora, excluirCita}) {
   const inicio = minutos(hora);
   if (inicio % DURACION !== 0 || inicio + DURACION > 1440) {
     return {valido:false, codigo:400, mensaje:'Selecciona una hora exacta disponible, en intervalos de 30 minutos.'};
+  }
+  // Este método se utiliza tanto al reservar como al reprogramar.
+  // Un perfil desactivado no debe admitir nuevas reservas ni cambios de horario.
+  const perfilActivo = await Doctor.findOne({usuario:doctor,activo:true});
+  if (!perfilActivo) {
+    return {valido:false, codigo:409, mensaje:'El doctor no está activo para nuevas reservas o reprogramaciones.'};
   }
   const franjas = await Disponibilidad.find({doctor, diaSemana:diaDe(fecha)}).lean();
   if (!franjas.some(f => inicio >= minutos(f.horaInicio) && inicio + DURACION <= minutos(f.horaFin))) {

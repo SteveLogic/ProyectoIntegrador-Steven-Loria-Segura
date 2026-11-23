@@ -273,6 +273,82 @@ exports.desactivarDoctor = async (req, res) => {
 
 
 /**
+ * Activar/desactivar un perfil médico, sin eliminar citas ni cambiar Usuario.activo.
+ * PATCH /api/doctores/:id/estado  { activo: boolean }
+ * Solo lo puede invocar un administrador (validación de rol en la ruta).
+ */
+exports.cambiarEstadoDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cuerpo = req.body;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ mensaje: "El ID del perfil médico no es válido." });
+    }
+
+    if (!cuerpo || typeof cuerpo !== "object" || Array.isArray(cuerpo) ||
+        Object.keys(cuerpo).length !== 1 || typeof cuerpo.activo !== "boolean") {
+      return res.status(400).json({ mensaje: "Envía únicamente el campo activo con valor true o false." });
+    }
+
+    const { activo } = cuerpo;
+    const perfil = await Doctor.findById(id);
+    if (!perfil) {
+      return res.status(404).json({ mensaje: "Perfil médico no encontrado." });
+    }
+    if (perfil.activo === activo) {
+      return res.status(409).json({
+        mensaje: activo ? "El perfil médico ya está activo." : "El perfil médico ya está inactivo."
+      });
+    }
+
+    // No reactivar perfiles si su usuario o especialidad no pueden operar.
+    if (activo) {
+      const usuario = await Usuario.findById(perfil.usuario);
+      if (!usuario || usuario.rol !== "doctor" || usuario.activo === false) {
+        return res.status(409).json({
+          mensaje: "No se puede activar: la cuenta debe existir, estar activa y tener rol doctor."
+        });
+      }
+      const especialidad = await Especialidad.findById(perfil.especialidad);
+      if (!especialidad || especialidad.activo !== true) {
+        return res.status(409).json({
+          mensaje: "No se puede activar: la especialidad debe estar activa."
+        });
+      }
+    }
+
+    // Actualización condicional: evita que dos solicitudes opuestas
+    // reescriban el estado a partir de una lectura desactualizada.
+    const doctor = await Doctor.findOneAndUpdate(
+      { _id: id, activo: !activo },
+      { $set: { activo } },
+      { new: true, runValidators: true }
+    );
+
+    if (!doctor) {
+      return res.status(409).json({
+        mensaje: "El estado del perfil cambió durante la operación. Actualiza la tabla."
+      });
+    }
+
+    const doctorPoblado = await Doctor.populate(doctor, [
+      { path: "usuario", select: "nombre email rol activo" },
+      { path: "especialidad", select: "nombre descripcion activo" }
+    ]);
+
+    return res.status(200).json({
+      mensaje: `Perfil médico ${activo ? "activado" : "desactivado"} correctamente. Las citas existentes se conservan.`,
+      doctor: doctorPoblado
+    });
+  } catch (error) {
+    console.error("Error al cambiar estado del perfil médico:", error);
+    return res.status(500).json({ mensaje: "Error interno al modificar el estado del perfil médico." });
+  }
+};
+
+
+/**
  * Asignar o cambiar la especialidad de un doctor.
  * PUT /api/doctores/:id/especialidad
  */

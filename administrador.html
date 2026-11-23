@@ -129,7 +129,7 @@
               <strong>Datos obtenidos de MongoDB:</strong>
               Esta tabla muestra los perfiles médicos registrados en la base de datos.
               La consulta, el registro y la edición de los perfiles están integrados con la API.
-              La activación y desactivación todavía no están habilitadas desde este panel.
+              La activación y desactivación se guardan en MongoDB. Los doctores inactivos no pueden recibir nuevas reservas; sus citas anteriores se conservan.
             </div>
             <div id="avisoDoctores" class="alert alert-success d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar doctores registrados">
@@ -142,14 +142,14 @@
           </div>
           <div class="table-responsive doctor-admin-table-wrap">
             <table class="table app-table mb-0" id="tablaDoctores">
-              <caption class="visually-hidden">Listado de doctores registrados con datos profesionales y opción de edición</caption>
+              <caption class="visually-hidden">Listado de doctores registrados con edición y cambio de estado</caption>
               <thead><tr><th scope="col">Doctor / usuario</th><th scope="col">Especialidad</th><th scope="col">Colegiado</th><th scope="col">Teléfono</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
               <tbody>
               </tbody>
             </table>
           </div>
           <div id="sinResultadosDoctores" class="empty-state m-3 d-none" role="status"> No se encontraron doctores registrados que coincidan con los filtros seleccionados. </div>
-          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code>, <code>PUT /api/doctores/:id/especialidad</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <strong>La reactivación no está implementada en la API actual.</strong></p></div>
+          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code>, <code>PUT /api/doctores/:id/especialidad</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <code>PATCH /api/doctores/:id/estado</code> (activar y desactivar).</p></div>
         </div>
       </section>
       <!-- KAN-16: Gestión de usuarios conectada con la API (GET, POST, PUT nombre/email).
@@ -578,9 +578,9 @@
   </div>
   <div class="modal fade" id="modalEstadoDoctor" tabindex="-1" aria-labelledby="modalEstadoDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEstadoDoctorTitulo">Cambiar estado (demostración)</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <div class="modal-body"><p id="confirmacionEstadoDoctor" class="mb-2"></p><p class="small text-muted-app mb-0">Solo cambia el estado de esta tabla temporalmente. La API actual permite <code>DELETE /api/doctores/:id</code> para desactivar, pero no tiene endpoint de reactivación; no se modifica disponibilidad de citas.</p></div>
-      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button id="confirmarEstadoDoctor" type="button" class="btn btn-app-primary">Confirmar vista previa</button></div>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="modalEstadoDoctorTitulo">Cambiar estado de perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body"><p id="confirmacionEstadoDoctor" class="mb-2"></p><p class="small text-muted-app mb-0">El cambio se guarda en MongoDB. Desactivar un perfil impide nuevas reservas y reprogramaciones, pero conserva las citas anteriores. La cuenta de usuario no se desactiva.</p><div id="estadoDoctorError" class="alert alert-danger mt-3 d-none" role="alert"></div></div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button id="confirmarEstadoDoctor" type="button" class="btn btn-app-primary">Confirmar cambio</button></div>
     </div></div>
   </div>
   <!-- Modal de registro real de cita -->
@@ -1912,8 +1912,7 @@ document.getElementById('filtrosReporte').addEventListener('reset', event => {
 });
 cargarCitasAdmin();
 
-    // KAN-81: administración visual de doctores con registros ficticios.
-    // Todas las operaciones se limitan al DOM y se reinician al recargar.
+    // KAN-8: la edición y el cambio de estado usan la API y MongoDB.
     const tablaDoctores = document.querySelector('#tablaDoctores tbody');
     const buscarDoctor = document.getElementById('buscarDoctor');
     const filtrarEspecialidadDoctor = document.getElementById('filtrarEspecialidadDoctor');
@@ -1922,17 +1921,18 @@ cargarCitasAdmin();
     let doctorSeleccionado = null;
     const filasDoctor = () => [...tablaDoctores.querySelectorAll('tr[data-usuario]')];
     const campoDoctor = id => document.getElementById(id);
-    function anunciarDoctores(mensaje) {
-      avisoDoctores.textContent = mensaje + ' Los datos se restablecen al recargar; no se actualizó MongoDB.';
-      avisoDoctores.classList.remove('d-none');
-      document.getElementById('mensajePrototipo').textContent = avisoDoctores.textContent;
+    function anunciarDoctores(mensaje, exito = true) {
+      avisoDoctores.className = `alert ${exito ? 'alert-success' : 'alert-warning'} small`;
+      avisoDoctores.textContent = mensaje;
     }
     function actualizarEstadoDoctorFila(fila) {
       const activo = fila.dataset.activo === 'true';
       const insignia = fila.querySelector('.badge-estado');
       insignia.className = 'badge-estado ' + (activo ? 'badge-estado-activa' : 'badge-estado-inactiva');
       insignia.textContent = activo ? 'Activo' : 'Inactivo';
-      fila.querySelector('.estado-doctor').textContent = activo ? 'Desactivar' : 'Activar';
+      const boton = fila.querySelector('.estado-doctor');
+      boton.textContent = activo ? 'Desactivar' : 'Activar';
+      boton.className = `btn btn-sm estado-doctor ${activo ? 'btn-outline-danger' : 'btn-outline-success'}`;
     }
     function actualizarDoctores() {
       const termino = normalizarBusqueda(buscarDoctor.value);
@@ -2347,19 +2347,59 @@ cargarCitasAdmin();
     });
     campoDoctor('modalEstadoDoctor').addEventListener('show.bs.modal', evento => {
       doctorSeleccionado = evento.relatedTarget?.closest('tr[data-usuario]') || null;
-      if (!doctorSeleccionado) return;
+      errorDoctor('estadoDoctorError', '');
+      const boton = campoDoctor('confirmarEstadoDoctor');
+      boton.disabled = false;
+      if (!doctorSeleccionado) {
+        boton.disabled = true;
+        return;
+      }
       const desactivar = doctorSeleccionado.dataset.activo === 'true';
-      campoDoctor('confirmacionEstadoDoctor').textContent = `¿Quieres ${desactivar ? 'desactivar' : 'activar'} visualmente a ${doctorSeleccionado.dataset.nombre}?`;
-      campoDoctor('confirmarEstadoDoctor').textContent = `${desactivar ? 'Desactivar' : 'Activar'} (vista previa)`;
+      campoDoctor('confirmacionEstadoDoctor').textContent =
+        `¿Deseas ${desactivar ? 'desactivar' : 'activar'} el perfil médico de ${doctorSeleccionado.dataset.nombre}?`;
+      boton.textContent = desactivar ? 'Desactivar perfil' : 'Activar perfil';
     });
-    campoDoctor('confirmarEstadoDoctor').addEventListener('click', () => {
-      if (!doctorSeleccionado) return;
-      doctorSeleccionado.dataset.activo = doctorSeleccionado.dataset.activo === 'true' ? 'false' : 'true';
-      actualizarEstadoDoctorFila(doctorSeleccionado);
-      actualizarDoctores();
-      const mensaje = `${doctorSeleccionado.dataset.nombre}: estado visual ${doctorSeleccionado.dataset.activo === 'true' ? 'activo' : 'inactivo'}.`;
-      bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEstadoDoctor')).hide();
-      anunciarDoctores(mensaje);
+    campoDoctor('confirmarEstadoDoctor').addEventListener('click', async () => {
+      const fila = doctorSeleccionado;
+      if (!fila?.dataset.perfilId) return;
+      const activar = fila.dataset.activo !== 'true';
+      const boton = campoDoctor('confirmarEstadoDoctor');
+      errorDoctor('estadoDoctorError', '');
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+
+      try {
+        const token = sessionStorage.getItem('tokenAtencion');
+        if (!token) throw new Error('Debes iniciar sesión nuevamente.');
+        const respuesta = await fetch(
+          `${window.CITAS_API_ORIGIN}/api/doctores/${encodeURIComponent(fila.dataset.perfilId)}/estado`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ activo: activar })
+          }
+        );
+        const datos = await respuesta.json().catch(() => ({}));
+        if (!respuesta.ok) {
+          throw new Error(datos.mensaje || `No se pudo cambiar el estado (HTTP ${respuesta.status}).`);
+        }
+
+        bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEstadoDoctor')).hide();
+        const recargado = await cargarDoctoresDesdeAPI();
+        anunciarDoctores(recargado
+          ? `${fila.dataset.nombre}: perfil ${activar ? 'activado' : 'desactivado'} en MongoDB.`
+          : 'El cambio se guardó, pero no se pudo actualizar la tabla. Recarga la página para comprobarlo.',
+          recargado);
+      } catch (error) {
+        console.error('Error al cambiar estado del doctor:', error);
+        errorDoctor('estadoDoctorError', error.message || 'No se pudo guardar el estado del perfil.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = activar ? 'Activar perfil' : 'Desactivar perfil';
+      }
     });
     // Consultar los doctores registrados en MongoDB
     async function cargarDoctoresDesdeAPI() {
@@ -2409,15 +2449,6 @@ cargarCitasAdmin();
 
                 const fila = crearFilaDoctor(registro);
 
-                // Habilitamos la edición; los cambios de estado siguen pendientes.
-                const botonEditar = fila.querySelector('.editar-doctor');
-                const acciones = fila.lastElementChild;
-                acciones.replaceChildren(botonEditar);
-                const notaEstado = document.createElement('span');
-                notaEstado.className = 'small text-muted-app d-block mt-1';
-                notaEstado.textContent = 'Cambio de estado: pendiente';
-                acciones.append(notaEstado);
-
                 tablaDoctores.append(fila);
             });
 
@@ -2448,7 +2479,7 @@ cargarCitasAdmin();
             aviso.className = "alert alert-info small";
             aviso.textContent =
                 `${doctores.length} perfil(es) cargado(s) desde MongoDB. ` +
-                "La consulta, el registro y la edición están integrados con la API.";
+                "Consulta, registro, edición y cambio de estado disponibles mediante la API.";
             return true;
 
         } catch (error) {

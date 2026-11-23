@@ -8,6 +8,7 @@ const {
     obtenerDoctorPorId,
     actualizarDoctor,
     desactivarDoctor,
+    cambiarEstadoDoctor,
     asignarEspecialidadDoctor
 } = require("../controllers/doctorController");
 
@@ -46,7 +47,15 @@ router.put(
     actualizarDoctor
 );
 
-// Desactivar doctor (solo administrador)
+// Activar/desactivar el perfil médico (solo administrador).
+router.patch(
+    "/:id/estado",
+    requerirSesion,
+    requerirAdministrador,
+    cambiarEstadoDoctor
+);
+
+// Desactivar doctor (ruta anterior, conservada por compatibilidad)
 router.delete(
     "/:id",
     requerirSesion,
