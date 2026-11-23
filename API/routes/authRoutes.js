@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const crypto = require("node:crypto");
+const { enviarRecuperacion } = require("../utils/emailRecuperacion");
 const Usuario = require("../models/Usuario");
 const { crearSesion, requerirSesion, cerrarSesion, cerrarSesionesDeUsuario } = require("../middleware/sesiones");
 
@@ -160,19 +162,133 @@ router.post("/registro-paciente", async (req, res) => {
 });
 
 
-// Temporal: deshabilitada hasta implementar verificación de identidad por correo.
-// Conocer una dirección de email no demuestra que se es dueño de la cuenta.
-router.post("/verificar-correo", (req, res) => {
-    return res.status(503).json({
-        mensaje: "La recuperación por correo no está disponible temporalmente."
-    });
+// Recuperación por correo: el enlace es de un solo uso, expira en 20 minutos.
+// Respuesta uniforme para evitar revelar si una dirección está registrada.
+const DURACION_RESET_MS = 20 * 60 * 1000;
+const MENSAJE_RESET = "Si el correo corresponde a una cuenta activa, recibirás instrucciones para recuperar tu contraseña.";
+const intentosReset = new Map();
+const VENTANA_RESET_MS = 15 * 60 * 1000;
+const MAX_INTENTOS_RESET = 5;
+
+function limitarSolicitudReset(req, email) {
+    const ahora = Date.now();
+    if (intentosReset.size > 3000) {
+        for (const [clave, datos] of intentosReset) {
+            if (datos.vence <= ahora) intentosReset.delete(clave);
+        }
+    }
+    // Dos límites independientes, por IP y por correo, en el proceso actual.
+    const claves = [
+        `ip:${crypto.createHash("sha256").update(req.ip || "desconocida").digest("hex")}`,
+        `correo:${crypto.createHash("sha256").update(email).digest("hex")}`
+    ];
+    const registros = claves.map(clave => ({
+        clave,
+        actual: intentosReset.get(clave)
+    }));
+    if (registros.some(({actual}) => actual && actual.vence > ahora && actual.intentos >= MAX_INTENTOS_RESET)) {
+        return true;
+    }
+    for (const {clave, actual} of registros) {
+        if (!actual || actual.vence <= ahora) {
+            intentosReset.set(clave, { intentos: 1, vence: ahora + VENTANA_RESET_MS });
+        } else {
+            actual.intentos += 1;
+        }
+    }
+    return false;
+}
+
+function passwordSegura(password) {
+    return typeof password === "string" && password.length >= 8 &&
+        Buffer.byteLength(password, "utf8") <= 72 &&
+        /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password);
+}
+
+router.post("/verificar-correo", async (req, res) => {
+    const email = req.body?.email;
+    if (typeof email !== "string" || email.trim().length > 150 ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        return res.status(400).json({ mensaje: "Ingresa un correo electrónico válido." });
+    }
+    if (!process.env.RESEND_API_KEY || !process.env.RESET_EMAIL_FROM || !process.env.APP_PUBLIC_URL) {
+        return res.status(503).json({ mensaje: "La recuperación de contraseña no está configurada todavía." });
+    }
+    const normalizado = email.trim().toLowerCase();
+    if (limitarSolicitudReset(req, normalizado)) {
+        return res.status(429).json({ mensaje: "Demasiadas solicitudes. Inténtalo nuevamente más tarde." });
+    }
+    try {
+        const usuario = await Usuario.findOne({ email: normalizado });
+        if (usuario && usuario.activo !== false) {
+            const token = crypto.randomBytes(32).toString("hex");
+            const hash = crypto.createHash("sha256").update(token).digest("hex");
+            const vence = new Date(Date.now() + DURACION_RESET_MS);
+            await Usuario.updateOne(
+                { _id: usuario._id, activo: { $ne: false } },
+                { $set: { resetTokenHash: hash, resetTokenExpira: vence } }
+            );
+            try {
+                await enviarRecuperacion({ email: normalizado, token });
+            } catch (error) {
+                // Evitar dejar un enlace activo que no fue enviado.
+                await Usuario.updateOne({ _id: usuario._id, resetTokenHash: hash },
+                    { $unset: { resetTokenHash: "", resetTokenExpira: "" } });
+                console.error("No se pudo enviar el correo de recuperación:", error.message);
+                return res.status(200).json({ mensaje: MENSAJE_RESET });
+            }
+        }
+        return res.status(200).json({ mensaje: MENSAJE_RESET });
+    } catch (error) {
+        console.error("Error en recuperación de contraseña:", error.message);
+        return res.status(503).json({ mensaje: "El servicio de recuperación no está disponible temporalmente." });
+    }
 });
 
-// Se mantiene la ruta para evitar que clientes antiguos puedan cambiar contraseñas.
-router.put("/restablecer-password", (req, res) => {
-    return res.status(403).json({
-        mensaje: "No se puede restablecer una contraseña sin verificar la identidad."
-    });
+// No se acepta el correo como prueba de identidad: únicamente el token secreto.
+router.put("/restablecer-password", async (req, res) => {
+    const token = req.body?.token;
+    const nuevaPassword = req.body?.nuevaPassword;
+    if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
+        return res.status(400).json({ mensaje: "El enlace de recuperación no es válido o ya expiró." });
+    }
+    if (!passwordSegura(nuevaPassword)) {
+        return res.status(400).json({ mensaje: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número, y no superar 72 bytes." });
+    }
+    try {
+        const hash = crypto.createHash("sha256").update(token).digest("hex");
+        // Consultar el usuario antes de gastar bcrypt en un token inexistente.
+        const usuario = await Usuario.findOne({
+            resetTokenHash: hash,
+            resetTokenExpira: { $gt: new Date() },
+            activo: { $ne: false }
+        });
+        if (!usuario) {
+            return res.status(400).json({ mensaje: "El enlace de recuperación no es válido o ya expiró." });
+        }
+        if (await bcrypt.compare(nuevaPassword, usuario.password)) {
+            return res.status(400).json({ mensaje: "Elige una contraseña diferente a la anterior." });
+        }
+        const password = await bcrypt.hash(nuevaPassword, 10);
+        // Actualización atómica: gana una sola solicitud, y el token se consume.
+        const actualizado = await Usuario.findOneAndUpdate({
+            _id: usuario._id,
+            resetTokenHash: hash,
+            resetTokenExpira: { $gt: new Date() },
+            activo: { $ne: false }
+        }, {
+            $set: { password },
+            $unset: { resetTokenHash: "", resetTokenExpira: "" }
+        }, { new: true, runValidators: true });
+        if (!actualizado) {
+            return res.status(400).json({ mensaje: "El enlace de recuperación no es válido o ya expiró." });
+        }
+        cerrarSesionesDeUsuario(usuario._id);
+        return res.status(200).json({ mensaje: "Contraseña actualizada. Inicia sesión con la nueva contraseña." });
+    } catch (error) {
+        console.error("Error al restablecer contraseña:", error.message);
+        return res.status(500).json({ mensaje: "No se pudo restablecer la contraseña." });
+    }
 });
 
 // Cambiar contraseña con sesión válida y contraseña actual.

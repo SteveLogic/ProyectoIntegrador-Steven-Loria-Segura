@@ -165,15 +165,8 @@
                             "alert alert-success";
 
                         mensajeRecuperacion.textContent =
-                            "Correo verificado. Puede continuar con la recuperación de contraseña.";
+                            "Si existe una cuenta activa, recibirás un enlace para recuperar la contraseña. Revisa tu correo.";
 
-                        // Guardamos el correo para la siguiente pantalla
-                        sessionStorage.setItem("correoRecuperacion", email);
-
-                        setTimeout(function () {
-                            window.location.href =
-                                "restablecercontrasena.html";
-                        }, 1000);
 
                     } else {
 

@@ -23,6 +23,9 @@ const usuarioSchema = new mongoose.Schema({
         enum: ["paciente", "doctor", "administrador"]
     },
 
+    resetTokenHash: { type: String, select: false },
+    resetTokenExpira: { type: Date, select: false },
+
     activo: {
     type: Boolean,
     default: true

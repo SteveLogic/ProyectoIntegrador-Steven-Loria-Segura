@@ -9,7 +9,7 @@ Aplicación académica **full-stack** para usuarios, perfiles médicos, especial
 - **Gestión de proyecto:** Jira, proyecto `KAN` (12 módulos/épicas).
 - **Tecnologías:** Node.js 22+, Express 5, Mongoose 9, MongoDB, bcryptjs; HTML5, CSS3, Bootstrap 5.3, JavaScript `fetch`/AJAX y jQuery.
 
-**Estado documentado (23/11/2026):** el usuario verificó el despliegue de la rama `main` en Render (commit `d47cbc6`, estado *Live*) y reportó **182/182 pruebas automatizadas aprobadas** en su computadora. Son resultados históricos de esa verificación, **no una garantía de disponibilidad permanente** ni una certificación clínica. La recuperación de contraseña sigue deshabilitada deliberadamente por falta de verificación de identidad (sección 6).
+**Estado documentado (23/11/2026):** el usuario verificó el despliegue de la rama `main` en Render (commit `45da2ac`, estado *Live*) y reportó **182/182 pruebas automatizadas aprobadas** en su computadora. Son resultados históricos de esa verificación, **no una garantía de disponibilidad permanente** ni una certificación clínica. La recuperación segura mediante enlace enviado por correo requiere configurar Resend (sección 6); sin credenciales de correo permanecerá deshabilitada.
 
 ## 1. Acceso y ejecución local
 
@@ -51,6 +51,9 @@ Archivo guía: `API/.env.example`.
 | `PORT` | Puerto HTTP de la API; 3000 en local; Render lo proporciona al ejecutar el servicio. |
 | `MONGO_URI` | URI privada de la base de datos MongoDB; obligatoria. |
 | `FRONTEND_ORIGINS` | Opcional: orígenes HTTPS autorizados por CORS si el frontend se aloja por separado. |
+| `RESEND_API_KEY` | Clave privada del proveedor de correo Resend (obligatoria para recuperación). |
+| `RESET_EMAIL_FROM` | Correo remitente verificado en Resend. |
+| `APP_PUBLIC_URL` | URL pública HTTPS de la aplicación sin ruta ni parámetros. |
 
 - No incluir `API/.env`, tokens, contraseñas ni URI de Atlas con credenciales en Git, capturas, Postman exportado o informe público.
 - Si una contraseña o URI se expuso previamente, **rotar la credencial en MongoDB Atlas** y actualizar `MONGO_URI` tanto en Render como en la máquina local.
@@ -117,7 +120,7 @@ Proyecto Integrador/
 |---|---|---|
 | Salud | `GET /api/prueba` | Público |
 | Autenticación | `POST /api/auth/login`, `POST /api/auth/registro-paciente`, `GET/PUT /api/auth/perfil`, `PUT /api/auth/cambiar-password`, `POST /api/auth/logout` | Según operación |
-| Recuperación | `POST /api/auth/verificar-correo`, `PUT /api/auth/restablecer-password` | **Deshabilitados** hasta implementar verificación segura |
+| Recuperación | `POST /api/auth/verificar-correo`, `PUT /api/auth/restablecer-password` | **Recuperación por enlace temporal**; requiere configurar envío de correo (Resend) |
 | Usuarios | `GET/POST /api/usuarios`, `GET/PUT/DELETE /api/usuarios/:id`, `PATCH /api/usuarios/:id/estado`, `PATCH /api/usuarios/:id/rol` | Administrador |
 | Doctores | `GET/POST /api/doctores`, `GET/PUT/DELETE /api/doctores/:id`, `PUT /api/doctores/:id/especialidad`, `PATCH /api/doctores/:id/estado` | Lecturas públicas; cambios administrador |
 | Especialidades | `GET/POST /api/especialidades`, `GET/PUT/DELETE /api/especialidades/:id` | Lecturas públicas; cambios administrador |
@@ -141,7 +144,7 @@ La colección Thunder Client incluida corresponde a una etapa anterior; se manti
 
 ## 6. Restricciones conocidas y alcance académico
 
-- **Recuperación de contraseña:** `POST /api/auth/verificar-correo` devuelve HTTP 503 y `PUT /api/auth/restablecer-password` devuelve HTTP 403 porque aún no se valida identidad mediante correo/token. No habilitar reseteo únicamente por conocer el correo de alguien.
+- **Recuperación de contraseña:** `POST /api/auth/verificar-correo` envía un enlace de un solo uso que expira en 20 minutos, y `PUT /api/auth/restablecer-password` exige el token recibido por correo. El token solo se almacena como hash en MongoDB, caduca y se consume de forma atómica al cambiar la clave. El correo registrado no se revela en la respuesta. **En Render se debe configurar `RESEND_API_KEY`, `RESET_EMAIL_FROM` y `APP_PUBLIC_URL`; de lo contrario responde HTTP 503**. Este flujo solo debe probarse con cuentas ficticias y correos controlados.
 - **Sesiones:** el almacenamiento temporal en memoria se pierde al reiniciar Render; esto obliga a iniciar sesión de nuevo. Para una solución real se necesita un almacén duradero y políticas adicionales.
 - **Uso de datos:** solo información ficticia. Este proyecto **no** ofrece las protecciones ni certificaciones necesarias para tratar información médica real.
 - **Reportes:** se calculan en frontend a partir de las citas disponibles para el administrador, sin exportación y sin endpoint de reportes independiente.
@@ -153,4 +156,12 @@ La **Versión Final e Informe Final de la Aplicación Web** pide: repositorio pr
 
 La consigna del **Tercer Avance de Bitácora** pide evidencias de Jira para 12 módulos/épicas, tareas y responsables, fechas, estimaciones, criterios de aceptación, historial, reuniones, cambios, inconvenientes y sus soluciones. **Conservar los comentarios históricos**, porque evidencian el trabajo progresivo.
 
-Pendiente fuera del alcance de esta limpieza: verificar/documentar la recuperación segura de contraseña y preparar el informe PDF final. La funcionalidad restante debe contrastarse con los criterios de aceptación en Jira antes de considerarse entregada al 100 %.
+Pendiente para la entrega final: preparar y revisar el informe técnico en PDF. La recuperación de contraseña se implementó y se probó con mocks, pero su funcionamiento real en Render exige configurar el proveedor de correo y completar una prueba de extremo a extremo con una cuenta de demostración.
+
+### Configurar correo de recuperación (KAN-33)
+
+1. Crear una cuenta en https://resend.com/ y verificar el dominio del remitente. En modo prueba, Resend puede restringir los destinatarios permitidos.
+2. Crear una API key restringida al envío y configurar `RESEND_API_KEY` en las variables privadas de Render y en `API/.env` local (opcional).
+3. Definir `RESET_EMAIL_FROM`, por ejemplo `Sistema de Citas <no-reply@dominio-verificado.com>`, y `APP_PUBLIC_URL=https://sistema-citas-medicas-88xk.onrender.com`.
+4. Reiniciar/republicar Render, utilizar una cuenta académica con correo real controlado y verificar recepción, caducidad, uso único y acceso con la nueva contraseña.
+5. La tasa de solicitudes se limita por IP/correo en memoria del proceso, suficiente para demostración de una instancia; en producción multirréplica sería necesario un limitador compartido. Nunca usar el correo por sí solo como prueba de identidad.

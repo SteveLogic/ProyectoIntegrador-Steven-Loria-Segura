@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es" data-bs-theme="light">
 <head>
+    <meta name="referrer" content="no-referrer">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -38,7 +39,7 @@
                     <div class="card-body p-4">
 
                         <p class="text-body-secondary text-center mb-4">
-                            Ingrese su nueva contraseña.
+                            Elige una contraseña nueva utilizando el enlace que recibiste por correo.
                         </p>
 
                         <form id="restablecerForm">
@@ -94,108 +95,52 @@
     </main>
 
     <script>
-        const correoRecuperacion =
-            sessionStorage.getItem("correoRecuperacion");
-
-        // Si el usuario llegó directamente a esta página
-        // sin verificar primero su correo, regresar al paso anterior.
-        if (!correoRecuperacion) {
-            window.location.href = "olvidecontrasena.html";
+        const parametros = new URLSearchParams(window.location.hash.slice(1));
+        const token = parametros.get("token");
+        // Eliminar el token de la barra de direcciones y del historial visible.
+        history.replaceState(null, "", window.location.pathname);
+        const formulario = document.getElementById("restablecerForm");
+        const mensajePassword = document.getElementById("mensajePassword");
+        const boton = formulario.querySelector('button[type="submit"]');
+        function mensaje(texto, correcto = false) {
+            mensajePassword.className = `alert alert-${correcto ? "success" : "danger"}`;
+            mensajePassword.textContent = texto;
         }
-
-        const formulario =
-            document.getElementById("restablecerForm");
-
-        const mensajePassword =
-            document.getElementById("mensajePassword");
-
-        formulario.addEventListener("submit", async function (event) {
+        if (!token || !/^[a-f0-9]{64}$/.test(token)) {
+            mensaje("El enlace no es válido. Solicita uno nuevo desde Olvidé mi contraseña.");
+            boton.disabled = true;
+        }
+        formulario.addEventListener("submit", async event => {
             event.preventDefault();
-
-            const nuevaPassword =
-                document.getElementById("nuevaPassword").value;
-
-            const confirmarPassword =
-                document.getElementById("confirmarPassword").value;
-
-            const patronPassword =
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-            // Validar requisitos de la contraseña
-            if (!patronPassword.test(nuevaPassword)) {
-                mensajePassword.className =
-                    "alert alert-danger";
-
-                mensajePassword.textContent =
-                    "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.";
-
+            const nuevaPassword = document.getElementById("nuevaPassword").value;
+            const confirmarPassword = document.getElementById("confirmarPassword").value;
+            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(nuevaPassword) ||
+                new TextEncoder().encode(nuevaPassword).length > 72) {
+                mensaje("Utiliza 8 caracteres o más, mayúscula, minúscula y número; máximo 72 bytes.");
                 return;
             }
-
-            // Validar que ambas contraseñas coincidan
             if (nuevaPassword !== confirmarPassword) {
-                mensajePassword.className =
-                    "alert alert-danger";
-
-                mensajePassword.textContent =
-                    "Las contraseñas no coinciden.";
-
+                mensaje("Las contraseñas no coinciden.");
                 return;
             }
-
+            boton.disabled = true;
             try {
-                const respuesta = await fetch(
-                    `${window.CITAS_API_ORIGIN}/api/auth/restablecer-password`,
-                    {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: correoRecuperacion,
-                            nuevaPassword: nuevaPassword
-                        })
-                    }
-                );
-
+                const respuesta = await fetch(`${window.CITAS_API_ORIGIN}/api/auth/restablecer-password`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, nuevaPassword })
+                });
                 const datos = await respuesta.json();
-
+                mensaje(datos.mensaje || "No se pudo procesar la solicitud.", respuesta.ok);
                 if (respuesta.ok) {
-
-                    mensajePassword.className =
-                        "alert alert-success";
-
-                    mensajePassword.textContent =
-                        datos.mensaje;
-
-                    // Ya no necesitamos conservar el correo
-                    sessionStorage.removeItem("correoRecuperacion");
-
-                    setTimeout(function () {
-                        window.location.href = "login.html";
-                    }, 1500);
-
+                    formulario.reset();
+                    setTimeout(() => { window.location.href = "login.html"; }, 1500);
                 } else {
-
-                    mensajePassword.className =
-                        "alert alert-danger";
-
-                    mensajePassword.textContent =
-                        datos.mensaje;
+                    boton.disabled = false;
                 }
-
-            } catch (error) {
-
-                mensajePassword.className =
-                    "alert alert-danger";
-
-                mensajePassword.textContent =
-                    "No se pudo conectar con el servidor. Intente nuevamente.";
-
-                console.error(
-                    "Error al restablecer la contraseña:",
-                    error
-                );
+            } catch {
+                mensaje("No se pudo conectar con el servidor.");
+                boton.disabled = false;
             }
         });
     </script>
