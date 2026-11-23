@@ -1,9 +1,9 @@
 {
   "info": {
-    "name": "Sistema de Citas Médicas - API completa (auditoría noviembre 2026)",
+    "name": "Sistema de Citas Médicas - API final (noviembre 2026)",
     "_postman_id": "bcb97688-9151-4cd7-bf1c-60880e5fa23a",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Colección de referencia para uso académico. Configurar las variables baseUrl, credenciales e IDs en Postman. Los estados y validaciones dependen de datos reales. El endpoint de restablecimiento de contraseña permanece deshabilitado por seguridad."
+    "description": "Colección académica actualizada para la versión desplegada en Render y para desarrollo local. La variable baseUrl utiliza localhost por defecto para evitar modificar por accidente datos de Atlas; para probar Render usar {{renderBaseUrl}} como baseUrl mediante variable de colección/entorno. Usar únicamente cuentas y datos ficticios. Los métodos POST/PUT/PATCH/DELETE pueden modificar o desactivar datos. Configurar credenciales de prueba en variables de entorno de Postman y no exportar secretos reales. La recuperación de contraseña por correo sigue deshabilitada por seguridad; no existe mecanismo de verificación de identidad. Activación/desactivación de perfiles médicos: PATCH /api/doctores/:id/estado, solo administrador."
   },
   "item": [
     {
@@ -778,6 +778,74 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Desactivar perfil médico (PATCH estado)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/estado",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Solo administrador con sesión válida. Cambia `Doctor.activo` y conserva citas existentes. No cambia `Usuario.activo`. Para activar se requiere cuenta con rol doctor y especialidad activas. Devuelve 200 al cambiar, 400 por cuerpo o ID inválido, 401 sin sesión, 403 sin permiso, 404 si falta el perfil, 409 si ya tiene ese estado o hay conflicto. Usar un perfil ficticio: modifica datos de la base seleccionada en `baseUrl`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activar perfil médico (PATCH estado)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/doctores/{{perfilDoctorId}}/estado",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Solo administrador con sesión válida. Cambia `Doctor.activo` y conserva citas existentes. No cambia `Usuario.activo`. Para activar se requiere cuenta con rol doctor y especialidad activas. Devuelve 200 al cambiar, 400 por cuerpo o ID inválido, 401 sin sesión, 403 sin permiso, 404 si falta el perfil, 409 si ya tiene ese estado o hay conflicto. Usar un perfil ficticio: modifica datos de la base seleccionada en `baseUrl`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1210,6 +1278,10 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:3000"
+    },
+    {
+      "key": "renderBaseUrl",
+      "value": "https://sistema-citas-medicas-88xk.onrender.com"
     },
     {
       "key": "adminEmail",

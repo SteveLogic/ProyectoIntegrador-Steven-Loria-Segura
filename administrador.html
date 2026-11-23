@@ -11,8 +11,7 @@
   <script src="js/api-config.js"></script>
 </head>
 <body>
-  <!-- Seguridad académica del prototipo: se conserva el acceso por sessionStorage.
-       No constituye una autorización real en el servidor. -->
+  <!-- El control en sessionStorage orienta la navegación; los endpoints administrativos validan sesión y rol en el servidor. -->
   <script>
     if (sessionStorage.getItem('usuarioAutenticado') !== 'true' ||
         sessionStorage.getItem('rolUsuario') !== 'administrador') {
@@ -64,7 +63,7 @@
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Usuarios, doctores, especialidades y citas conectados a la API en entorno académico local.</p>
+      <p class="small px-3 text-muted-app">Gestión académica conectada a la API y MongoDB, con datos de demostración.</p>
     </aside>
     <main class="app-main" id="resumen">
       <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -77,7 +76,7 @@
       </div>
       <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
         <span aria-hidden="true">ⓘ</span>
-        <div><strong>Integración en progreso:</strong> usuarios, doctores, especialidades y citas consultan MongoDB. Las rutas de citas ya aplican autorización por rol; los demás módulos están pendientes de revisión de seguridad. Utilice exclusivamente el entorno local.</div>
+        <div><strong>Sistema académico de demostración:</strong> los módulos de usuarios, doctores, especialidades y citas utilizan la API conectada a MongoDB. Las operaciones administrativas requieren una sesión autorizada. Utiliza solo cuentas y citas ficticias; el sistema no está habilitado para uso médico real.</div>
       </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
@@ -152,8 +151,7 @@
           <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code>, <code>PUT /api/doctores/:id/especialidad</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <code>PATCH /api/doctores/:id/estado</code> (activar y desactivar).</p></div>
         </div>
       </section>
-      <!-- KAN-16: Gestión de usuarios conectada con la API (GET, POST, PUT nombre/email).
-           El cambio de rol, alta de administradores y estado siguen pendientes de autorización real. -->
+      <!-- Gestión de usuarios: la API protege consultas, edición, cambio de estado y cambio de rol; la creación de administradores desde el formulario está restringida. -->
       <section class="mb-4" id="usuarios" aria-labelledby="usuariosTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
@@ -166,7 +164,7 @@
           </div>
           <div class="app-card-body pb-2">
             <div class="alert alert-light border mb-3" role="note">
-              <strong>Seguridad de usuarios:</strong> las operaciones de consulta, registro, edición y eliminación requieren una sesión válida con rol administrador. <strong>Uso académico local:</strong> En las rutas de usuarios, el servidor rechaza las solicitudes sin autenticación o sin permisos. La seguridad de otros módulos administrativos todavía está en revisión.
+              <strong>Seguridad de usuarios:</strong> las operaciones administrativas de consulta, registro, edición, cambio de rol y cambio de estado requieren sesión válida con rol administrador. El servidor rechaza solicitudes sin permisos; utiliza únicamente cuentas ficticias.
             </div>
             <div id="avisoUsuarios" class="alert alert-info d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios registrados">
@@ -262,7 +260,7 @@
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Registrar cita</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB.</strong> La consulta, el registro, la reprogramación y la cancelación utilizan la API.Las operaciones de citas utilizan autenticación y permisos por rol en el servidor. Entorno académico local. </div>
+            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB:</strong> la consulta, el registro, la reprogramación y la cancelación utilizan la API con autenticación y permisos por rol. Utiliza únicamente reservas ficticias. </div>
             <div id="avisoCitas" class="alert alert-info small" role="status" aria-live="polite">Cargando citas desde la API...</div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas">
               <div class="col-12 col-lg-5">
@@ -300,7 +298,7 @@
           <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> , <code>completada</code> y <code>no_presentada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
         </div>
       </section>
-      <!-- KAN-147: reportes administrativos en vista previa. Sin modelos/endpoints nuevos. -->
+      <!-- Reportes calculados en el navegador sobre GET /api/citas, sin endpoint independiente. -->
       <section id="reportes" class="mb-4" aria-labelledby="reportesTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex justify-content-between align-items-start flex-wrap gap-2">
@@ -313,7 +311,7 @@
           </div>
           <div class="app-card-body">
             <div class="alert alert-light border small mb-4" role="note">
-              <strong>Datos desde MongoDB:</strong> las estadísticas se calculan en el navegador a partir de <code>GET /api/citas</code>. No existe todavía una API de reportes separada, ni exportación de datos. Uso académico local.
+              <strong>Reportes de demostración:</strong> los indicadores se calculan en el navegador a partir de <code>GET /api/citas</code>. No hay un endpoint independiente de reportes ni exportación de datos.
             </div>
             <form id="filtrosReporte" class="row g-3 align-items-end" aria-label="Filtros de reportes de citas" novalidate>
               <div class="col-12 col-sm-6 col-xl-3">
@@ -393,7 +391,7 @@
           </div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica en desarrollo</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Demostración académica con datos ficticios</footer>
     </main>
   </div>
   <!-- KAN-9: Formularios de especialidades conectados con la API. -->
@@ -430,7 +428,7 @@
       </form>
     </div></div>
   </div>
-  <!-- KAN-16: Formularios reales de usuarios; rol solo en registro de paciente/doctor. -->
+  <!-- Los cambios administrativos de rol y estado utilizan endpoints protegidos. -->
   <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearUsuarioTitulo">Registrar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
@@ -625,7 +623,6 @@
       <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelarCita" class="btn btn-app-primary">Confirmar cancelación</button></div>
     </div></div>
   </div>
-  <div id="mensajePrototipo" role="status" class="visually-hidden" aria-live="polite"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // El nombre del usuario procede del flujo de login existente.
@@ -672,19 +669,6 @@
       }
     });
 
-    // No envía datos: el segundo avance requiere maquetación, no integración completa.
-    document.querySelectorAll('.form-maqueta').forEach(form => {
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        if (!form.checkValidity()) {
-          form.reportValidity();
-          return;
-        }
-        const aviso = 'Vista previa validada. Este formulario es de demostración y NO envía datos a MongoDB.';
-        document.getElementById('mensajePrototipo').textContent = aviso;
-        window.alert(aviso);
-      });
-    });
     // Hace que las búsquedas no dependan de mayúsculas, tildes o espacios repetidos.
     // Conservamos la ñ como letra diferente de la n.
     function normalizarBusqueda(valor) {
@@ -1382,7 +1366,7 @@
     });
     cargarEspecialidadesDesdeAPI();
 
-// Paquete 04B: gestión real de citas con API REST (solo desarrollo local).
+// Gestión de citas mediante API REST y sesiones con permisos de servidor.
 const API_CITAS_ADMIN = `${window.CITAS_API_ORIGIN}/api/citas`;
 const API_USUARIOS_CITAS = `${window.CITAS_API_ORIGIN}/api/usuarios`;
 const API_DOCTORES_CITAS = `${window.CITAS_API_ORIGIN}/api/doctores`;

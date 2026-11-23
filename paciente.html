@@ -11,7 +11,7 @@
   <script src="js/citas-paciente.js"></script>
 </head>
 <body>
-  <!-- El control de sesión del frontend es ilustrativo; la autorización real debe validarse en el backend. -->
+  <!-- La comprobación local orienta la navegación; la API valida sesión y propiedad de las citas protegidas. -->
   <script>
     if (sessionStorage.getItem('usuarioAutenticado') !== 'true' ||
         sessionStorage.getItem('rolUsuario') !== 'paciente') {
@@ -75,7 +75,7 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#reservarCita">+ Solicitar cita</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3" role="note"><strong>Integración académica local:</strong> doctores, especialidades y citas se consultan desde MongoDB. Las operaciones se guardan mediante la API. La reserva ahora consulta franjas semanales de disponibilidad real y evita horarios ocupados. <strong>No usar con datos médicos reales:</strong> las rutas de citas ya verifican la sesión y los permisos del usuario, pero otros módulos aún requieren revisión de seguridad.</div>
+        <div class="alert alert-light border mt-3" role="note"><strong>Sistema académico de demostración:</strong> el directorio médico, la disponibilidad, las reservas y las notificaciones utilizan la API conectada a MongoDB. El servidor comprueba la sesión, la propiedad de las citas y los horarios disponibles. <strong>No ingresar datos médicos reales:</strong> utiliza únicamente información ficticia en las pruebas.</div>
         <div class="row g-3" aria-label="Resumen ilustrativo">
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value" id="resumenProximasCitas">—</div><div class="kpi-label">Pendientes o confirmadas</div></div></div></div>
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value" id="resumenEspecialidades">—</div><div class="kpi-label">Especialidades activas</div></div></div></div>
@@ -456,7 +456,7 @@
       return String(valor ?? '').trim().toLocaleLowerCase('es').normalize('NFD')
         .replace(/n\u0303/g, 'ñ').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
     }
-    // Paquete 04A: directorio y citas reales con la API (uso académico local).
+    // Directorio, reservas y consulta de citas mediante la API del sistema.
     const API_CITAS = `${window.CITAS_API_ORIGIN}/api`;
     const pacienteId = sessionStorage.getItem('usuarioId');
     let doctoresActivos = [];
@@ -1248,17 +1248,6 @@
         boton.disabled = false;
       }
     });
-    function avisarPrototipo() {
-      document.getElementById('toastPacienteMensaje').textContent = 'Vista previa verificada. No se guardaron ni modificaron datos en MongoDB.';
-      bootstrap.Toast.getOrCreateInstance(document.getElementById('toastPaciente')).show();
-    }
-    document.querySelectorAll('.form-vista-previa').forEach(form => {
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        avisarPrototipo();
-      });
-    });
-    document.querySelectorAll('.confirmar-vista-previa').forEach(boton => boton.addEventListener('click', avisarPrototipo));
     // Evita advertencias aria-hidden al cerrar modales con el foco en un control interno.
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('hide.bs.modal', () => {

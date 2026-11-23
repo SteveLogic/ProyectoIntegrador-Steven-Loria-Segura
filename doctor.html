@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Maqueta del panel del doctor del Sistema de Citas Médicas.">
+  <meta name="description" content="Panel del doctor del Sistema de Citas Médicas para consulta de citas y disponibilidad.">
   <title>Panel del doctor | Sistema de Citas Médicas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
   <script src="js/api-config.js"></script>
 </head>
 <body>
-  <!-- La verificación de rol en sessionStorage es únicamente navegación de prueba.
-       La autorización y el acceso a datos de pacientes deben implementarse en la API. -->
+  <!-- La verificación en sessionStorage orienta la navegación; la API valida cada operación protegida mediante sesión y permisos. -->
   <script>
     if (sessionStorage.getItem('usuarioAutenticado') !== 'true' || sessionStorage.getItem('rolUsuario') !== 'doctor') {
       window.location.replace('login.html');
@@ -63,7 +62,7 @@
         <a class="nav-link" href="#perfil"><span aria-hidden="true">⌕</span> Mi perfil</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Segundo avance · Maqueta del portal del doctor, sin datos médicos reales.</p>
+      <p class="small px-3 text-muted-app">Portal del doctor · Sistema académico con datos ficticios.</p>
     </aside>
 
     <main class="app-main" id="doctor-main">
@@ -78,7 +77,7 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="status"><strong>Integración parcial:</strong> la agenda y la lista de pacientes se obtienen de MongoDB; el registro de atención utiliza una API de prueba con sesión temporal y la disponibilidad se guarda en MongoDB. El cambio de estado se registra en MongoDB. Solo entorno académico local: las rutas de citas y atención médica aplican controles de sesión y permisos en el servidor; otras funciones todavía requieren revisión.</div>
+        <div class="alert alert-light border mt-3 mb-3" role="note"><strong>Aplicación académica:</strong> la agenda, los pacientes vinculados, los horarios y las atenciones se consultan o registran mediante la API conectada a MongoDB. Las operaciones protegidas comprueban la sesión y los permisos en el servidor. Utiliza únicamente identidades y datos clínicos ficticios; esta aplicación no está destinada a la atención médica real.</div>
         <div class="row g-3" aria-label="Indicadores de agenda y horarios">
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
@@ -114,7 +113,7 @@
             </table>
             <p class="doctor-empty m-3" id="agendaVacia" hidden>No se encontraron citas con esos filtros.</p>
           </div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas. El servidor devuelve únicamente las citas asignadas al doctor autenticado; los filtros de búsqueda se aplican en el navegador. Uso académico local.</p></div>
+          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas. El servidor devuelve únicamente las citas asignadas al doctor autenticado; los filtros de búsqueda se aplican en el navegador. Datos de demostración.</p></div>
         </div>
       </section>
 
@@ -161,11 +160,10 @@
             <div class="col-12"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña</a></div>
             <div class="col-12 col-md-6"><p class="doctor-profile-label mb-1">Nombre</p><p class="doctor-profile-value mb-0" id="perfilNombreDoctor">Doctor</p></div>
             <div class="col-12 col-md-6"><p class="doctor-profile-label mb-1">Rol</p><p class="doctor-profile-value mb-0">Doctor</p></div>
-            <div class="col-12"><p class="doctor-profile-label mb-1">Correo electrónico</p><p class="small text-muted-app mb-0">Pendiente de consulta a la API. No se muestran datos inventados de la cuenta.</p></div>
           </div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Vista académica del segundo avance · Sin datos de pacientes reales</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Demostración académica · No usar datos de pacientes reales</footer>
     </main>
   </div>
 
@@ -228,7 +226,7 @@
     </div></div>
   </div>
 
-  <!-- Paquete 06A: registro académico de atenciones asociado a citas completadas. -->
+  <!-- Registro de atenciones asociado a citas completadas. -->
   <div class="modal fade" id="modalRegistroAtencion" tabindex="-1" aria-labelledby="modalRegistroAtencionTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
@@ -239,7 +237,7 @@
         <form id="formRegistroAtencion">
           <div class="modal-body">
             <div class="alert alert-light border small" role="note">
-              <strong>Uso académico local:</strong> utiliza únicamente datos ficticios. Esta atención se guardará en MongoDB y quedará asociada a una cita completada y su paciente. No introducir información médica real.
+              <strong>Uso académico:</strong> utiliza únicamente datos ficticios. Esta atención se guardará en MongoDB y quedará asociada a una cita completada y su paciente. No introducir información médica real.
             </div>
             <div class="mb-3">
               <label for="atencionCita" class="form-label">Cita asociada *</label>
@@ -265,7 +263,7 @@
             </div>
             <div class="mb-3">
               <label for="atencionObservaciones" class="form-label">Observaciones de la atención *</label>
-              <textarea id="atencionObservaciones" name="observaciones" class="form-control" rows="3" maxlength="1000" required placeholder="Describe una observación inventada para esta maqueta"></textarea>
+              <textarea id="atencionObservaciones" name="observaciones" class="form-control" rows="3" maxlength="1000" required placeholder="Describe una observación ficticia para la demostración"></textarea>
             </div>
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
@@ -277,7 +275,7 @@
                 <textarea id="atencionIndicaciones" name="indicaciones" class="form-control" rows="3" maxlength="500" placeholder="Texto de ejemplo, no prescripciones reales"></textarea>
               </div>
             </div>
-            <p class="small text-muted-app mb-3">Los campos se almacenan en la colección <code>atenciones</code>. Solo pruebas locales, con identidades y datos clínicos inventados.</p>
+            <p class="small text-muted-app mb-3">Los campos se almacenan en la colección <code>atenciones</code>. Solo datos de demostración, con identidades y datos clínicos ficticios.</p>
             <div class="alert alert-light border mb-0" id="mensajeRegistroAtencion" role="status" aria-live="polite" hidden></div>
           </div>
           <div class="modal-footer">
@@ -417,7 +415,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     'use strict';
-    // Sesión de demostración: conserva el comportamiento del login ya existente.
+    // Mostrar el nombre recibido durante el inicio de sesión; los permisos se comprueban en la API.
     const nombreDoctor = sessionStorage.getItem('nombreUsuario') || 'Doctor';
     document.getElementById('saludoDoctor').textContent = nombreDoctor;
     document.getElementById('nombreDoctorBarra').textContent = nombreDoctor;
@@ -530,7 +528,7 @@
     const badgeEstadoPropuesto = document.getElementById('estadoPropuestoBadge');
     const nombresEstadoCita = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada', no_presentada: 'No presentada' };
 
-    // Paquete 05A — Lectura de agenda desde GET /api/citas.
+    // Consulta de agenda mediante GET /api/citas.
     // Live Server no autoriza las operaciones: la API valida el Bearer token y el doctor asignado.
     function idDocumento(obj) {
       return typeof obj === 'string' ? obj : (obj?._id || obj?.id || '');
@@ -759,7 +757,7 @@
         boton.disabled = false;
       }
     });
-    // Paquete 06A — Citas completadas y atención médica persistente.
+    // Consultas y atenciones persistentes vinculadas a citas completadas.
     const modalRegistroAtencion = document.getElementById('modalRegistroAtencion');
     const formRegistroAtencion = document.getElementById('formRegistroAtencion');
     const atencionCita = document.getElementById('atencionCita');
@@ -915,7 +913,7 @@
       } catch (error) { mensajeConsultaDoctor.textContent = error.message; }
     }
     document.getElementById('verConsultaEjemplo').addEventListener('click', mostrarHistorialSeleccionado);
-    // Paquete 05B — franjas de disponibilidad semanales persistentes.
+    // Gestión de franjas semanales persistentes de disponibilidad.
     const doctorHorarioId = sessionStorage.getItem('usuarioId');
     const API_HORARIOS = `${window.CITAS_API_ORIGIN}/api/disponibilidad`;
     const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
