@@ -5,27 +5,75 @@ const Doctor = require("../models/Doctor");
 const Usuario = require("../models/Usuario");
 const Especialidad = require("../models/Especialidad");
 
+// KAN-85: validación de los datos recibidos por la API (no depender solo del HTML).
+const CAMPOS_REGISTRO = new Set(["usuario", "especialidad", "numeroColegiado", "telefono"]);
+const CAMPOS_EDICION = new Set(["especialidad", "numeroColegiado", "telefono"]);
+const CAMPOS_ESPECIALIDAD = new Set(["especialidad"]);
+
+function validarCuerpoDoctor(cuerpo, permitidos) {
+  if (!cuerpo || typeof cuerpo !== "object" || Array.isArray(cuerpo)) {
+    return "Debes proporcionar un objeto con los datos del doctor.";
+  }
+  const noPermitidos = Object.keys(cuerpo).filter(campo => !permitidos.has(campo));
+  if (noPermitidos.length) {
+    return `El campo ${noPermitidos[0]} no se puede modificar desde este formulario.`;
+  }
+  return null;
+}
+
+function validarNumeroColegiado(valor) {
+  if (typeof valor !== "string" || !valor.trim()) {
+    return "El número de colegiado es obligatorio.";
+  }
+  const texto = valor.trim();
+  if (texto.length < 3 || texto.length > 80) {
+    return "El número de colegiado debe tener entre 3 y 80 caracteres.";
+  }
+  if (!/^[\p{L}\p{N}][\p{L}\p{N} .\/-]*$/u.test(texto)) {
+    return "El número de colegiado solo admite letras, números, espacios, puntos, barras y guiones.";
+  }
+  return null;
+}
+
+function validarTelefono(valor) {
+  if (typeof valor !== "string") {
+    return "El teléfono debe ser un texto.";
+  }
+  const telefono = valor.trim();
+  if (telefono.length > 30) {
+    return "El teléfono no puede superar los 30 caracteres.";
+  }
+  if (telefono) {
+    const digitos = telefono.replace(/\D/g, "").length;
+    if (!/^[+()0-9 .-]+$/.test(telefono) || digitos < 7 || digitos > 15 ||
+        (telefono.match(/\+/g) || []).length > 1 ||
+        (telefono.includes("+") && !telefono.startsWith("+"))) {
+      return "El teléfono debe tener entre 7 y 15 dígitos y usar un formato válido, por ejemplo 8888-3333 o +506 8888-3333.";
+    }
+  }
+  return null;
+}
+
 // Registrar un nuevo perfil médico
 exports.crearDoctor = async (req, res) => {
   try {
-    const { usuario, especialidad, numeroColegiado, telefono } = req.body;
+    const errorCuerpo = validarCuerpoDoctor(req.body, CAMPOS_REGISTRO);
+    if (errorCuerpo) return res.status(400).json({ mensaje: errorCuerpo });
 
-    // Validar campos obligatorios
-    if (!usuario || !especialidad ||
-        typeof numeroColegiado !== "string" ||
-        !numeroColegiado.trim()) {
-      return res.status(400).json({
-        mensaje: "Usuario, especialidad y número de colegiado son obligatorios."
-      });
+    const { usuario, especialidad, numeroColegiado, telefono = "" } = req.body;
+    if (typeof usuario !== "string" || !usuario.trim()) {
+      return res.status(400).json({ mensaje: "Selecciona un usuario con rol doctor." });
     }
-
-    // Validar identificadores de MongoDB
-    if (!mongoose.isValidObjectId(usuario) ||
-        !mongoose.isValidObjectId(especialidad)) {
-      return res.status(400).json({
-        mensaje: "El ID del usuario o de la especialidad no es válido."
-      });
+    if (typeof especialidad !== "string" || !especialidad.trim()) {
+      return res.status(400).json({ mensaje: "Selecciona una especialidad médica." });
     }
+    if (!mongoose.isValidObjectId(usuario) || !mongoose.isValidObjectId(especialidad)) {
+      return res.status(400).json({ mensaje: "El ID del usuario o de la especialidad no es válido." });
+    }
+    const errorColegiado = validarNumeroColegiado(numeroColegiado);
+    if (errorColegiado) return res.status(400).json({ mensaje: errorColegiado });
+    const errorTelefono = validarTelefono(telefono);
+    if (errorTelefono) return res.status(400).json({ mensaje: errorTelefono });
 
     // Comprobar que el usuario existe y tiene rol doctor
     const usuarioEncontrado = await Usuario.findById(usuario);
@@ -50,7 +98,7 @@ exports.crearDoctor = async (req, res) => {
       usuario,
       especialidad,
       numeroColegiado: numeroColegiado.trim(),
-      telefono: telefono || ""
+      telefono: telefono.trim()
     });
 
     const doctorRegistrado = await Doctor.findById(nuevoDoctor._id)
@@ -69,6 +117,9 @@ exports.crearDoctor = async (req, res) => {
       });
     }
 
+    if (error.name === "ValidationError" || error.name === "CastError") {
+      return res.status(400).json({ mensaje: "Los datos del doctor no son válidos." });
+    }
     console.error(error);
 
     return res.status(500).json({
@@ -131,15 +182,13 @@ exports.obtenerDoctorPorId = async (req, res) => {
 exports.actualizarDoctor = async (req, res) => {
   try {
     const { id } = req.params;
-    const { especialidad, numeroColegiado, telefono } = req.body;
-
-    // Validar el identificador
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({
-        mensaje: "El ID proporcionado no es válido."
-      });
+      return res.status(400).json({ mensaje: "El ID proporcionado no es válido." });
     }
+    const errorCuerpo = validarCuerpoDoctor(req.body, CAMPOS_EDICION);
+    if (errorCuerpo) return res.status(400).json({ mensaje: errorCuerpo });
 
+    const { especialidad, numeroColegiado, telefono } = req.body;
     const cambios = {};
 
     // Validar una nueva especialidad, si se proporciona
@@ -164,24 +213,15 @@ exports.actualizarDoctor = async (req, res) => {
 
     // Validar el número de colegiado
     if (numeroColegiado !== undefined) {
-      if (typeof numeroColegiado !== "string" ||
-          !numeroColegiado.trim()) {
-        return res.status(400).json({
-          mensaje: "El número de colegiado no es válido."
-        });
-      }
-
+      const errorColegiado = validarNumeroColegiado(numeroColegiado);
+      if (errorColegiado) return res.status(400).json({ mensaje: errorColegiado });
       cambios.numeroColegiado = numeroColegiado.trim();
     }
 
     // Actualizar el teléfono, si se proporciona
     if (telefono !== undefined) {
-      if (typeof telefono !== "string") {
-        return res.status(400).json({
-          mensaje: "El teléfono debe ser un texto."
-        });
-      }
-
+      const errorTelefono = validarTelefono(telefono);
+      if (errorTelefono) return res.status(400).json({ mensaje: errorTelefono });
       cambios.telefono = telefono.trim();
     }
 
@@ -217,6 +257,9 @@ exports.actualizarDoctor = async (req, res) => {
       });
     }
 
+    if (error.name === "ValidationError" || error.name === "CastError") {
+      return res.status(400).json({ mensaje: "Los datos del doctor no son válidos." });
+    }
     console.error(error);
 
     return res.status(500).json({
@@ -355,6 +398,8 @@ exports.cambiarEstadoDoctor = async (req, res) => {
 exports.asignarEspecialidadDoctor = async (req, res) => {
   try {
     const { id } = req.params;
+    const errorCuerpo = validarCuerpoDoctor(req.body, CAMPOS_ESPECIALIDAD);
+    if (errorCuerpo) return res.status(400).json({ mensaje: errorCuerpo });
     const { especialidad } = req.body;
 
     // Validar el identificador del doctor.
@@ -365,10 +410,8 @@ exports.asignarEspecialidadDoctor = async (req, res) => {
     }
 
     // Verificar que se haya enviado una especialidad.
-    if (!especialidad) {
-      return res.status(400).json({
-        mensaje: "La especialidad es obligatoria."
-      });
+    if (typeof especialidad !== "string" || !especialidad.trim()) {
+      return res.status(400).json({ mensaje: "La especialidad es obligatoria." });
     }
 
     // Validar el identificador de la especialidad.
