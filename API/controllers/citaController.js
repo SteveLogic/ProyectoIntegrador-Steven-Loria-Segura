@@ -295,10 +295,17 @@ const reprogramarCita = async (req, res) => {
         }
 
 
-        // No permitir reprogramar citas cerradas
-        if (["cancelada", "completada"].includes(cita.estado)) {
+        // Una cita solo se puede reprogramar si sigue activa y no ha comenzado.
+        // Validar también en la API: el navegador no es una barrera de seguridad.
+        if (!["pendiente", "confirmada"].includes(cita.estado)) {
             return res.status(409).json({
-                mensaje: "No se puede reprogramar una cita cancelada o completada."
+                mensaje: "No se puede reprogramar una cita que ya está finalizada."
+            });
+        }
+
+        if (!horarioValido(cita.fecha, cita.hora)) {
+            return res.status(409).json({
+                mensaje: "No se puede reprogramar una cita cuya fecha y hora ya pasaron."
             });
         }
 
@@ -434,26 +441,26 @@ const cancelarCita = async (req, res) => {
         }
 
 
-        // Evitar cancelar una cita que ya fue cancelada
-        if (cita.estado === "cancelada") {
+        // Una cita debe permanecer activa y futura para admitir cancelación.
+        if (!["pendiente", "confirmada"].includes(cita.estado)) {
             return res.status(409).json({
-                mensaje: "La cita ya se encuentra cancelada."
+                mensaje: "No se puede cancelar una cita que ya está finalizada."
             });
         }
 
-        // Evitar cancelar una cita completada
-        if (cita.estado === "completada") {
+        if (!horarioValido(cita.fecha, cita.hora)) {
             return res.status(409).json({
-                mensaje: "No se puede cancelar una cita completada."
+                mensaje: "No se puede cancelar una cita cuya fecha y hora ya pasaron."
             });
         }
-
 
         // Cancelar de forma atómica para evitar operaciones simultáneas.
         // Solo una solicitud puede cambiar la cita a "cancelada".
         const citaCancelada = await Cita.findOneAndUpdate(
             {
                 _id: cita._id,
+                fecha: cita.fecha,
+                hora: cita.hora,
                 estado: { $in: ["pendiente", "confirmada"] }
             },
             {
@@ -468,7 +475,7 @@ const cancelarCita = async (req, res) => {
         // Otra solicitud pudo cancelar o completar la cita primero.
         if (!citaCancelada) {
             return res.status(409).json({
-                mensaje: "La cita ya fue cancelada o completada por otra operación."
+                mensaje: "La cita fue modificada por otra operación. Actualiza la información e inténtalo nuevamente."
             });
         }
 
