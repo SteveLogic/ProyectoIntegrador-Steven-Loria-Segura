@@ -1,5 +1,5 @@
-/* Sistema de Citas Médicas — identidad visual inicial del segundo avance.
-   Hoja compartida: diseño claro, grises neutros y componentes Bootstrap 5.3. */
+/* Sistema de Citas Médicas — estilos compartidos de los portales.
+   Diseño claro, grises neutros y componentes Bootstrap 5.3. */
 :root {
   --app-bg: #f6f7f8;
   --app-surface: #ffffff;
@@ -57,7 +57,48 @@ a:hover { color: var(--app-accent-hover); }
 .modal-content { border: 1px solid var(--app-border); border-radius: 15px; }
 .modal-header, .modal-footer { border-color: #edf0f2; }
 .app-footer { font-size: .79rem; color: #929aa3; margin-top: 2.5rem; }
-@media (min-width: 992px) { .app-sidebar { min-height: calc(100vh - 68px); width: 238px; flex: 0 0 238px; } }
+/* Escritorio: el documento no se desplaza. La cabecera queda visible;
+   el menú izquierdo y el contenido central tienen desplazamientos separados. */
+@media (min-width: 992px) {
+  html, body {
+    height: 100%;
+    overflow: clip;
+  }
+  .app-shell {
+    display: flex;
+    height: calc(100vh - 68px);
+    height: calc(100dvh - 68px);
+    min-height: 0;
+    overflow: clip;
+  }
+  .app-sidebar {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    flex: 0 0 238px;
+    width: 238px;
+    height: 100%;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .app-shell > .app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    height: 100%;
+    margin-left: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+}
+/* Las secciones enlazadas desde la barra lateral no quedan ocultas
+   detrás de la barra superior al navegar mediante anclas. */
+.app-main[id], .app-main section[id] { scroll-margin-top: 88px; }
 @media (max-width: 991.98px) { .app-main { padding: 1.5rem 1rem 2.5rem; } .page-title { font-size: 1.75rem; } }
 @media (max-width: 575.98px) { .app-card-body { padding: 1.05rem; } .app-card-header { padding: 1.05rem; } .btn-mobile-wide { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .module-card { transition: none; } }
