@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
   <script src="js/api-config.js"></script>
+  <script src="js/citas-paciente.js"></script>
 </head>
 <body>
   <!-- El control de sesión del frontend es ilustrativo; la autorización real debe validarse en el backend. -->
@@ -120,7 +121,7 @@
       </section>
       <section id="misCitas" class="mb-4" aria-labelledby="misCitasTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Seguimiento de consultas</p><h2 class="section-title mb-1" id="misCitasTitulo">Mis citas</h2><p class="small text-muted-app mb-0">Consulta tus citas registradas mediante la API. Filtros por doctor, especialidad y estado.</p></div>
+          <div class="app-card-header"><p class="eyebrow mb-1">Seguimiento de consultas</p><h2 class="section-title mb-1" id="misCitasTitulo">Mis citas</h2><p class="small text-muted-app mb-0">Consulta tus próximas citas y tu historial por separado. Filtra por doctor, especialidad o estado.</p></div>
           <div class="app-card-body">
             <div class="row g-3 align-items-end">
               <div class="col-12 col-md-6"><label for="buscarCitasPaciente" class="form-label">Buscar doctor o especialidad</label><input class="form-control" id="buscarCitasPaciente" type="search" placeholder="Ej.: pediatria, elena"></div>
@@ -130,12 +131,29 @@
             <p class="small text-muted-app my-3" id="contadorCitasPaciente" role="status" aria-live="polite">Cargando citas...</p>
           </div>
           <div class="alert alert-secondary mx-3 mt-2 mb-0" id="mensajeCitasPaciente" role="status" aria-live="polite" hidden></div>
-          <div class="table-responsive">
-            <table class="table app-table patient-table"><caption class="visually-hidden">Tabla de citas del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasCitasPaciente">
-            </tbody></table>
+
+          <div class="app-card-body border-top" aria-labelledby="proximasCitasTitulo">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+              <div><h3 class="fs-5 mb-1" id="proximasCitasTitulo">Próximas citas</h3><p class="small text-muted-app mb-0">Reservas pendientes o confirmadas cuya fecha y hora aún no han pasado.</p></div>
+              <span class="small text-muted-app" id="contadorProximasCitasPaciente" role="status" aria-live="polite"></span>
+            </div>
+            <div class="table-responsive">
+              <table class="table app-table patient-table"><caption class="visually-hidden">Próximas citas del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasCitasPaciente"></tbody></table>
+            </div>
+            <p class="small text-muted-app mb-0" id="sinProximasCitasPaciente" role="status" hidden>No hay próximas citas que coincidan con tu búsqueda.</p>
           </div>
-          <p class="small text-muted-app px-3 py-2 mb-0" id="sinCitasPaciente" role="status" hidden>No hay citas registradas que coincidan con tu búsqueda.</p>
-          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. <strong>Solo para entorno académico local:</strong> las rutas de citas requieren autenticación y el servidor restringe las consultas y modificaciones según los permisos de cada usuario.</p></div>
+
+          <div class="app-card-body border-top" aria-labelledby="historialCitasTitulo">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+              <div><h3 class="fs-5 mb-1" id="historialCitasTitulo">Historial de citas</h3><p class="small text-muted-app mb-0">Citas pasadas, completadas, canceladas o no presentadas.</p></div>
+              <span class="small text-muted-app" id="contadorHistorialCitasPaciente" role="status" aria-live="polite"></span>
+            </div>
+            <div class="table-responsive">
+              <table class="table app-table patient-table"><caption class="visually-hidden">Historial de citas del paciente</caption><thead><tr><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="filasHistorialCitasPaciente"></tbody></table>
+            </div>
+            <p class="small text-muted-app mb-0" id="sinHistorialCitasPaciente" role="status" hidden>No hay citas en el historial que coincidan con tu búsqueda.</p>
+          </div>
+          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. Las rutas de citas requieren autenticación y el servidor restringe las consultas y modificaciones según los permisos de cada usuario. Uso académico con datos ficticios.</p></div>
         </div>
       </section>
 
@@ -806,53 +824,67 @@
       }
     });
 
+    function crearFilaCitaPaciente(cita, permitirAcciones) {
+      const fila = nodo('tr');
+      const nombreDoctor = cita.doctor?.nombre || 'Doctor no disponible';
+      const especialidad = cita.especialidad?.nombre || 'Sin especialidad';
+      [nombreDoctor, especialidad, cita.fecha.split('-').reverse().join('/'), cita.hora].forEach(valor => fila.append(nodo('td', '', valor)));
+      const celdaEstado = nodo('td');
+      celdaEstado.append(nodo('span', `badge-cita badge-cita-${cita.estado}`, cita.estado === 'no_presentada' ? 'No presentada' : cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)));
+      fila.append(celdaEstado);
+      const acciones = nodo('td', 'patient-appointment-actions');
+      if (permitirAcciones && (cita.estado === 'pendiente' || cita.estado === 'confirmada')) {
+        const btnEditar = nodo('button', 'btn btn-sm btn-outline-app me-1', 'Reprogramar');
+        btnEditar.type = 'button';
+        btnEditar.addEventListener('click', () => {
+          citaSeleccionada = cita;
+          document.getElementById('errorReprogramarPaciente').hidden = true;
+          document.getElementById('reprogramarDoctorPaciente').value = nombreDoctor;
+          document.getElementById('reprogramarFechaPaciente').value = cita.fecha;
+          cargarSlotsReprogramacion(cita.hora);
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarPaciente')).show();
+        });
+        const btnCancelar = nodo('button', 'btn btn-sm btn-outline-app', 'Cancelar');
+        btnCancelar.type = 'button';
+        btnCancelar.addEventListener('click', () => {
+          citaSeleccionada = cita;
+          document.getElementById('errorCancelarPaciente').hidden = true;
+          document.getElementById('resumenCancelacionPaciente').textContent = `${nombreDoctor} · ${cita.fecha} · ${cita.hora}`;
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarPaciente')).show();
+        });
+        acciones.append(btnEditar, btnCancelar);
+      } else {
+        acciones.textContent = 'Sin acciones';
+      }
+      fila.append(acciones);
+      return fila;
+    }
+
     function filtrarCitas() {
-      tablaCitasPaciente.replaceChildren();
+      const { proximas, historial } = window.CITAS_PACIENTE.clasificar(citasPaciente);
       const termino = normalizarTexto(buscarCitasPaciente.value);
       const estado = estadoCitasPaciente.value;
-      const lista = citasPaciente.filter(c =>
-        (!estado || c.estado === estado) && normalizarTexto(`${c.doctor?.nombre || ''} ${c.especialidad?.nombre || ''}`).includes(termino)
-      );
-      lista.forEach(cita => {
-        const fila = nodo('tr');
-        const nombreDoctor = cita.doctor?.nombre || 'Doctor no disponible';
-        const especialidad = cita.especialidad?.nombre || 'Sin especialidad';
-        [nombreDoctor, especialidad, cita.fecha.split('-').reverse().join('/'), cita.hora].forEach(valor => fila.append(nodo('td', '', valor)));
-        const celdaEstado = nodo('td');
-        celdaEstado.append(nodo('span', `badge-cita badge-cita-${cita.estado}`, cita.estado === 'no_presentada' ? 'No presentada' : cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)));
-        fila.append(celdaEstado);
-        const acciones = nodo('td', 'patient-appointment-actions');
-        if (cita.estado === 'pendiente' || cita.estado === 'confirmada') {
-          const btnEditar = nodo('button', 'btn btn-sm btn-outline-app me-1', 'Reprogramar');
-          btnEditar.type = 'button';
-          btnEditar.addEventListener('click', () => {
-            citaSeleccionada = cita;
-            document.getElementById('errorReprogramarPaciente').hidden = true;
-            document.getElementById('reprogramarDoctorPaciente').value = nombreDoctor;
-            document.getElementById('reprogramarFechaPaciente').value = cita.fecha;
-            cargarSlotsReprogramacion(cita.hora);
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarPaciente')).show();
-          });
-          const btnCancelar = nodo('button', 'btn btn-sm btn-outline-app', 'Cancelar');
-          btnCancelar.type = 'button';
-          btnCancelar.addEventListener('click', () => {
-            citaSeleccionada = cita;
-            document.getElementById('errorCancelarPaciente').hidden = true;
-            document.getElementById('resumenCancelacionPaciente').textContent = `${nombreDoctor} · ${cita.fecha} · ${cita.hora}`;
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarPaciente')).show();
-          });
-          acciones.append(btnEditar, btnCancelar);
-        } else {
-          acciones.textContent = 'Sin acciones';
-        }
-        fila.append(acciones);
-        tablaCitasPaciente.append(fila);
-      });
-      document.getElementById('contadorCitasPaciente').textContent = `${lista.length} de ${citasPaciente.length} citas registradas`;
-      document.getElementById('sinCitasPaciente').hidden = lista.length !== 0;
-      document.getElementById('resumenProximasCitas').textContent = String(citasPaciente.filter(c =>
-        ['pendiente', 'confirmada'].includes(c.estado) && c.fecha >= fechaLocalHoy()
-      ).length);
+      const coincide = cita => (!estado || cita.estado === estado) &&
+        normalizarTexto(`${cita.doctor?.nombre || ''} ${cita.especialidad?.nombre || ''}`).includes(termino);
+      const proximasFiltradas = proximas.filter(coincide);
+      const historialFiltrado = historial.filter(coincide);
+      const tablaHistorial = document.getElementById('filasHistorialCitasPaciente');
+      tablaCitasPaciente.replaceChildren();
+      tablaHistorial.replaceChildren();
+      proximasFiltradas.forEach(cita => tablaCitasPaciente.append(crearFilaCitaPaciente(cita, true)));
+      historialFiltrado.forEach(cita => tablaHistorial.append(crearFilaCitaPaciente(cita, false)));
+
+      const totalVisible = proximasFiltradas.length + historialFiltrado.length;
+      document.getElementById('contadorCitasPaciente').textContent = citasPaciente.length === 0
+        ? 'Aún no tienes citas registradas.'
+        : `${totalVisible} de ${citasPaciente.length} citas registradas`;
+      document.getElementById('contadorProximasCitasPaciente').textContent =
+        `${proximasFiltradas.length} de ${proximas.length} próximas`;
+      document.getElementById('contadorHistorialCitasPaciente').textContent =
+        `${historialFiltrado.length} de ${historial.length} en historial`;
+      document.getElementById('sinProximasCitasPaciente').hidden = proximasFiltradas.length > 0;
+      document.getElementById('sinHistorialCitasPaciente').hidden = historialFiltrado.length > 0;
+      document.getElementById('resumenProximasCitas').textContent = String(proximas.length);
     }
     async function cargarCitasPaciente() {
       if (!pacienteId) {
@@ -863,8 +895,7 @@
         const todas = await peticionCitas('/citas');
         if (!Array.isArray(todas)) throw new Error('La API no devolvió una lista de citas.');
         // Filtro UI exclusivamente. No constituye autorización de seguridad del servidor.
-        citasPaciente = todas.filter(c => (c.paciente?._id || c.paciente) === pacienteId)
-          .sort((a,b) => `${b.fecha}T${b.hora}`.localeCompare(`${a.fecha}T${a.hora}`));
+        citasPaciente = todas.filter(c => (c.paciente?._id || c.paciente) === pacienteId);
         filtrarCitas();
       } catch (error) {
         citasPaciente = [];
