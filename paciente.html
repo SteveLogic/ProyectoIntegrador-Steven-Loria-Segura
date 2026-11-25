@@ -61,7 +61,6 @@
         <a class="nav-link" href="#miPerfil"><span aria-hidden="true">◯</span> Mi perfil</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Proyecto Integrador 1 · Reserva y consulta conectadas a MongoDB.</p>
     </aside>
     <main class="app-main" id="paciente-main">
       <section id="inicio" aria-labelledby="inicioTitulo" class="mb-4">
@@ -75,7 +74,6 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#reservarCita">+ Solicitar cita</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3" role="note"><strong>Sistema académico de demostración:</strong> el directorio médico, la disponibilidad, las reservas y las notificaciones utilizan la API conectada a MongoDB. El servidor comprueba la sesión, la propiedad de las citas y los horarios disponibles. <strong>No ingresar datos médicos reales:</strong> utiliza únicamente información ficticia en las pruebas.</div>
         <div class="row g-3" aria-label="Resumen ilustrativo">
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">▤</span><div><div class="kpi-label">Mis próximas citas</div><div class="kpi-value" id="resumenProximasCitas">—</div><div class="kpi-label">Pendientes o confirmadas</div></div></div></div>
           <div class="col-12 col-sm-6 col-xl-4"><div class="app-card app-card-body h-100 patient-stat"><span class="kpi-icon" aria-hidden="true">✚</span><div><div class="kpi-label">Especialidades disponibles</div><div class="kpi-value" id="resumenEspecialidades">—</div><div class="kpi-label">Especialidades activas</div></div></div></div>
@@ -87,7 +85,7 @@
           <div class="app-card-header">
             <p class="eyebrow mb-1">Directorio médico</p>
             <h2 class="section-title mb-1" id="buscarTitulo">Buscar doctores por especialidad</h2>
-            <p class="small text-muted-app mb-0">Busca doctores activos registrados en MongoDB y selecciónalos para reservar.</p>
+            <p class="small text-muted-app mb-0">Busca doctores disponibles y selecciónalos para reservar.</p>
           </div>
           <div class="app-card-body">
             <div class="row g-3 align-items-end mb-3">
@@ -104,15 +102,15 @@
       </section>
       <section id="reservarCita" class="mb-4" aria-labelledby="reservarTitulo">
         <div class="app-card">
-          <div class="app-card-header"><p class="eyebrow mb-1">Solicitud de atención</p><h2 class="section-title mb-1" id="reservarTitulo">Reservar cita médica</h2><p class="small text-muted-app mb-0">Reserva real mediante <code>POST /api/citas</code>. La API valida la disponibilidad semanal del doctor y las citas existentes.</p></div>
+          <div class="app-card-header"><p class="eyebrow mb-1">Solicitud de atención</p><h2 class="section-title mb-1" id="reservarTitulo">Reservar cita médica</h2><p class="small text-muted-app mb-0">Selecciona una especialidad, un doctor y un horario disponible.</p></div>
           <form class="app-card-body" id="formReserva">
             <div class="row g-3">
               <div class="col-12 col-md-6"><label class="form-label" for="reservaEspecialidad">Especialidad <span aria-hidden="true">*</span></label><select class="form-select" id="reservaEspecialidad" name="especialidad" required><option value="">Selecciona una especialidad</option></select></div>
               <div class="col-12 col-md-6"><label class="form-label" for="reservaDoctor">Doctor <span aria-hidden="true">*</span></label><select class="form-select" id="reservaDoctor" name="doctor" required disabled><option value="">Selecciona primero una especialidad</option></select></div>
-              <div class="col-12 col-md-6"><label class="form-label" for="reservaFecha">Fecha <span aria-hidden="true">*</span></label><input type="date" class="form-control" id="reservaFecha" name="fecha" required><div class="form-text">Selecciona una fecha futura. La API valida la fecha y la disponibilidad real.</div></div>
+              <div class="col-12 col-md-6"><label class="form-label" for="reservaFecha">Fecha <span aria-hidden="true">*</span></label><input type="date" class="form-control" id="reservaFecha" name="fecha" required><div class="form-text">Selecciona una fecha futura para ver los horarios disponibles.</div></div>
               <div class="col-12 col-md-6"><label class="form-label" for="reservaHora">Hora <span aria-hidden="true">*</span></label><select class="form-select" id="reservaHora" name="hora" required disabled><option value="">Primero elige doctor y fecha</option></select><div class="form-text">Se muestran solo horarios libres de 30 minutos.</div></div>
               <div class="col-12"><p id="avisoSlotsReserva" class="small text-muted-app mb-1" role="status">Selecciona doctor y fecha para consultar disponibilidad.</p></div>
-              <div class="col-12"><label class="form-label" for="reservaMotivo">Motivo de consulta (opcional)</label><textarea class="form-control" id="reservaMotivo" name="motivo" maxlength="500" rows="3" placeholder="Escribe un breve motivo de tu consulta"></textarea><div class="form-text">Máximo 500 caracteres. Usa solamente motivos ficticios durante las pruebas.</div></div>
+              <div class="col-12"><label class="form-label" for="reservaMotivo">Motivo de consulta (opcional)</label><textarea class="form-control" id="reservaMotivo" name="motivo" maxlength="500" rows="3" placeholder="Escribe un breve motivo de tu consulta"></textarea><div class="form-text">Máximo 500 caracteres.</div></div>
             </div>
             <div class="d-flex gap-2 justify-content-end flex-wrap mt-4 patient-booking-actions"><button type="reset" class="btn btn-outline-app">Limpiar formulario</button><button type="submit" class="btn btn-app-primary">Reservar cita</button></div>
             <div class="alert alert-secondary mt-3 mb-0" id="mensajeReserva" role="status" aria-live="polite" hidden></div>
@@ -153,7 +151,6 @@
             </div>
             <p class="small text-muted-app mb-0" id="sinHistorialCitasPaciente" role="status" hidden>No hay citas en el historial que coincidan con tu búsqueda.</p>
           </div>
-          <div class="app-card-body border-top"><p class="small text-muted-app mb-0">Integración: <code>GET /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code>. Las rutas de citas requieren autenticación y el servidor restringe las consultas y modificaciones según los permisos de cada usuario. Uso académico con datos ficticios.</p></div>
         </div>
       </section>
 
@@ -191,13 +188,6 @@
 
           <div class="app-card-body">
 
-            <div class="alert alert-light border small mb-3" role="note">
-              <strong>Notificaciones de MongoDB:</strong>
-              los avisos se generan al registrar, reprogramar o cancelar citas.
-              Solo puedes consultar tus propias notificaciones.
-              El estado de lectura se guarda en el servidor.
-              Esta versión no envía correos electrónicos.
-            </div>
 
             <div class="row g-3 align-items-end">
 
@@ -276,22 +266,22 @@
 
       <section id="miPerfil" class="mb-4" aria-labelledby="miPerfilTitulo">
         <div class="app-card">
-          <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Vista visual de los datos del usuario autenticado.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar perfil</button></div>
+          <div class="app-card-header d-flex gap-2 align-items-center justify-content-between flex-wrap"><div><p class="eyebrow mb-1">Cuenta del paciente</p><h2 id="miPerfilTitulo" class="section-title mb-1">Mi perfil</h2><p class="small text-muted-app mb-0">Consulta y actualiza tus datos personales.</p></div><button type="button" class="btn btn-outline-app" data-bs-toggle="modal" data-bs-target="#modalPerfilPaciente">Editar perfil</button></div>
           <div class="app-card-body"><div class="mb-3"><a class="btn btn-sm btn-outline-app" href="cambio-contrasena.html">Cambiar contraseña</a></div><div class="row g-3"><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Nombre</p><p class="patient-profile-value mb-0" id="nombrePacientePerfil">Paciente</p></div><div class="col-12 col-md-6"><p class="patient-profile-label mb-1">Rol</p><p class="patient-profile-value mb-0">Paciente</p></div><div class="col-12"><p class="patient-profile-label mb-1">Correo electrónico</p><p class="text-muted-app mb-0" id="correoPacientePerfil">Consultando correo electrónico...</p></div></div></div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Integración académica con MongoDB · No usar datos médicos reales</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1</footer>
     </main>
   </div>
   <!-- Reprogramar cita existente mediante API -->
   <div class="modal fade" id="modalReprogramarPaciente" tabindex="-1" aria-labelledby="reprogramarPacienteTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="reprogramarPacienteTitulo">Reprogramar mi cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form id="formReprogramarPaciente"><div class="modal-body"><p class="small text-muted-app">Actualizar la cita en MongoDB mediante <code>PUT /api/citas/:id</code>.</p><div class="mb-3"><label class="form-label" for="reprogramarDoctorPaciente">Doctor (solo lectura)</label><input class="form-control" id="reprogramarDoctorPaciente" readonly></div><div class="row g-3"><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarFechaPaciente">Nueva fecha</label><input class="form-control" type="date" id="reprogramarFechaPaciente" required></div><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarHoraPaciente">Nueva hora</label><select class="form-select" id="reprogramarHoraPaciente" required disabled><option value="">Selecciona fecha primero</option></select></div></div><div class="alert alert-light border small mt-3 mb-0">Las opciones corresponden a las franjas libres del doctor; la API valida nuevamente antes de guardar.</div><div class="alert alert-danger mt-3" id="errorReprogramarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Volver</button><button class="btn btn-app-primary" type="submit">Guardar reprogramación</button></div></form>
+      <form id="formReprogramarPaciente"><div class="modal-body"><p class="small text-muted-app">Selecciona una nueva fecha y hora para tu cita.</p><div class="mb-3"><label class="form-label" for="reprogramarDoctorPaciente">Doctor (solo lectura)</label><input class="form-control" id="reprogramarDoctorPaciente" readonly></div><div class="row g-3"><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarFechaPaciente">Nueva fecha</label><input class="form-control" type="date" id="reprogramarFechaPaciente" required></div><div class="col-12 col-sm-6"><label class="form-label" for="reprogramarHoraPaciente">Nueva hora</label><select class="form-select" id="reprogramarHoraPaciente" required disabled><option value="">Selecciona fecha primero</option></select></div></div><div class="alert alert-light border small mt-3 mb-0">Selecciona uno de los horarios disponibles.</div><div class="alert alert-danger mt-3" id="errorReprogramarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Volver</button><button class="btn btn-app-primary" type="submit">Guardar reprogramación</button></div></form>
     </div></div>
   </div>
   <!-- Cancelación lógica mediante API -->
   <div class="modal fade" id="modalCancelarPaciente" tabindex="-1" aria-labelledby="cancelarPacienteTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">La cita cambiará a estado <strong>cancelada</strong> en MongoDB mediante <code>DELETE /api/citas/:id</code>.</p><div class="alert alert-danger mt-3" id="errorCancelarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelacionPaciente" class="btn btn-app-primary">Confirmar cancelación</button></div></div></div>
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="cancelarPacienteTitulo">Cancelar cita</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><p class="mb-2">Cita seleccionada:</p><p class="fw-bold" id="resumenCancelacionPaciente"></p><p class="small text-muted-app mb-0">La cita seleccionada se marcará como cancelada.</p><div class="alert alert-danger mt-3" id="errorCancelarPaciente" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelacionPaciente" class="btn btn-app-primary">Confirmar cancelación</button></div></div></div>
   </div>
 
   <!-- Edición real del perfil del paciente -->
@@ -813,7 +803,7 @@
           body: JSON.stringify({paciente: pacienteId, doctor, especialidad, fecha, hora, motivo: document.getElementById('reservaMotivo').value.trim()})
         });
         formularioReserva.reset();
-        mostrarMensaje(mensajeReserva, 'Cita registrada correctamente en MongoDB.', 'success');
+        mostrarMensaje(mensajeReserva, 'Cita registrada correctamente.', 'success');
         await cargarCitasPaciente();
         await cargarNotificaciones();
       } catch (error) {
@@ -1219,7 +1209,7 @@
           method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fecha, hora})
         });
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarPaciente')).hide();
-        mostrarMensaje(mensajeCitasPaciente, 'Cita reprogramada correctamente en MongoDB.', 'success');
+        mostrarMensaje(mensajeCitasPaciente, 'Cita reprogramada correctamente.', 'success');
         await cargarCitasPaciente();
         await cargarNotificaciones();
       } catch (error) {
@@ -1237,7 +1227,7 @@
       try {
         await peticionCitas(`/citas/${encodeURIComponent(citaSeleccionada._id)}`, {method: 'DELETE'});
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarPaciente')).hide();
-        mostrarMensaje(mensajeCitasPaciente, 'Cita cancelada correctamente en MongoDB.', 'success');
+        mostrarMensaje(mensajeCitasPaciente, 'Cita cancelada correctamente.', 'success');
         await cargarCitasPaciente();
         await cargarNotificaciones();
       } catch (error) {

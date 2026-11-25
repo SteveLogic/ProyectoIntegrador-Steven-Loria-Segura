@@ -62,7 +62,6 @@
         <a class="nav-link" href="#perfil"><span aria-hidden="true">⌕</span> Mi perfil</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Portal del doctor · Sistema académico con datos ficticios.</p>
     </aside>
 
     <main class="app-main" id="doctor-main">
@@ -77,9 +76,8 @@
             <a class="btn btn-app-primary btn-mobile-wide" href="#agenda">Ver mi agenda</a>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-3" role="note"><strong>Aplicación académica:</strong> la agenda, los pacientes vinculados, los horarios y las atenciones se consultan o registran mediante la API conectada a MongoDB. Las operaciones protegidas comprueban la sesión y los permisos en el servidor. Utiliza únicamente identidades y datos clínicos ficticios; esta aplicación no está destinada a la atención médica real.</div>
         <div class="row g-3" aria-label="Indicadores de agenda y horarios">
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas desde MongoDB</span></div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">▤</span><div><p class="kpi-label mb-1">Próximas citas</p><p class="kpi-value mb-0" id="kpiProximasDoctor">—</p><span class="kpi-label">Citas registradas</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◷</span><div><p class="kpi-label mb-1">Pendientes</p><p class="kpi-value mb-0" id="kpiPendientesDoctor">—</p><span class="kpi-label">Citas pendientes</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">◯</span><div><p class="kpi-label mb-1">Pacientes vinculados</p><p class="kpi-value mb-0" id="kpiPacientesDoctor">—</p><span class="kpi-label">Con citas registradas</span></div></div></div>
           <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body doctor-kpi"><span class="kpi-icon" aria-hidden="true">＋</span><div><p class="kpi-label mb-1">Franjas de atención</p><p class="kpi-value mb-0" id="kpiFranjasDoctor">—</p><span class="kpi-label">Horarios semanales</span></div></div></div>
@@ -89,7 +87,7 @@
       <section id="agenda" class="mb-4" aria-labelledby="agendaDoctorTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Citas obtenidas de MongoDB asociadas al usuario doctor de esta sesión.</p></div>
+            <div><p class="eyebrow mb-1">Organización de consultas</p><h2 class="section-title mb-1" id="agendaDoctorTitulo">Mi agenda</h2><p class="small text-muted-app mb-0">Consulta y administra las citas asignadas a tu agenda.</p></div>
             <div class="d-flex flex-wrap gap-2 align-items-center">
               <button type="button" class="btn btn-sm btn-outline-app btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalEstadoCitaDoctor">Actualizar estado</button>
               <a href="#disponibilidad" class="btn btn-sm btn-app-primary btn-mobile-wide">Consultar horarios</a>
@@ -102,29 +100,27 @@
               <div class="col-12 col-sm-6 col-md-3"><label for="filtrarFechaAgenda" class="form-label">Fecha</label><input id="filtrarFechaAgenda" class="form-control" type="date"></div>
               <div class="col-12 col-md-2"><button type="button" id="limpiarAgenda" class="btn btn-outline-app w-100">Limpiar</button></div>
             </div>
-            <p class="small text-muted-app mt-3 mb-0" id="contadorAgenda" role="status" aria-live="polite">Cargando agenda...</p><div id="agendaAPIInfo" class="alert alert-info small mt-3" role="status" aria-live="polite">Conectando con la API...</div>
+            <p class="small text-muted-app mt-3 mb-0" id="contadorAgenda" role="status" aria-live="polite">Cargando agenda...</p><div id="agendaAPIInfo" class="alert alert-info small mt-3" role="status" aria-live="polite">Cargando agenda...</div>
           </div>
           <div class="table-responsive doctor-table-scroll">
             <table class="table app-table doctor-table align-middle">
-              <caption class="visually-hidden">Agenda de citas del doctor consultadas desde la API</caption>
+              <caption class="visually-hidden">Agenda de citas del doctor</caption>
               <thead><tr><th scope="col">Paciente</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
               <tbody id="filasAgendaDoctor">
               </tbody>
             </table>
             <p class="doctor-empty m-3" id="agendaVacia" hidden>No se encontraron citas con esos filtros.</p>
           </div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Agenda consultada mediante GET /api/citas. El servidor devuelve únicamente las citas asignadas al doctor autenticado; los filtros de búsqueda se aplican en el navegador. Datos de demostración.</p></div>
         </div>
       </section>
 
       <section id="disponibilidad" class="mb-4" aria-labelledby="disponibilidadTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div><p class="eyebrow mb-1">Horario de atención</p><h2 class="section-title mb-1" id="disponibilidadTitulo">Mi disponibilidad</h2><p class="small text-muted-app mb-0">Franjas semanales reales registradas en MongoDB. Citas de 30 minutos.</p></div>
+            <div><p class="eyebrow mb-1">Horario de atención</p><h2 class="section-title mb-1" id="disponibilidadTitulo">Mi disponibilidad</h2><p class="small text-muted-app mb-0">Organiza tus días y horarios de atención. Citas de 30 minutos.</p></div>
             <button class="btn btn-sm btn-app-primary btn-mobile-wide" type="button" data-bs-toggle="modal" data-bs-target="#modalHorarioDoctor" data-modo="nuevo">+ Nueva franja</button>
           </div>
           <div class="app-card-body"><div class="alert alert-info small" id="avisoDisponibilidadDoctor" role="status">Cargando disponibilidad...</div><div class="row g-3" id="franjasDoctor"></div></div>
-          <div class="app-card-body border-top py-3"><p class="small text-muted-app mb-0">Los horarios se almacenan en MongoDB. Una franja debe estar alineada a medias horas y no puede superponerse con otra. Los cambios no cancelan citas ya registradas.</p></div>
         </div>
       </section>
 
@@ -139,7 +135,7 @@
       <section id="consultas" class="mb-4" aria-labelledby="consultasTitulo">
         <div class="app-card">
           <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div><p class="eyebrow mb-1">Atención médica</p><h2 class="section-title mb-1" id="consultasTitulo">Consultas</h2><p class="small text-muted-app mb-0">Consulta de citas atendidas y registro de atención con datos ficticios en MongoDB.</p></div>
+            <div><p class="eyebrow mb-1">Atención médica</p><h2 class="section-title mb-1" id="consultasTitulo">Consultas</h2><p class="small text-muted-app mb-0">Consulta citas atendidas y registra nuevas atenciones.</p></div>
             <button type="button" class="btn btn-sm btn-app-primary btn-mobile-wide" data-bs-toggle="modal" data-bs-target="#modalRegistroAtencion">+ Registrar atención</button>
           </div>
           <div class="app-card-body">
@@ -163,14 +159,14 @@
           </div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Demostración académica · No usar datos de pacientes reales</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1</footer>
     </main>
   </div>
 
   <div class="modal fade" id="modalDetalleDoctor" tabindex="-1" aria-labelledby="detalleDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="detalleDoctorTitulo">Detalle de cita</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <div class="modal-body"><p class="small text-muted-app">Información de la cita obtenida desde la API; no se consulta ningún expediente clínico.</p><dl class="row g-2 doctor-detail-list mb-0"><dt class="col-5">Paciente</dt><dd class="col-7" id="detallePaciente"></dd><dt class="col-5">Especialidad</dt><dd class="col-7" id="detalleEspecialidad"></dd><dt class="col-5">Fecha</dt><dd class="col-7" id="detalleFecha"></dd><dt class="col-5">Hora</dt><dd class="col-7" id="detalleHora"></dd><dt class="col-5">Estado</dt><dd class="col-7" id="detalleEstado"></dd></dl></div>
+      <div class="modal-body"><p class="small text-muted-app">Información de la cita seleccionada.</p><dl class="row g-2 doctor-detail-list mb-0"><dt class="col-5">Paciente</dt><dd class="col-7" id="detallePaciente"></dd><dt class="col-5">Especialidad</dt><dd class="col-7" id="detalleEspecialidad"></dd><dt class="col-5">Fecha</dt><dd class="col-7" id="detalleFecha"></dd><dt class="col-5">Hora</dt><dd class="col-7" id="detalleHora"></dd><dt class="col-5">Estado</dt><dd class="col-7" id="detalleEstado"></dd></dl></div>
       <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cerrar</button></div>
     </div></div>
   </div>
@@ -185,7 +181,7 @@
       <form id="formEstadoCitaDoctor">
         <div class="modal-body">
           <div class="alert alert-light border small" role="note">
-            Los cambios se guardan en MongoDB. Cancelación antes del horario; atendida o no presentada después de la cita.
+            Puedes cancelar citas futuras y actualizar las citas pasadas según corresponda.
           </div>
           <div class="mb-3">
             <label for="citaSeleccionadaEstado" class="form-label">Cita médica *</label>
@@ -237,7 +233,7 @@
         <form id="formRegistroAtencion">
           <div class="modal-body">
             <div class="alert alert-light border small" role="note">
-              <strong>Uso académico:</strong> utiliza únicamente datos ficticios. Esta atención se guardará en MongoDB y quedará asociada a una cita completada y su paciente. No introducir información médica real.
+              Registra la atención asociada a una cita completada. Utiliza únicamente información ficticia.
             </div>
             <div class="mb-3">
               <label for="atencionCita" class="form-label">Cita asociada *</label>
@@ -275,12 +271,11 @@
                 <textarea id="atencionIndicaciones" name="indicaciones" class="form-control" rows="3" maxlength="500" placeholder="Texto de ejemplo, no prescripciones reales"></textarea>
               </div>
             </div>
-            <p class="small text-muted-app mb-3">Los campos se almacenan en la colección <code>atenciones</code>. Solo datos de demostración, con identidades y datos clínicos ficticios.</p>
             <div class="alert alert-light border mb-0" id="mensajeRegistroAtencion" role="status" aria-live="polite" hidden></div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-app-primary">Guardar atención en MongoDB</button>
+            <button type="submit" class="btn btn-app-primary">Guardar atención</button>
           </div>
         </form>
       </div>
@@ -292,7 +287,7 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalHorarioDoctorTitulo">Nueva franja de atención</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formHorarioDoctor">
         <div class="modal-body">
-          <p class="small text-muted-app">Crea o edita una franja semanal de atención. Se guardará en MongoDB.</p>
+          <p class="small text-muted-app">Crea o edita tus horarios semanales de atención.</p>
           <div class="mb-3"><label class="form-label" for="horarioDia">Día de la semana</label><select class="form-select" id="horarioDia" required><option value="">Selecciona un día</option><option value="lunes">Lunes</option><option value="martes">Martes</option><option value="miercoles">Miércoles</option><option value="jueves">Jueves</option><option value="viernes">Viernes</option><option value="sabado">Sábado</option><option value="domingo">Domingo</option></select></div>
           <div class="row g-3">
             <div class="col-6">
@@ -404,7 +399,7 @@
               </select>
             </div>
           </div>
-          <p class="small text-muted-app mt-3 mb-0">Horarios de 30 minutos, por ejemplo 09:00–12:00. El servidor valida superposiciones.</p>
+          <p class="small text-muted-app mt-3 mb-0">Selecciona un rango horario en intervalos de 30 minutos, por ejemplo 09:00–12:00.</p>
           <div class="alert alert-light border mt-3 mb-0" id="mensajeHorarioDoctor" role="status" aria-live="polite" hidden></div>
         </div>
         <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Guardar horario</button></div>
@@ -633,7 +628,7 @@
         return;
       }
       aviso.className = 'alert alert-info small mt-3';
-      aviso.textContent = 'Consultando agenda desde MongoDB...';
+      aviso.textContent = 'Cargando agenda...';
       try {
 
         const token = sessionStorage.getItem('tokenAtencion');
@@ -671,8 +666,8 @@
         document.getElementById('kpiProximasDoctor').textContent = String(citas.filter(c => c.fecha >= hoy && ['pendiente','confirmada'].includes(c.estado)).length);
         document.getElementById('kpiPendientesDoctor').textContent = String(citas.filter(c => c.estado === 'pendiente').length);
         actualizarAgenda();
-        aviso.className = 'alert alert-info small mt-3';
-        aviso.textContent = `${citas.length} cita(s) vinculada(s) al doctor de esta sesión. El servidor restringe las citas al doctor autenticado; los filtros de búsqueda se aplican en el navegador.`;
+        aviso.className = 'alert alert-info small mt-3 d-none';
+        aviso.textContent = '';
       } catch (error) {
         tabla.replaceChildren();
         filasAgenda.splice(0);
@@ -684,7 +679,7 @@
         document.getElementById('kpiPendientesDoctor').textContent = '—';
         actualizarAgenda();
         aviso.className = 'alert alert-danger small mt-3';
-        aviso.textContent = 'No se pudo consultar la agenda. Comprueba la API y MongoDB.';
+        aviso.textContent = 'No se pudo consultar la agenda. Inténtalo nuevamente.';
         console.error('Error al consultar la agenda:', error);
       }
     }
@@ -813,7 +808,7 @@
         await cargarAgendaDesdeAPI();
         selectorConsulta.value = idDocumento(cita);
         actualizarConsultasClinicas();
-        mensajeConsultaDoctor.textContent = 'Cita marcada como completada en MongoDB. Ahora puedes registrar una atención.';
+        mensajeConsultaDoctor.textContent = 'Cita marcada como completada. Ahora puedes registrar una atención.';
       } catch (error) {
         mensajeConsultaDoctor.textContent = error.message;
         completarConsulta.disabled = !sePuedeCompletar();
@@ -869,7 +864,7 @@
         });
         selectorConsulta.value = idDocumento(cita);
         bootstrap.Modal.getOrCreateInstance(modalRegistroAtencion).hide();
-        mensajeConsultaDoctor.textContent = 'Atención guardada correctamente en MongoDB. Consulta el historial para verla.';
+        mensajeConsultaDoctor.textContent = 'Atención guardada correctamente. Consulta el historial para verla.';
         await mostrarHistorialSeleccionado();
       } catch (error) { mostrarError(error.message); }
       finally { botonGuardarAtencion.disabled = false; }
@@ -998,7 +993,7 @@
             try {
               await solicitarFranjas(`${API_HORARIOS}/${encodeURIComponent(franja._id)}`,{method:'DELETE'});
               await cargarFranjasDoctor();
-              notificarFranjas('Franja eliminada de MongoDB.', 'success');
+              notificarFranjas('Franja eliminada correctamente.', 'success');
             } catch(error) {notificarFranjas(error.message,'danger');eliminar.disabled=false;}
           });
           acciones.append(editar, eliminar);
@@ -1006,7 +1001,7 @@
         });
         document.getElementById('kpiFranjasDoctor').textContent=String(franjasRegistradas.length);
         notificarFranjas(franjasRegistradas.length
-          ? `${franjasRegistradas.length} franja(s) semanal(es) registradas en MongoDB.`
+          ? `${franjasRegistradas.length} franja(s) semanal(es) registrada(s).`
           : 'Todavía no has registrado horarios. Pulsa «Nueva franja» para habilitar reservas.');
       }catch(error){notificarFranjas(`No se pudo cargar la disponibilidad: ${error.message}`,'danger');}
     }
@@ -1036,7 +1031,7 @@
         });
         bootstrap.Modal.getOrCreateInstance(modalFranjas).hide();
         await cargarFranjasDoctor();
-        notificarFranjas('Horario guardado correctamente en MongoDB.','success');
+        notificarFranjas('Horario guardado correctamente.','success');
       }catch(error){aviso.hidden=false;aviso.className='alert alert-danger mt-3 mb-0';aviso.textContent=error.message;}
       finally {boton.disabled=false;}
     });

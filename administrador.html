@@ -63,7 +63,6 @@
         <a class="nav-link" href="cambio-contrasena.html"><span aria-hidden="true">⌑</span> Cambiar contraseña</a>
       </nav>
       <hr class="my-4">
-      <p class="small px-3 text-muted-app">Gestión académica conectada a la API y MongoDB, con datos de demostración.</p>
     </aside>
     <main class="app-main" id="resumen">
       <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -74,17 +73,13 @@
         </div>
         <button class="btn btn-app-primary btn-mobile-wide" type="button" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Nueva cita</button>
       </div>
-      <div class="alert alert-light border d-flex gap-2 align-items-start" role="status">
-        <span aria-hidden="true">ⓘ</span>
-        <div><strong>Sistema académico de demostración:</strong> los módulos de usuarios, doctores, especialidades y citas utilizan la API conectada a MongoDB. Las operaciones administrativas requieren una sesión autorizada. Utiliza solo cuentas y citas ficticias; el sistema no está habilitado para uso médico real.</div>
-      </div>
       <section aria-labelledby="indicadoresTitulo" class="mb-4">
         <h2 class="section-title mb-3" id="indicadoresTitulo">Resumen general</h2>
         <div class="row g-3">
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3" id="kpiUsuarios">—</div><div class="kpi-label mt-2">Datos de MongoDB</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3" id="kpiDoctores">—</div><div class="kpi-label mt-2">Doctores activos en MongoDB</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
-          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3" id="kpiCitas">—</div><div class="kpi-label mt-2">Registradas en MongoDB</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Usuarios</span><span class="kpi-icon" aria-hidden="true">◯</span></div><div class="kpi-value mt-3" id="kpiUsuarios">—</div><div class="kpi-label mt-2">Cuentas registradas</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Doctores</span><span class="kpi-icon" aria-hidden="true">✚</span></div><div class="kpi-value mt-3" id="kpiDoctores">—</div><div class="kpi-label mt-2">Perfiles activos</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Especialidades</span><span class="kpi-icon" aria-hidden="true">◇</span></div><div class="kpi-value mt-3" id="resumenTotalEspecialidades">—</div><div class="kpi-label mt-2">Registradas</div></div></div>
+          <div class="col-12 col-sm-6 col-xl-3"><div class="app-card app-card-body h-100"><div class="d-flex justify-content-between align-items-start"><span class="kpi-label">Citas</span><span class="kpi-icon" aria-hidden="true">▤</span></div><div class="kpi-value mt-3" id="kpiCitas">—</div><div class="kpi-label mt-2">Registradas</div></div></div>
         </div>
       </section>
       <section aria-labelledby="modulosTitulo" class="mb-4">
@@ -105,12 +100,12 @@
                 <div class="col-6"><div class="report-kpi"><p class="kpi-label mb-2">Doctores activos</p><p class="kpi-value mb-0" id="resumenDoctoresActivos">0</p></div></div>
                 <div class="col-6"><div class="report-kpi"><p class="kpi-label mb-2">Doctores inactivos</p><p class="kpi-value mb-0" id="resumenDoctoresInactivos">0</p></div></div>
               </div>
-              <p class="small text-muted-app">Consulta los perfiles, filtra por especialidad o estado y prueba los formularios de administración.</p>
+              <p class="small text-muted-app">Consulta los perfiles y filtra por especialidad o estado.</p>
               <a class="btn btn-outline-app" href="#doctores">Abrir gestión de doctores</a>
             </div>
           </div>
         </div>
-        <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Citas próximas desde MongoDB</p></div><div class="app-card-body"><div id="proximasCitasResumen" class="empty-state" aria-live="polite">Cargando citas...</div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
+        <div class="col-12 col-xl-5" id="resumenCitas"><div class="app-card h-100"><div class="app-card-header"><h2 class="section-title mb-1">Próximas citas</h2><p class="small text-muted-app mb-0">Próximas consultas programadas</p></div><div class="app-card-body"><div id="proximasCitasResumen" class="empty-state" aria-live="polite">Cargando citas...</div><button type="button" class="btn btn-outline-app w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">Abrir formulario de cita</button></div></div></div>
       </section>
       <!-- KAN-8: consulta, registro y edición de perfiles médicos integrados con MongoDB. -->
       <section id="doctores" class="mb-4" aria-labelledby="gestionDoctoresTitulo">
@@ -119,17 +114,11 @@
             <div>
               <p class="eyebrow mb-1">Administración del personal médico</p>
               <h2 class="section-title mb-1" id="gestionDoctoresTitulo">Gestión de doctores</h2>
-              <p class="small text-muted-app mb-0">Listado y administración de perfiles médicos conectados con MongoDB.</p>
+              <p class="small text-muted-app mb-0">Consulta y administra los perfiles médicos registrados.</p>
             </div>
             <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalDoctor">+ Registrar doctor</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border small" role="note">
-              <strong>Datos obtenidos de MongoDB:</strong>
-              Esta tabla muestra los perfiles médicos registrados en la base de datos.
-              La consulta, el registro y la edición de los perfiles están integrados con la API.
-              La activación y desactivación se guardan en MongoDB. Los doctores inactivos no pueden recibir nuevas reservas; sus citas anteriores se conservan.
-            </div>
             <div id="avisoDoctores" class="alert alert-success d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar doctores registrados">
               <div class="col-12 col-md-5"><label class="form-label" for="buscarDoctor">Buscar por nombre, correo o colegiado</label><input type="search" class="form-control" id="buscarDoctor" placeholder="Ej.: Andrés o COL-2026" autocomplete="off"></div>
@@ -148,7 +137,6 @@
             </table>
           </div>
           <div id="sinResultadosDoctores" class="empty-state m-3 d-none" role="status"> No se encontraron doctores registrados que coincidan con los filtros seleccionados. </div>
-          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">Mapeo backend: <code>Doctor.usuario</code>, <code>especialidad</code>, <code>numeroColegiado</code>, <code>telefono</code> y <code>activo</code>. API existente: <code>GET /api/doctores</code>, <code>POST /api/doctores</code>, <code>PUT /api/doctores/:id</code>, <code>PUT /api/doctores/:id/especialidad</code> y <code>DELETE /api/doctores/:id</code> (desactivación lógica). <code>PATCH /api/doctores/:id/estado</code> (activar y desactivar).</p></div>
         </div>
       </section>
       <!-- Gestión de usuarios: la API protege consultas, edición, cambio de estado y cambio de rol; la creación de administradores desde el formulario está restringida. -->
@@ -158,14 +146,11 @@
             <div>
               <p class="eyebrow mb-1">Administración de cuentas</p>
               <h2 class="section-title mb-1" id="usuariosTitulo">Gestión de usuarios</h2>
-              <p class="small text-muted-app mb-0">Consulta, búsqueda, registro y edición de usuarios conectados con MongoDB.</p>
+              <p class="small text-muted-app mb-0">Consulta y administra las cuentas del sistema.</p>
             </div>
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">+ Registrar usuario</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note">
-              <strong>Seguridad de usuarios:</strong> las operaciones administrativas de consulta, registro, edición, cambio de rol y cambio de estado requieren sesión válida con rol administrador. El servidor rechaza solicitudes sin permisos; utiliza únicamente cuentas ficticias.
-            </div>
             <div id="avisoUsuarios" class="alert alert-info d-none small" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar usuarios registrados">
               <div class="col-12 col-md-7">
@@ -189,7 +174,7 @@
           </div>
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaUsuarios">
-              <caption class="visually-hidden">Listado de usuarios obtenidos desde la API, sin contraseñas</caption>
+              <caption class="visually-hidden">Listado de usuarios sin contraseñas</caption>
               <thead>
                 <tr>
                   <th scope="col">Nombre</th>
@@ -203,15 +188,6 @@
             </table>
           </div>
           <div id="sinResultadosUsuarios" class="empty-state m-3 d-none" role="status">No hay usuarios registrados que coincidan con los filtros seleccionados.</div>
-          <div class="app-card-body pt-2">
-            <p class="small text-muted-app mb-0">
-              API conectada: GET, POST y PUT /api/usuarios,
-              además de PATCH /api/usuarios/:id/estado.
-              El administrador puede activar o desactivar cuentas.
-              Las contraseñas no se muestran y los cambios
-              de estado no modifican el rol del usuario.
-            </p>
-          </div>
         </div>
       </section>
 
@@ -221,14 +197,11 @@
             <div>
               <p class="eyebrow mb-1">Catálogo médico</p>
               <h2 class="section-title mb-1" id="especialidadesTitulo">Gestión de especialidades médicas</h2>
-              <p class="small text-muted-app mb-0">Consulta, búsqueda, registro y edición de especialidades conectadas con MongoDB.</p>
+              <p class="small text-muted-app mb-0">Administra las especialidades médicas disponibles.</p>
             </div>
             <button class="btn btn-app-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEspecialidad">+ Registrar especialidad</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note">
-              <strong>Datos de MongoDB:</strong> las especialidades se consultan, registran y editan mediante la API. Se muestran también las inactivas. La desactivación no está habilitada desde el panel porque actualmente no existe reactivación en la API.
-            </div>
             <div id="avisoEspecialidades" class="alert alert-info small d-none" role="status" aria-live="polite"></div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar especialidades registradas">
               <div class="col-12 col-md-7"><label class="form-label" for="buscarEspecialidad">Buscar especialidad por nombre o descripción</label><input class="form-control" id="buscarEspecialidad" type="search" placeholder="Ej.: Pediatría" autocomplete="off"></div>
@@ -239,13 +212,12 @@
           </div>
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaEspecialidades">
-              <caption class="visually-hidden">Especialidades médicas reales consultadas desde MongoDB</caption>
+              <caption class="visually-hidden">Especialidades médicas registradas</caption>
               <thead><tr><th scope="col">Especialidad</th><th scope="col">Descripción</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
           <div id="sinResultadosEspecialidades" role="status" class="empty-state m-3 d-none">No se encontraron especialidades que coincidan con los filtros.</div>
-          <div class="app-card-body pt-2"><p class="text-muted-app small mb-0">API conectada: <code>GET /api/especialidades</code>, <code>POST /api/especialidades</code> y <code>PUT /api/especialidades/:id</code>. El endpoint <code>DELETE /api/especialidades/:id</code> desactiva lógicamente, pero no se ofrece todavía en esta interfaz y no existe endpoint de reactivación.</p></div>
         </div>
       </section>
       <!-- Gestión de citas: integración GET, POST, PUT y DELETE con API REST. -->
@@ -260,8 +232,7 @@
             <button type="button" class="btn btn-app-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">+ Registrar cita</button>
           </div>
           <div class="app-card-body pb-2">
-            <div class="alert alert-light border mb-3" role="note"><strong>Citas de MongoDB:</strong> la consulta, el registro, la reprogramación y la cancelación utilizan la API con autenticación y permisos por rol. Utiliza únicamente reservas ficticias. </div>
-            <div id="avisoCitas" class="alert alert-info small" role="status" aria-live="polite">Cargando citas desde la API...</div>
+            <div id="avisoCitas" class="alert alert-info small" role="status" aria-live="polite">Cargando citas...</div>
             <div class="row g-3 align-items-end" role="search" aria-label="Buscar y filtrar citas">
               <div class="col-12 col-lg-5">
                 <label for="buscarCita" class="form-label">Buscar paciente, doctor o especialidad</label>
@@ -289,13 +260,12 @@
           </div>
           <div class="table-responsive">
             <table class="table app-table mb-0" id="tablaCitas">
-              <caption class="visually-hidden">Listado de citas registradas en MongoDB</caption>
+              <caption class="visually-hidden">Listado de citas registradas</caption>
               <thead><tr><th scope="col">Paciente</th><th scope="col">Doctor</th><th scope="col">Especialidad</th><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
           <div id="sinResultadosCitas" class="empty-state m-3 d-none" role="status">No hay citas registradas que coincidan con los filtros.</div>
-          <div class="app-card-body pt-2"><p class="small text-muted-app mb-0">Correspondencia con API: <code>GET /api/citas</code>, <code>POST /api/citas</code>, <code>PUT /api/citas/:id</code> y <code>DELETE /api/citas/:id</code> (cancelación lógica). Los estados del modelo son <code>pendiente</code>, <code>confirmada</code>, <code>cancelada</code> , <code>completada</code> y <code>no_presentada</code>. La disponibilidad debe validarse en el backend antes de guardar.</p></div>
         </div>
       </section>
       <!-- Reportes calculados en el navegador sobre GET /api/citas, sin endpoint independiente. -->
@@ -307,12 +277,9 @@
               <h2 id="reportesTitulo" class="section-title mb-1">Reportes de citas</h2>
               <p class="text-muted-app small mb-0">Consulta de indicadores, estados y citas por especialidad y fechas.</p>
             </div>
-            <span class="badge-soft">Datos de MongoDB</span>
+
           </div>
           <div class="app-card-body">
-            <div class="alert alert-light border small mb-4" role="note">
-              <strong>Reportes de demostración:</strong> los indicadores se calculan en el navegador a partir de <code>GET /api/citas</code>. No hay un endpoint independiente de reportes ni exportación de datos.
-            </div>
             <form id="filtrosReporte" class="row g-3 align-items-end" aria-label="Filtros de reportes de citas" novalidate>
               <div class="col-12 col-sm-6 col-xl-3">
                 <label for="reporteEspecialidad" class="form-label">Especialidad</label>
@@ -378,7 +345,7 @@
                   </div>
                   <div class="table-responsive report-scroll">
                     <table id="tablaReporte" class="table app-table mb-0">
-                      <caption class="visually-hidden">Resultados filtrados de citas obtenidas desde MongoDB</caption>
+                      <caption class="visually-hidden">Resultados filtrados de citas</caption>
                       <thead><tr><th scope="col">Paciente</th><th scope="col">Especialidad</th><th scope="col">Doctor</th><th scope="col">Fecha y hora</th><th scope="col">Estado</th></tr></thead>
                       <tbody></tbody>
                     </table>
@@ -387,11 +354,10 @@
                 </div>
               </div>
             </div>
-            <p class="small text-muted-app mt-3 mb-0">Origen: <code>GET /api/citas</code>. Los indicadores y filtros se calculan en el navegador sobre las citas obtenidas; no hay endpoint independiente de reportes.</p>
           </div>
         </div>
       </section>
-      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1 · Demostración académica con datos ficticios</footer>
+      <footer class="app-footer">Sistema de Citas Médicas · Proyecto Integrador 1</footer>
     </main>
   </div>
   <!-- KAN-9: Formularios de especialidades conectados con la API. -->
@@ -400,7 +366,7 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearEspecialidadTitulo">Registrar especialidad médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formCrearEspecialidad" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">Los datos se registrarán en MongoDB mediante <code>POST /api/especialidades</code>.</p>
+
           <div id="errorCrearEspecialidad" class="alert alert-warning d-none" role="alert" aria-live="polite"></div>
           <div class="row g-3">
             <div class="col-12"><label for="especialidadNombre" class="form-label">Nombre de la especialidad *</label><input type="text" class="form-control" id="especialidadNombre" name="nombre" required minlength="3" maxlength="80" placeholder="Ej.: Neurología"></div>
@@ -416,12 +382,12 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarEspecialidadTitulo">Editar especialidad médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formEditarEspecialidad" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">Las modificaciones se guardan mediante <code>PUT /api/especialidades/:id</code>. El estado no puede modificarse desde este formulario.</p>
+          <p class="small text-muted-app">Actualiza el nombre o la descripción de la especialidad.</p>
           <div id="errorEditarEspecialidad" class="alert alert-warning d-none" role="alert" aria-live="polite"></div>
           <div class="row g-3">
             <div class="col-12"><label for="editarEspecialidadNombre" class="form-label">Nombre de la especialidad *</label><input type="text" class="form-control" name="nombre" id="editarEspecialidadNombre" required minlength="3" maxlength="80"></div>
             <div class="col-12"><label for="editarEspecialidadDescripcion" class="form-label">Descripción</label><textarea id="editarEspecialidadDescripcion" name="descripcion" class="form-control" rows="3" maxlength="500"></textarea></div>
-            <div class="col-12"><label for="editarEspecialidadEstado" class="form-label">Estado (solo lectura)</label><input id="editarEspecialidadEstado" type="text" class="form-control" disabled><div class="form-text">La API permite desactivar pero no reactivar una especialidad. El estado es solo informativo aquí.</div></div>
+            <div class="col-12"><label for="editarEspecialidadEstado" class="form-label">Estado (solo lectura)</label><input id="editarEspecialidadEstado" type="text" class="form-control" disabled><div class="form-text">El estado es informativo y no se cambia desde este formulario.</div></div>
           </div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Guardar cambios</button></div>
@@ -434,13 +400,13 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCrearUsuarioTitulo">Registrar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formCrearUsuario" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">La cuenta se guardará mediante <code>POST /api/usuarios</code>. La contraseña se envía al backend para almacenarse como hash; no aparecerá en la tabla ni en mensajes de confirmación. Las operaciones requieren autenticación con rol administrador.</p>
+          <p class="small text-muted-app">Completa los datos para registrar una cuenta. La contraseña no se mostrará en la tabla.</p>
           <div id="crearUsuarioError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12"><label for="usuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="usuarioNombre" name="nombre" class="form-control" maxlength="120" autocomplete="name" placeholder="Ej.: María Pérez" required></div>
             <div class="col-12 col-md-6"><label for="usuarioEmail" class="form-label">Correo electrónico *</label><input type="email" id="usuarioEmail" name="email" class="form-control" autocomplete="email" placeholder="nombre@example.com" required></div>
             <div class="col-12 col-md-6"><label for="usuarioRol" class="form-label">Rol *</label><select id="usuarioRol" name="rol" class="form-select" required><option value="">Seleccionar rol</option><option value="paciente">Paciente</option><option value="doctor">Doctor</option><option value="administrador" disabled>Administrador (pendiente de autorización)</option></select></div>
-            <div class="col-12"><label for="usuarioPassword" class="form-label">Contraseña *</label><input type="password" id="usuarioPassword" name="password" class="form-control" minlength="8" autocomplete="new-password" required><div class="form-text">Mínimo 8 caracteres. Se almacena como hash en MongoDB; no compartas contraseñas de cuentas reales.</div></div>
+            <div class="col-12"><label for="usuarioPassword" class="form-label">Contraseña *</label><input type="password" id="usuarioPassword" name="password" class="form-control" minlength="8" autocomplete="new-password" required><div class="form-text">Mínimo 8 caracteres.</div></div>
           </div>
         </div>
         <div class="modal-footer"><button class="btn btn-outline-app" type="button" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-app-primary" type="submit">Registrar usuario</button></div>
@@ -527,7 +493,7 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarUsuarioTitulo">Editar usuario</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formEditarUsuario" novalidate>
         <div class="modal-body">
-          <p class="small text-muted-app">Se guardarán el nombre y el correo mediante <code>PUT /api/usuarios/:id</code>. El rol y la contraseña no se modifican desde este formulario.</p>
+          <p class="small text-muted-app">Puedes actualizar el nombre y el correo electrónico de esta cuenta.</p>
           <div id="editarUsuarioError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12"><label for="editarUsuarioNombre" class="form-label">Nombre completo *</label><input type="text" id="editarUsuarioNombre" name="nombre" class="form-control" maxlength="120" required></div>
@@ -544,7 +510,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalDoctorTitulo">Registrar perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formCrearDoctor" novalidate>
-        <div class="modal-body"><p class="text-muted-app small">Formulario diseñado para <code>POST /api/doctores</code>. Registre un perfil médico seleccionando un usuario con rol doctor y una especialidad activa. La información se guardará en MongoDB. </p>
+        <div class="modal-body"><p class="text-muted-app small">Selecciona un usuario con rol doctor y una especialidad activa. </p>
           <div id="crearDoctorError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12 col-md-6"><label for="doctorUsuario" class="form-label">Usuario con rol doctor *</label><select id="doctorUsuario" name="usuario" class="form-select" required><option value="">Selecciona un usuario</option></select></div>
@@ -561,7 +527,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalEditarDoctorTitulo">Editar perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formEditarDoctor" novalidate>
-        <div class="modal-body"><p class="small text-muted-app">Los cambios de colegiado y teléfono se guardan con <code>PUT /api/doctores/:id</code>; la especialidad se cambia mediante <code>PUT /api/doctores/:id/especialidad</code>. El nombre y correo pertenecen al usuario y son de solo lectura. La información se guardará en MongoDB.</p>
+        <div class="modal-body"><p class="small text-muted-app">Puedes modificar los datos profesionales y la especialidad. El nombre y el correo del usuario son de solo lectura.</p>
           <div id="editarDoctorError" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12"><label for="editarDoctorUsuario" class="form-label">Usuario (solo lectura)</label><input id="editarDoctorUsuario" class="form-control" type="text" readonly></div>
@@ -577,14 +543,14 @@
   <div class="modal fade" id="modalEstadoDoctor" tabindex="-1" aria-labelledby="modalEstadoDoctorTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalEstadoDoctorTitulo">Cambiar estado de perfil médico</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <div class="modal-body"><p id="confirmacionEstadoDoctor" class="mb-2"></p><p class="small text-muted-app mb-0">El cambio se guarda en MongoDB. Desactivar un perfil impide nuevas reservas y reprogramaciones, pero conserva las citas anteriores. La cuenta de usuario no se desactiva.</p><div id="estadoDoctorError" class="alert alert-danger mt-3 d-none" role="alert"></div></div>
+      <div class="modal-body"><p id="confirmacionEstadoDoctor" class="mb-2"></p><p class="small text-muted-app mb-0">Desactivar el perfil impedirá nuevas reservas y reprogramaciones. Las citas anteriores y la cuenta del usuario se conservarán.</p><div id="estadoDoctorError" class="alert alert-danger mt-3 d-none" role="alert"></div></div>
       <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button id="confirmarEstadoDoctor" type="button" class="btn btn-app-primary">Confirmar cambio</button></div>
     </div></div>
   </div>
   <!-- Modal de registro real de cita -->
   <div class="modal fade" id="modalNuevaCita" tabindex="-1" aria-labelledby="modalCitaTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalCitaTitulo">Nueva cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-      <form id="formNuevaCita" novalidate><div class="modal-body"><p class="small text-muted-app">Registro de cita en MongoDB mediante <code>POST /api/citas</code>. Elige doctor y fecha para consultar franjas libres de 30 minutos. La API valida la disponibilidad.</p><div id="errorNuevaCita" class="alert alert-warning d-none" role="alert"></div><div class="row g-3">
+      <form id="formNuevaCita" novalidate><div class="modal-body"><p class="small text-muted-app">Elige doctor y fecha para consultar horarios disponibles de 30 minutos.</p><div id="errorNuevaCita" class="alert alert-warning d-none" role="alert"></div><div class="row g-3">
         <div class="col-12 col-md-6"><label for="citaPaciente" class="form-label">Paciente</label><select name="paciente" id="citaPaciente" class="form-select" required><option value="">Seleccione un paciente</option></select></div>
         <div class="col-12 col-md-6"><label for="citaDoctor" class="form-label">Doctor</label><select name="doctor" id="citaDoctor" class="form-select" required><option value="">Seleccione un doctor</option></select></div>
         <div class="col-12 col-md-6"><label for="citaEspecialidad" class="form-label">Especialidad</label><select name="especialidad" id="citaEspecialidad" class="form-select" required><option value="">Seleccione una especialidad</option></select></div>
@@ -600,14 +566,14 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalReprogramarCitaTitulo">Reprogramar cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <form id="formReprogramarCita">
         <div class="modal-body">
-          <p class="small text-muted-app">Actualiza la cita mediante <code>PUT /api/citas/:id</code>. La API valida las fechas y rechaza horarios ocupados.</p><div id="errorReprogramarCita" class="alert alert-warning d-none" role="alert"></div>
+          <p class="small text-muted-app">Selecciona una nueva fecha y un horario disponible.</p><div id="errorReprogramarCita" class="alert alert-warning d-none" role="alert"></div>
           <div class="row g-3">
             <div class="col-12 col-sm-6"><label for="reprogramarPaciente" class="form-label">Paciente (solo lectura)</label><input id="reprogramarPaciente" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarDoctor" class="form-label">Doctor (solo lectura)</label><input id="reprogramarDoctor" type="text" class="form-control" readonly></div>
             <div class="col-12 col-sm-6"><label for="reprogramarFecha" class="form-label">Nueva fecha</label><input id="reprogramarFecha" type="date" name="fecha" class="form-control" required></div>
             <div class="col-12 col-sm-6"><label for="reprogramarHora" class="form-label">Nueva hora</label><select id="reprogramarHora" name="hora" class="form-select" required disabled><option value="">Selecciona una fecha</option></select></div>
           </div>
-          <div class="alert alert-light border small mt-3 mb-0" role="note">Se muestran franjas libres. La API verifica nuevamente al guardar.</div>
+          <div class="alert alert-light border small mt-3 mb-0" role="note">Se muestran los horarios disponibles para esta cita.</div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-app-primary">Guardar reprogramación</button></div>
       </form>
@@ -618,7 +584,7 @@
       <div class="modal-header"><h2 class="modal-title fs-5" id="modalCancelarCitaTitulo">Cancelar cita médica</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
       <div class="modal-body">
         <p class="mb-2">Cita seleccionada: <strong id="cancelarCitaDetalle"></strong></p>
-        <p class="small text-muted-app mb-0">Esta acción cambia el estado de la cita a Cancelada en MongoDB mediante <code>DELETE /api/citas/:id</code>. No se elimina físicamente.</p><div id="errorCancelarCita" class="alert alert-warning mt-3 d-none" role="alert"></div>
+        <p class="small text-muted-app mb-0">Esta acción cancelará la cita seleccionada.</p><div id="errorCancelarCita" class="alert alert-warning mt-3 d-none" role="alert"></div>
       </div>
       <div class="modal-footer"><button type="button" class="btn btn-outline-app" data-bs-dismiss="modal">Volver</button><button type="button" id="confirmarCancelarCita" class="btn btn-app-primary">Confirmar cancelación</button></div>
     </div></div>
@@ -691,7 +657,7 @@
     let idUsuarioEditando = null;
 
     function avisarUsuarios(mensaje, tipo = 'info') {
-      avisoUsuarios.className = `alert alert-${tipo} small`;
+      avisoUsuarios.className = `alert alert-${tipo} small${mensaje ? '' : ' d-none'}`;
       avisoUsuarios.textContent = mensaje;
     }
 
@@ -815,7 +781,7 @@
 
 
     async function cargarUsuariosDesdeAPI() {
-      avisarUsuarios('Consultando usuarios desde MongoDB...');
+      avisarUsuarios('Cargando usuarios...');
       try {
         const token = sessionStorage.getItem('tokenAtencion');
           if (!token) {
@@ -838,11 +804,11 @@
         tablaUsuarios.replaceChildren(...usuarios.map(crearFilaUsuario));
         actualizarTablaUsuarios();
         document.getElementById('kpiUsuarios').textContent = String(usuarios.length);
-        avisarUsuarios(`${usuarios.length} usuario(s) cargado(s) desde MongoDB. Consulta, registro y edición disponibles.`, 'info');
+        avisarUsuarios('', 'info');
         return true;
       } catch (error) {
         console.error('Error al consultar usuarios:', error);
-        avisarUsuarios('No se pudieron cargar los usuarios. Comprueba que la API y MongoDB estén ejecutándose.', 'danger');
+        avisarUsuarios('No se pudieron cargar los usuarios. Inténtalo nuevamente.', 'danger');
         return false;
       }
     }
@@ -984,7 +950,7 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCrearUsuario')).hide();
         const actualizado = await cargarUsuariosDesdeAPI();
         avisarUsuarios(actualizado
-          ? `La cuenta «${nombre}» se registró correctamente en MongoDB.`
+          ? `La cuenta «${nombre}» se registró correctamente.`
           : 'La cuenta se registró, pero no se pudo recargar la tabla. Comprueba la conexión.', actualizado ? 'success' : 'warning');
       } catch (error) {
         console.error('Error al registrar usuario:', error);
@@ -1146,7 +1112,7 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarUsuario')).hide();
         const actualizado = await cargarUsuariosDesdeAPI();
         avisarUsuarios(actualizado
-          ? `Los datos de «${nombre}» se actualizaron en MongoDB.`
+          ? `Los datos de «${nombre}» se actualizaron .`
           : 'Los cambios se guardaron, pero no se pudo recargar la tabla.', actualizado ? 'success' : 'warning');
       } catch (error) {
         console.error('Error al editar usuario:', error);
@@ -1167,7 +1133,7 @@
     let idEspecialidadEditando = null;
 
     function avisoModuloEspecialidades(mensaje, tipo = 'info') {
-      avisoEspecialidades.className = `alert alert-${tipo} small`;
+      avisoEspecialidades.className = `alert alert-${tipo} small${mensaje ? '' : ' d-none'}`;
       avisoEspecialidades.textContent = mensaje;
     }
     function errorFormularioEspecialidad(id, mensaje) {
@@ -1228,7 +1194,7 @@
     });
 
     async function cargarEspecialidadesDesdeAPI() {
-      avisoModuloEspecialidades('Cargando especialidades desde la API...');
+      avisoModuloEspecialidades('Cargando especialidades...');
       try {
         const respuesta = await fetch(API_ESPECIALIDADES);
         if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
@@ -1242,12 +1208,12 @@
         filtrarEstadoEspecialidad.value = 'todos';
         actualizarTablaEspecialidades();
         document.getElementById('resumenTotalEspecialidades').textContent = String(especialidades.length);
-        avisoModuloEspecialidades(`${especialidades.length} especialidad(es) cargada(s) desde MongoDB. Consulta, registro y edición disponibles.`);
+        avisoModuloEspecialidades('');
         return true;
       } catch (error) {
         console.error('Error al cargar especialidades:', error);
         // No sustituir los datos anteriores por registros ficticios cuando falla la consulta.
-        avisoModuloEspecialidades('No fue posible cargar las especialidades. Comprueba que MongoDB y la API estén en ejecución.', 'danger');
+        avisoModuloEspecialidades('No fue posible cargar las especialidades. Inténtalo nuevamente.', 'danger');
         return false;
       }
     }
@@ -1312,8 +1278,8 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCrearEspecialidad')).hide();
         const actualizado = await cargarEspecialidadesDesdeAPI();
         avisoModuloEspecialidades(actualizado
-          ? `La especialidad «${cuerpo.nombre}» se registró correctamente en MongoDB.`
-          : 'La especialidad se registró, pero no se pudo actualizar la tabla. Recarga cuando la API esté disponible.', actualizado ? 'success' : 'warning');
+          ? `La especialidad «${cuerpo.nombre}» se registró correctamente.`
+          : 'La especialidad se registró, pero no se pudo actualizar la tabla. Recarga la página.', actualizado ? 'success' : 'warning');
       } catch (error) {
         console.error('Error al registrar especialidad:', error);
         errorFormularioEspecialidad('errorCrearEspecialidad', error.message || 'No se pudo registrar la especialidad.');
@@ -1354,7 +1320,7 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarEspecialidad')).hide();
         const actualizado = await cargarEspecialidadesDesdeAPI();
         avisoModuloEspecialidades(actualizado
-          ? `La especialidad «${cuerpo.nombre}» se actualizó correctamente en MongoDB.`
+          ? `La especialidad «${cuerpo.nombre}» se actualizó correctamente.`
           : 'La especialidad se actualizó, pero no se pudo recargar la tabla. Intenta actualizar la página.', actualizado ? 'success' : 'warning');
       } catch (error) {
         console.error('Error al editar especialidad:', error);
@@ -1519,7 +1485,7 @@ async function pedirJSONCitas(url, opciones = {}) {
 }
 
 async function cargarCitasAdmin() {
-  mostrarAvisoCitas('Consultando citas en MongoDB...');
+  mostrarAvisoCitas('Cargando citas...');
   try {
     const data = await pedirJSONCitas(API_CITAS_ADMIN);
     if (!Array.isArray(data)) throw new Error('La API no devolvió una lista de citas.');
@@ -1530,7 +1496,7 @@ async function cargarCitasAdmin() {
     actualizarTablaCitas();
     actualizarProximasCitas();
     actualizarReporte();
-    mostrarAvisoCitas(`${citasAdmin.length} cita(s) cargada(s) desde MongoDB. Alta, reprogramación y cancelación disponibles.`);
+    mostrarAvisoCitas('');
     return true;
   } catch (error) {
     console.error('No se pudieron consultar las citas:', error);
@@ -1669,7 +1635,7 @@ formNuevaCita.addEventListener('submit', async event => {
     })});
     bootstrap.Modal.getOrCreateInstance(modalNuevaCita).hide();
     const ok = await cargarCitasAdmin();
-    mostrarAvisoCitas(ok ? 'Cita registrada correctamente en MongoDB.' : 'La cita se guardó, pero la tabla no pudo recargarse. Actualiza la página.', ok ? 'success' : 'warning');
+    mostrarAvisoCitas(ok ? 'Cita registrada correctamente.' : 'La cita se guardó, pero la tabla no pudo recargarse. Actualiza la página.', ok ? 'success' : 'warning');
   } catch (error) {
     ponerAlertaCita(document.getElementById('errorNuevaCita'), error.message);
   } finally {
@@ -1694,7 +1660,7 @@ document.getElementById('formReprogramarCita').addEventListener('submit', async 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReprogramarCita')).hide();
     idCitaSeleccionada = null;
     const ok = await cargarCitasAdmin();
-    mostrarAvisoCitas(ok ? 'Cita reprogramada correctamente en MongoDB.' : 'La cita se modificó, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
+    mostrarAvisoCitas(ok ? 'Cita reprogramada correctamente.' : 'La cita se modificó, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
   } catch (error) {
     ponerAlertaCita(document.getElementById('errorReprogramarCita'), error.message);
   } finally {
@@ -1713,7 +1679,7 @@ document.getElementById('confirmarCancelarCita').addEventListener('click', async
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelarCita')).hide();
     idCitaSeleccionada = null;
     const ok = await cargarCitasAdmin();
-    mostrarAvisoCitas(ok ? 'Cita cancelada correctamente en MongoDB.' : 'La cita se canceló, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
+    mostrarAvisoCitas(ok ? 'Cita cancelada correctamente.' : 'La cita se canceló, pero no se pudo recargar la tabla.', ok ? 'success' : 'warning');
   } catch (error) {
     ponerAlertaCita(document.getElementById('errorCancelarCita'), error.message);
   } finally {
@@ -1906,7 +1872,7 @@ cargarCitasAdmin();
     const filasDoctor = () => [...tablaDoctores.querySelectorAll('tr[data-usuario]')];
     const campoDoctor = id => document.getElementById(id);
     function anunciarDoctores(mensaje, exito = true) {
-      avisoDoctores.className = `alert ${exito ? 'alert-success' : 'alert-warning'} small`;
+      avisoDoctores.className = `alert ${exito ? 'alert-success' : 'alert-warning'} small${mensaje ? '' : ' d-none'}`;
       avisoDoctores.textContent = mensaje;
     }
     function actualizarEstadoDoctorFila(fila) {
@@ -2058,7 +2024,7 @@ cargarCitasAdmin();
 
         errorDoctor(
             'crearDoctorError',
-            'No fue posible cargar los datos desde la API.'
+            'No fue posible cargar los datos.'
         );
 
     } finally {
@@ -2158,7 +2124,7 @@ cargarCitasAdmin();
         const aviso = campoDoctor('avisoDoctores');
         aviso.className = listaActualizada ? 'alert alert-success small' : 'alert alert-warning small';
         aviso.textContent = listaActualizada
-            ? 'Perfil médico registrado correctamente en MongoDB.'
+            ? 'Perfil médico registrado correctamente.'
             : 'El perfil se registró, pero no se pudo recargar la tabla. Verifica la conexión y actualiza la página.';
 
     } catch (error) {
@@ -2307,10 +2273,10 @@ cargarCitasAdmin();
         const aviso = campoDoctor('avisoDoctores');
         if (seRecargo) {
           aviso.className = 'alert alert-success small';
-          aviso.textContent = `Perfil de ${fila.dataset.nombre} actualizado correctamente en MongoDB.`;
+          aviso.textContent = `Perfil de ${fila.dataset.nombre} actualizado correctamente.`;
         } else {
           aviso.className = 'alert alert-warning small';
-          aviso.textContent = 'Los cambios se guardaron, pero no se pudo actualizar la tabla. Recarga la página cuando la API esté disponible.';
+          aviso.textContent = 'Los cambios se guardaron, pero no se pudo actualizar la tabla. Recarga la página.';
         }
       } catch (error) {
         console.error('Error al editar doctor:', error);
@@ -2320,7 +2286,7 @@ cargarCitasAdmin();
           await cargarDoctoresDesdeAPI();
           const aviso = campoDoctor('avisoDoctores');
           aviso.className = 'alert alert-warning small';
-          aviso.textContent = `Error al terminar la edición: ${error.message}. Algunos cambios ya se guardaron en MongoDB; revisa el perfil antes de volver a editar.`;
+          aviso.textContent = `Error al terminar la edición: ${error.message}. Algunos cambios pueden haberse guardado; revisa el perfil antes de volver a editar.`;
         } else {
           errorDoctor('editarDoctorError', error.message || 'No se pudo guardar el perfil.');
         }
@@ -2374,7 +2340,7 @@ cargarCitasAdmin();
         bootstrap.Modal.getOrCreateInstance(campoDoctor('modalEstadoDoctor')).hide();
         const recargado = await cargarDoctoresDesdeAPI();
         anunciarDoctores(recargado
-          ? `${fila.dataset.nombre}: perfil ${activar ? 'activado' : 'desactivado'} en MongoDB.`
+          ? `${fila.dataset.nombre}: perfil ${activar ? 'activado' : 'desactivado'} correctamente.`
           : 'El cambio se guardó, pero no se pudo actualizar la tabla. Recarga la página para comprobarlo.',
           recargado);
       } catch (error) {
@@ -2390,7 +2356,7 @@ cargarCitasAdmin();
         const aviso = document.getElementById("avisoDoctores");
 
         aviso.className = "alert alert-info small";
-        aviso.textContent = "Cargando doctores desde la API...";
+        aviso.textContent = "Cargando doctores...";
 
         try {
             const respuesta = await fetch(
@@ -2460,10 +2426,9 @@ cargarCitasAdmin();
 
             actualizarDoctores();
 
-            aviso.className = "alert alert-info small";
+            aviso.className = "alert alert-info small d-none";
             aviso.textContent =
-                `${doctores.length} perfil(es) cargado(s) desde MongoDB. ` +
-                "Consulta, registro, edición y cambio de estado disponibles mediante la API.";
+                '';
             return true;
 
         } catch (error) {
@@ -2477,7 +2442,7 @@ cargarCitasAdmin();
             aviso.className = "alert alert-danger small";
             aviso.textContent =
                 "No se pudieron cargar los doctores. " +
-                "Comprueba que la API y MongoDB estén funcionando.";
+                "Inténtalo nuevamente.";
             return false;
         }
     }
